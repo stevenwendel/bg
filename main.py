@@ -6,56 +6,26 @@ from src.constants import *
 from src.network import *
 from src.validation import *
 
+diagnostic = True
+
 def main():
-    # Timesetting
-    tMax = 5000
-    dt = 1
+    periods, input_waves, alphaArray = create_experiment(
+                      tMax=tMax,
+                      bin_size=100
+                      )
 
-    go_epoch_length = 400
-    go_signal_duration = 100
+    all_neurons = create_neurons(neuron_names)
 
-    # Creating epochs (unnecessary artifact)
-    epochs = {
-    'sample'   : [1000, 2000], #should there be a [0,1000] epoch?
-    'delay'    : [2000, 3000],
-    'response' : [3000, 4000] #should this be up to 5000?
-    }
+    # Load DNA into matrix
+    dna = load_dna(neuron_names, active_synapses, dna_0)
+    
+    if diagnostic:
+        print("Currently loaded matrix ---")
+        display_matrix(dna, neuron_names)
 
-    bin_size = 100
-    n_bins = tMax / bin_size + 1
-
-    periods = np.linspace(0, tMax, int(n_bins))
+    
 
 
-    # tMax = sum(end - start for start, end in epochs.values())
-
-    # Creating wave inputs
-    sqWave = np.zeros(tMax)
-    goWave = np.zeros(tMax)
-
-    sqWave[epochs['sample'][0]:epochs['sample'][1]] = 145.
-    goWave[epochs['response'][0]:epochs['response'][0] + go_signal_duration] = 850.
-
-    # Instantiating neurons
-    neurons = []
-    for neu in all_nodes:
-        if neu in ["MSN1", "MSN2", "MSN3"]:
-            neuron_instance = Izhikevich(name = neu, neuron_type="msn")
-        else:
-            neuron_instance = Izhikevich(name = neu, neuron_type="rs")
-        globals()[neu] = neuron_instance # Makes instances available globally
-        neurons.append(neuron_instance) # Creates a list of all Iz neurons; note, these are the actual objects, not a list of names!
-
-    SNR1.E = SNR2.E = SNR3.E = 112. 
-    PPN.E = 100.                    
-
-    # Create fixed alpha array of length 250
-    alphaArray = create_alpha_array(250, L=30)
-
-    # Load DNA
-    dna = load_dna(all_nodes, active_synapses, dna_0)
-    print("Currently loaded matrix ---")
-    display_matrix(dna, all_nodes)
 
     return 
 

@@ -1,4 +1,4 @@
-all_nodes = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
+neuron_names = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
 
 active_synapses = [
     ["Somat", "ALMprep"], ["Somat", "MSN1"], ["MSN1", "SNR1"], ["SNR1", "VMprep"],
@@ -23,3 +23,15 @@ criteria_names = [
         "VMresp",
         "PPN"
     ]
+
+
+epochs = {
+    'sample'   : [1000, 2000], #should there be a [0,1000] epoch?
+    'delay'    : [2000, 3000],
+    'response' : [3000, 4000] #should this be up to 5000?
+    }
+tMax = 5000
+dt = 1
+
+go_epoch_length = 400
+go_signal_duration = 100

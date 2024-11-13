@@ -1,13 +1,47 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from src.neuron import Izhikevich
-from src.utils import alpha_fit, load_dna
+from src.constants import *
+from src.neuron import *
+from src.utils import *
 import pandas as pd
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 from IPython.display import display
 
 """ Where is my weight matrix and default neurons? I should create a scratch and use that."""
+def create_experiment(tMax, bin_size=100):
+
+    n_bins = tMax / bin_size + 1
+    periods = np.linspace(0, tMax, int(n_bins))
+
+    # Creating wave inputs
+    sqWave = np.zeros(tMax)
+    goWave = np.zeros(tMax)
+    sqWave[epochs['sample'][0]:epochs['sample'][1]] = 145.
+    goWave[epochs['response'][0]:epochs['response'][0] + go_signal_duration] = 850.
+    input_waves = [sqWave,goWave]
+
+    # Create fixed alpha array of length 250
+    alphaArray = create_alpha_array(250, L=30)
+
+    return periods, input_waves, alphaArray
+
+def create_neurons(neuron_names: list[str]):
+
+    # Instantiating neurons
+    neurons = []
+    for neu in neuron_names:
+        if neu in ["MSN1", "MSN2", "MSN3"]:
+            neuron_instance = Izhikevich(name = neu, neuron_type="msn")
+        else:
+            neuron_instance = Izhikevich(name = neu, neuron_type="rs")
+        globals()[neu] = neuron_instance # Makes instances available globally
+        neurons.append(neuron_instance) # Creates a list of all Iz neurons; note, these are the actual objects, not a list of names!
+
+    SNR1.E = SNR2.E = SNR3.E = 112.0 
+    PPN.E = 100.0 
+    return neurons
+
 def run_network(weight_matrix, neurons, sq_wave, go_wave, t_max, dt, alpha_array, control=False):
     # Initializing neuron records
     for neu in neurons:

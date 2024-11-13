@@ -10,12 +10,12 @@ from plotly.subplots import make_subplots
 def load_dna(all_neurons, free_weights_list, dna):
     assert len(free_weights_list)==len(dna), "Number of available synapses does not match length of DNA"
 
-    w = np.zeros((len(all_nodes), len(all_nodes)))
+    w = np.zeros((len(all_neurons), len(all_neurons)))
     for i, synapse in enumerate(free_weights_list):
         origin, termina = synapse
         
-        origin_index = all_nodes.index(origin)
-        termina_index = all_nodes.index(termina)
+        origin_index = all_neurons.index(origin)
+        termina_index = all_neurons.index(termina)
         w[origin_index, termina_index] = dna[i]
     return w
 
