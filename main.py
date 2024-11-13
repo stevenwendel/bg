@@ -7,6 +7,8 @@ from src.network import *
 from src.validation import *
 
 def main(diagnostic = False, use_saved = True):
+    
+    # === Preparing Network === 
     periods, input_waves, alpha_array = create_experiment(
                       tMax=tMax,
                       bin_size=bin_size
@@ -23,7 +25,10 @@ def main(diagnostic = False, use_saved = True):
         print("Currently loaded matrix ---")
         display_matrix(weights_0, neuron_names)
 
+
+    # === Running Network and Storing Results ====    
     neuron_data = {}
+
     for condition in ['experimental', 'control']:    
         
         if use_saved:
@@ -48,16 +53,26 @@ def main(diagnostic = False, use_saved = True):
                                     go_wave=input_waves[1], 
                                     t_max=tMax, 
                                     show_u=False)
+
+
+    # === Getting differences across bins ====        
     binned_differences = get_binned_differences(
         experimental_neurons=neuron_data['experimental'],
         control_neurons=neuron_data['control'],
         bin_size=bin_size)
+
+    if diagnostic:
+        plot_binned_differences(
+            binned_differences=binned_differences,
+            bin_size=bin_size,
+            neuron_names=neuron_names
+        )
+
+    # === Defining Criteria ===
     
-    plot_binned_differences(
-        binned_differences=binned_differences,
-        bin_size=bin_size,
-        neuron_names=neuron_names
-    )
+
+    # === Scoring ===
+
     
 if __name__ == "__main__":
     main()
