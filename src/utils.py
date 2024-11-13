@@ -1,19 +1,21 @@
-import numpy as np
+import numpy as np  
 import pandas as pd
-from src.constants import all_nodes, my_free_weights
-import pickle
+from src.constants import *
+import pickle   
 import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
 
-def load_dna(free_weights_list, dna):
-    w = np.zeros((len(free_weights_list), len(free_weights_list)))
+def load_dna(all_neurons, free_weights_list, dna):
+    assert len(free_weights_list)==len(dna), "Number of available synapses does not match length of DNA"
+
+    w = np.zeros((len(all_nodes), len(all_nodes)))
     for i, synapse in enumerate(free_weights_list):
         origin, termina = synapse
         
-        origin_index = free_weights_list.index(origin)
-        termina_index = free_weights_list.index(termina)
+        origin_index = all_nodes.index(origin)
+        termina_index = all_nodes.index(termina)
         w[origin_index, termina_index] = dna[i]
     return w
 

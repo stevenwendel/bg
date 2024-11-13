@@ -21,10 +21,10 @@ def main():
     'response' : [3000, 4000] #should this be up to 5000?
     }
 
-    bin_size = 20
-    n_bins = tMax / bin_size
+    bin_size = 100
+    n_bins = tMax / bin_size + 1
 
-    periods = np.linspace(0, tMax, n_bins)
+    periods = np.linspace(0, tMax, int(n_bins))
 
 
     # tMax = sum(end - start for start, end in epochs.values())
@@ -38,7 +38,7 @@ def main():
 
     # Instantiating neurons
     neurons = []
-    for neu in nodes:
+    for neu in all_nodes:
         if neu in ["MSN1", "MSN2", "MSN3"]:
             neuron_instance = Izhikevich(name = neu, neuron_type="msn")
         else:
@@ -50,10 +50,12 @@ def main():
     PPN.E = 100.                    
 
     # Create fixed alpha array of length 250
-    alphaArray = createAlphaArray(250)
+    alphaArray = create_alpha_array(250, L=30)
 
     # Load DNA
-    dna = load_dna(my_free_weights, dna_0)
+    dna = load_dna(all_nodes, active_synapses, dna_0)
+    print("Currently loaded matrix ---")
+    display_matrix(dna, all_nodes)
 
     return 
 

@@ -5,6 +5,7 @@ from src.utils import alpha_fit, load_dna
 import pandas as pd
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
+from IPython.display import display
 
 """ Where is my weight matrix and default neurons? I should create a scratch and use that."""
 def run_network(weight_matrix, neurons, sq_wave, go_wave, t_max, dt, alpha_array, control=False):
@@ -66,7 +67,7 @@ def plot_neurons(neurons, sq_wave, go_wave, t_max):
 
 def display_matrix(matrix, nodes):
     df = pd.DataFrame(matrix, columns=nodes, index=nodes)
-    pd.display(df) #Does this work?
+    display(df) #Does this work?
 
 def plot_neurons_interactive(neurons, sq_wave, go_wave, t_max, show_u=False):
     n_neurons = len(neurons)
