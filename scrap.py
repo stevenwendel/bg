@@ -1,8 +1,12 @@
 import pickle
-from src.utils import get_binned_differences, plot_binned_differences
+from src import *
+from src.neuron import Izhikevich
 import numpy as np
 import pandas as pd
 
+
+
+"""
 # with open('./data/experimental_neurons.pkl', 'rb') as f:
 #     experimental_neurons = pickle.load(f)
 
@@ -47,3 +51,4 @@ difference_criteria_by_epoch = experiment_criteria_by_epoch.combine(
 )
 
 print(difference_criteria_by_epoch)
+"""

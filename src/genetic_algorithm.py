@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from src.utils import load_dna
 from src.network import run_network, plot_neurons
-from validation import score_run
-from validation import define_criteria
+from src.validation import score_run
+from src.validation import define_criteria
 
 def initialize_genetic_algorithm(pop_size=500, mut_rate=0.1, mut_sigma=0.3, rank_depth=None, crossover_point=None, num_gen=10, elite_passthrough=5, bounds=[0, 400], my_free_weights=None, path=''):
     """

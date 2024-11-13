@@ -1,3 +1,5 @@
+# I should make these all caps; will need to learn how to change all varibales across all files though...
+
 neuron_names = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
 
 active_synapses = [
@@ -30,8 +32,13 @@ epochs = {
     'delay'    : [2000, 3000],
     'response' : [3000, 4000] #should this be up to 5000?
     }
+
+bin_size = 250
+
 tMax = 5000
 dt = 1
 
-go_epoch_length = 400
-go_signal_duration = 100
+go_epoch_length = 400 # I should take all the constants from create_experiment and put them here
+go_signal_duration = 100 # / currently, a bunch of parameters are hard-coded in for create_experiment
+
+

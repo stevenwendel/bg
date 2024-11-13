@@ -1,6 +1,7 @@
 import numpy as np  
 import pandas as pd
 from src.constants import *
+from src.neuron import Izhikevich
 import pickle   
 import matplotlib.pyplot as plt
 import plotly.graph_objs as go
@@ -63,7 +64,7 @@ def get_binned_differences(experimental_neurons, control_neurons, bin_size=100):
     binned_differences = (binned_experimental_spikes - binned_control_spikes).astype(int)
     return binned_differences
 
-def plot_binned_differences(binned_differences, bin_size):
+def plot_binned_differences(binned_differences, bin_size, neuron_names):
     tMax = int(len(binned_differences[0]) * bin_size)
     time_intervals = np.arange(0, tMax, bin_size)  # Create time intervals for the x-axis
 
@@ -71,7 +72,7 @@ def plot_binned_differences(binned_differences, bin_size):
     n_cols = 1  # Set to 1 for a single column layout
     n_rows = n_neurons  # Each neuron gets its own row
 
-    fig = make_subplots(rows=n_rows, cols=n_cols, subplot_titles=[name for name in all_nodes])
+    fig = make_subplots(rows=n_rows, cols=n_cols, subplot_titles=[name for name in neuron_names])
 
     hover_template = 'Time: %{x} ms<br>Value: %{y} spikes'
     v_color = 'orange'  # Define a consistent color for spike times
@@ -81,9 +82,16 @@ def plot_binned_differences(binned_differences, bin_size):
     for i, neu in enumerate(binned_differences):
         row = i + 1  
         col = 1
-        fig.add_trace(go.Bar(x=time_intervals, y=neu, name=f'Neuron {i+1}',
-                            marker=dict(color=v_color),  
-                            hovertemplate=hover_template), row=row, col=col)
+        fig.add_trace(go.Bar(
+            x=time_intervals, 
+            y=neu, 
+            name=f'Neuron {i+1}',
+            marker=dict(color=v_color),  
+            hovertemplate=hover_template), 
+            row=row, 
+            col=col
+            )
+
 
         # Calculate the maximum absolute value for symmetric y-axis for each neuron
         max_abs_value = max(abs(neu.min()), abs(neu.max()))
@@ -94,8 +102,12 @@ def plot_binned_differences(binned_differences, bin_size):
     fig.update_layout(
         height=300 * n_rows, 
         width=900, 
-        title_text="Exp-Control Spikes", 
+        title_text="Binned spikes: Experimental - Control", 
         showlegend=False, 
         bargap=0
     )
     fig.show()
+
+def save_neurons(neurons: list[Izhikevich], condition):
+    with open(f"./data/{condition}_neurons.pkl", "wb") as f:
+        pickle.dump(neurons, f)

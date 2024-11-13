@@ -26,7 +26,7 @@ def create_experiment(tMax, bin_size=100):
 
     return periods, input_waves, alphaArray
 
-def create_neurons(neuron_names: list[str]):
+def create_neurons(neuron_names: list[str]) ->list[Izhikevich]:
 
     # Instantiating neurons
     neurons = []
