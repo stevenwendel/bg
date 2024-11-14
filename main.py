@@ -68,12 +68,17 @@ def main(diagnostic = False, use_saved = True):
             neuron_names=neuron_names
         )
 
+    target_binned_differences=get_neurons(binned_differences,criteria_names)
+
     # === Defining Criteria ===
-    
-
+    difference_criteria = define_criteria(4) # Fix this to remove need for epochs; make create_criterion(neuron, on, off)
     # === Scoring ===
+    score = score_run(target_binned_differences, difference_criteria)
 
-    
+    print(score)
+    return 
+
+
 if __name__ == "__main__":
     main()
 
