@@ -50,14 +50,18 @@ criteria_times = {
     "Somat": [epochs['sample'][0], epochs['sample'][1]],
     "ALMprep": [epochs['sample'][0], epochs['delay'][1]],
     "ALMinter": [epochs['response'][0], epochs['response'][0] + 300],
-    "ALMresp": [epochs['delay'][0], epochs['delay'][1]],
+    "ALMresp": [epochs['delay'][0], epochs['delay'][1]], #tMax -250?
     "SNR1": [epochs['sample'][0], epochs['delay'][1]],
     "SNR2": [epochs['response'][0], tMax-250],
     "VMprep": [epochs['sample'][0], epochs['sample'][1]],
     "VMresp": [epochs['response'][0], tMax-250],
-    "PPN": [epochs[''][0], epochs[''][1]]
+    "PPN": [epochs['response'][0], epochs['response'][0]+250]
 }, "control_criterion" : {
-    
+    "ALMinter": [epochs['response'][0], epochs['response'][0] + 300],
+    "SNR1": [0,tMax],
+    "SNR2": [0,tMax], 
+    "PPN": [epochs['response'][0], epochs['response'][0]+250],
+
     
 
 }

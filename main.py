@@ -14,8 +14,7 @@ def main(diagnostic = True, use_saved = True):
                       tMax=tMax,
                       bin_size=bin_size
                       )
-
-
+    
     # Create list of calibrated Izhikevich neurons
     all_neurons = create_neurons(neuron_names)
 
