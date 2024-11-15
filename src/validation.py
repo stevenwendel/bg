@@ -71,19 +71,20 @@ def score_run(binned_differences_df, diff_criteria_df):
                 score -= 1
     return score
 
-def define_criteria(number_of_subdivisions):
+def define_criteria(num_periods):
     """
     Defines the experiment and control criteria based on epochs and subdivisions.
     
     Parameters:
         epochs (dict): Dictionary defining epoch names and their time ranges.
-        number_of_subdivisions (int): Number of subdivisions per epoch.
+        num_periods (int): Number of subdivisions per epoch.
         validation_neurons (list of Izhikevich): List of neurons to validate.
         my_free_weights_names (list of str): Names of the free weights.
     
     Returns:
         tuple: (experiment_criteria, control_criteria, validation_period_times, validation_period_names)
     """
+    
     # Experiment criteria by epoch
     experiment_criteria_by_epoch = np.array([
         [0, 1, 0, 0, 0],  # Somat
@@ -109,10 +110,11 @@ def define_criteria(number_of_subdivisions):
         [0, 0, 0, 0, 0],  # VMresp
         [0, 0, 0, 0, 0]   # PPN
     ])
+    num_epochs = experiment_criteria_by_epoch.shape[1]
 
     broadcasted_difference = np.repeat(
         experiment_criteria_by_epoch - control_criteria_by_epoch, 
-        number_of_subdivisions, 
+        repeats=num_periods/num_epochs, 
         axis=1
     )
     return broadcasted_difference

@@ -14,6 +14,24 @@ dna_0 = [75., 205., -90., -10., 65., 80., 320., -50., -50., -100., 60., 45., 30.
 
 # my_free_weights_names = ["_".join(synapse) for synapse in active_synapses] # Do I need this?
 
+epochs = {
+    'sample'   : [1000, 2000], #should there be a [0,1000] epoch?
+    'delay'    : [2000, 3000],
+    'response' : [3000, 4000] #should this be up to 5000?
+    }
+
+
+bin_size = 250
+
+tMax = 5000
+dt = 1
+
+go_epoch_length = 400 # I should take all the constants from create_experiment and put them here
+go_signal_duration = 100 # / currently, a bunch of parameters are hard-coded in for create_experiment
+
+
+
+
 criteria_names = [
         "Somat",
         "ALMprep",
@@ -27,18 +45,23 @@ criteria_names = [
     ]
 
 
-epochs = {
-    'sample'   : [1000, 2000], #should there be a [0,1000] epoch?
-    'delay'    : [2000, 3000],
-    'response' : [3000, 4000] #should this be up to 5000?
-    }
+criteria_times = {
+"experimental_criterion" : {
+    "Somat": [epochs['sample'][0], epochs['sample'][1]],
+    "ALMprep": [epochs['sample'][0], epochs['delay'][1]],
+    "ALMinter": [epochs['response'][0], epochs['response'][0] + 300],
+    "ALMresp": [epochs['delay'][0], epochs['delay'][1]],
+    "SNR1": [epochs['sample'][0], epochs['delay'][1]],
+    "SNR2": [epochs['response'][0], tMax-250],
+    "VMprep": [epochs['sample'][0], epochs['sample'][1]],
+    "VMresp": [epochs['response'][0], tMax-250],
+    "PPN": [epochs[''][0], epochs[''][1]]
+}, "control_criterion" : {
+    
+    
 
-bin_size = 250
+}
 
-tMax = 5000
-dt = 1
+    
 
-go_epoch_length = 400 # I should take all the constants from create_experiment and put them here
-go_signal_duration = 100 # / currently, a bunch of parameters are hard-coded in for create_experiment
-
-
+}
