@@ -1,8 +1,18 @@
 # I should make these all caps; will need to learn how to change all varibales across all files though...
+MAX_TRIALS = 100
 
-neuron_names = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
+TMAX = 5000
+BIN_SIZE = 250
 
-active_synapses = [
+GO_DURATION = 400 # I should take all the constants from create_experiment and put them here
+GO_STRENGTH = 850.
+CUE_STRENGTH = 145.
+
+DNA_0 = [75., 205., -90., -10., 65., 80., 320., -50., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320.]
+
+NEURON_NAMES = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
+
+ACTIVE_SYNAPSES = [
     ["Somat", "ALMprep"], ["Somat", "MSN1"], ["MSN1", "SNR1"], ["SNR1", "VMprep"],
     ["VMprep", "ALMprep"], ["ALMprep", "VMprep"], ["ALMprep", "MSN2"], ["MSN2", "SNR2"],
     ["SNR2", "VMprep"], ["SNR2", "VMresp"], ["PPN", "THALgo"], ["THALgo", "ALMinter"],
@@ -10,29 +20,17 @@ active_synapses = [
     ["VMresp", "ALMresp"], ["ALMresp", "VMresp"], ["ALMresp", "MSN3"]
 ]
 
-dna_0 = [75., 205., -90., -10., 65., 80., 320., -50., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320.]
-
-# my_free_weights_names = ["_".join(synapse) for synapse in active_synapses] # Do I need this?
-
-epochs = {
+EPOCHS = {
     'sample'   : [1000, 2000], #should there be a [0,1000] epoch?
     'delay'    : [2000, 3000],
     'response' : [3000, 4000] #should this be up to 5000?
     }
 
 
-bin_size = 250
-
-tMax = 5000
-dt = 1
-
-go_epoch_length = 400 # I should take all the constants from create_experiment and put them here
 go_signal_duration = 100 # / currently, a bunch of parameters are hard-coded in for create_experiment
 
 
-
-
-criteria_names = [
+CRITERIA_NAMES = [
         "Somat",
         "ALMprep",
         "ALMinter",
@@ -45,27 +43,22 @@ criteria_names = [
     ]
 
 
-criteria_times = {
-"experimental_criterion" : {
-    "Somat": [epochs['sample'][0], epochs['sample'][1]],
-    "ALMprep": [epochs['sample'][0], epochs['delay'][1]],
-    "ALMinter": [epochs['response'][0], epochs['response'][0] + 300],
-    "ALMresp": [epochs['delay'][0], epochs['delay'][1]], #tMax -250?
-    "SNR1": [epochs['sample'][0], epochs['delay'][1]],
-    "SNR2": [epochs['response'][0], tMax-250],
-    "VMprep": [epochs['sample'][0], epochs['sample'][1]],
-    "VMresp": [epochs['response'][0], tMax-250],
-    "PPN": [epochs['response'][0], epochs['response'][0]+250]
-}, "control_criterion" : {
-    "ALMinter": [epochs['response'][0], epochs['response'][0] + 300],
-    "SNR1": [0,tMax],
-    "SNR2": [0,tMax], 
-    "PPN": [epochs['response'][0], epochs['response'][0]+250],
-
-    
-
-}
-
-    
-
-}
+CRITERIA_TIMES = {
+    "experimental_criterion" : {
+        "Somat": [EPOCHS['sample'][0], EPOCHS['sample'][1]],
+        "ALMprep": [EPOCHS['sample'][0], EPOCHS['delay'][1]],
+        "ALMinter": [EPOCHS['response'][0], EPOCHS['response'][0] + 300],
+        "ALMresp": [EPOCHS['delay'][0], EPOCHS['delay'][1]], #tMax -250?
+        "SNR1": [EPOCHS['sample'][0], EPOCHS['delay'][1]],
+        "SNR2": [EPOCHS['response'][0], TMAX-250],
+        "VMprep": [EPOCHS['sample'][0], EPOCHS['sample'][1]],
+        "VMresp": [EPOCHS['response'][0], TMAX-250],
+        "PPN": [EPOCHS['response'][0], EPOCHS['response'][0]+250]
+        }, 
+    "control_criterion" : {
+        "ALMinter": [EPOCHS['response'][0], EPOCHS['response'][0] + 300],
+        "SNR1": [0,TMAX],
+        "SNR2": [0,TMAX], 
+        "PPN": [EPOCHS['response'][0], EPOCHS['response'][0]+250]
+        }
+    }

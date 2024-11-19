@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from .constants import *
+from src.constants import *
 
 # def is_firing(neu, window, threshold, validation_state):
 #     """
@@ -45,13 +45,12 @@ from .constants import *
 #     total_score = sum(neuron_period_scores)
 #     return total_score, neuron_period_scores
 
-def score_run(binned_differences_df, diff_criteria_df):
+def score_run(binned_differences_df: pd.DataFrame, diff_criteria_df: pd.DataFrame):
     if binned_differences_df is not pd.DataFrame:
         binned_differences_df = pd.DataFrame(binned_differences_df)
     if diff_criteria_df is not pd.DataFrame:
         diff_criteria_df = pd.DataFrame(diff_criteria_df)
-    print(binned_differences_df.shape)
-    print(diff_criteria_df.shape)    
+     
     assert (binned_differences_df.shape == diff_criteria_df.shape), "Shapes are incongruent"
 
     score = 0
@@ -119,18 +118,6 @@ def define_criteria(num_periods):
     )
     return broadcasted_difference
 
-def get_neurons(binned_differences,criteria_names):
-    df=pd.DataFrame(binned_differences, index=neuron_names)
-    criteria_names=criteria_names
-
-    # Find the indices in neuron_names that match criteria_names
-    matching_indices = [i for i, name in enumerate(neuron_names) if name in criteria_names]
-    
-    # Use these indices to filter the DataFrame
-    filtered_df = df.iloc[matching_indices]
-    
-    # Convert the filtered DataFrame back to a NumPy array
-    return filtered_df.to_numpy()
 
 
 

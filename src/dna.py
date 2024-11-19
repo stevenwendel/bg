@@ -7,69 +7,50 @@ from src.network import *
 from src.validation import *
 from copy import deepcopy
 
+
+def load_dna(dna: list[float]) -> np.ndarray:
+    assert len(ACTIVE_SYNAPSES) == len(dna), "Number of available synapses does not match length of DNA"
+
+    w = np.zeros((len(NEURON_NAMES), len(NEURON_NAMES)))
+    for i, synapse in enumerate(ACTIVE_SYNAPSES):
+        origin, termina = synapse
+        
+        origin_index = NEURON_NAMES.index(origin)
+        termina_index = NEURON_NAMES.index(termina)
+        w[origin_index, termina_index] = dna[i]
+    return w
+
+
 # === Running Network and Storing Results ====    
-def evaluate_dna(dna):
-    # Load DNA into matrix
-    weights_0 = load_dna(neuron_names, active_synapses, dna)
-    
-    if diagnostic:
-        print("Currently loaded matrix ---")
-        display_matrix(weights_0, neuron_names)
-    
+def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
+    # Note: returns binned differences of ALL neurons, not just the target ones.
+    # Can use get_neurons() if you want to retrieve specific neuron differences. 
     neuron_data = {}
 
     for condition in ['experimental', 'control']:    
+
+        prepare_neurons(
+            neurons=neurons,
+            cue_wave=input_waves[0],
+            go_wave=input_waves[1],
+            control=True if condition == 'control' else False
+        )
         
-        if use_saved:
-            with open(f'./data/{condition}_neurons.pkl', 'rb') as f:
-                neuron_data[condition]= pickle.load(f)
-
-        else:
-            run_network(weight_matrix=weights_0, 
-                        neurons=all_neurons, 
-                        sq_wave=input_waves[0],
-                        go_wave=input_waves[1],
-                        t_max=tMax, # I have this written as t_max and tMax throughout; should homogenize
-                        dt=dt, 
-                        alpha_array=alpha_array,
-                        control=False if condition == 'experimental' else True
-                        )
-            neuron_data[condition] = deepcopy(all_neurons)
-
-        if diagnostic:
-            plot_neurons_interactive(neurons=neuron_data[condition],
-                                    sq_wave=input_waves[0], 
-                                    go_wave=input_waves[1], 
-                                    t_max=tMax, 
-                                    show_u=False)
+        run_network(
+            neurons=neurons,
+            weight_matrix=dna_matrix, # I have this written as t_max and tMax throughout; should homogenize
+            alpha_array=alpha_array,
+            )
+        neuron_data[condition] = deepcopy(neurons)
     
     # === Getting differences across bins ====        
     binned_differences = get_binned_differences(
         experimental_neurons=neuron_data['experimental'],
-        control_neurons=neuron_data['control'],
-        bin_size=bin_size)
+        control_neurons=neuron_data['control'])
 
-    if diagnostic:
-        plot_binned_differences(
-            binned_differences=binned_differences,
-            bin_size=bin_size,
-            neuron_names=neuron_names
-        )
+    target_binned_differences=get_neurons(binned_differences, CRITERIA_NAMES) #CRITERIA NAMES MISSING FROM ARGUMENT
 
-    target_binned_differences=get_neurons(binned_differences,criteria_names)
-
-    # === Defining Criteria ===
-    difference_criteria = define_criteria(len(periods)-1) # Fix this to remove need for epochs; make create_criterion(neuron, on, off)
     # === Scoring ===
-    score = score_run(target_binned_differences, difference_criteria)
+    score = score_run(target_binned_differences, criteria)
     
-    # === Save score to pkl ===
-    with open('./data/run_data.pkl','ab') as f:
-        pickle.dump((
-            dna,
-            score,
-            neuron_data, 
-            binned_differences
-            ),f
-        )
-    return score
+    return score, neuron_data, binned_differences 

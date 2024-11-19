@@ -1,4 +1,5 @@
 import numpy as np
+from src.constants import *
 
 class Izhikevich:
     """A simple Izhikevich neuron.
@@ -21,17 +22,17 @@ class Izhikevich:
     def __str__(self):
         return f"Voltage is set to {self.V} and recovery to {self.u}"
 
-    def restart(self):
+    def reset(self):
         self.V = self.vr
         self.u = 0.0
 
-    def update(self, dt, I_ext=0, sigma=0):
+    def update(self, I_ext=0, sigma=0): 
         noise = np.random.normal(0, 10)
         dV = (self.k * (self.V - self.vr) * (self.V - self.vt) - self.u + I_ext + self.E + sigma * noise) / self.C
         du = self.a * (self.b * (self.V - self.vr) - self.u)
 
-        self.V += dV * dt
-        self.u += du * dt
+        self.V += dV    # Note: dt=1
+        self.u += du    # Note: dt=1
 
         if self.V >= self.vpeak:
             self.V = self.vreset
@@ -41,3 +42,35 @@ class Izhikevich:
 
         self.spiked = False
         return self.V, self.u, self.spiked
+    
+
+def create_neurons() ->list[Izhikevich]:
+
+    # Instantiating neurons
+    neurons = []
+    for neu in NEURON_NAMES:
+        if neu in ["MSN1", "MSN2", "MSN3"]:
+            neuron_instance = Izhikevich(name = neu, neuron_type="msn")
+        else:
+            neuron_instance = Izhikevich(name = neu, neuron_type="rs")
+        globals()[neu] = neuron_instance # Makes instances available globally
+        neurons.append(neuron_instance) # Creates a list of all Iz neurons; note, these are the actual objects, not a list of names!
+
+    SNR1.E = SNR2.E = SNR3.E = 112.0 
+    PPN.E = 100.0 
+    return neurons
+
+def prepare_neurons(neurons: list[Izhikevich], cue_wave, go_wave, control):
+    for neu in neurons:
+        neu.reset() 
+        neu.input = np.zeros(TMAX)
+        neu.spike_times = np.zeros(TMAX)
+        neu.hist_V = np.zeros(TMAX)
+        neu.hist_u = np.zeros(TMAX)
+        neu.hist_V[0] = neu.V
+        neu.hist_u[0] = neu.u
+
+        if neu.name == "Somat" and not control:
+            neu.input += cue_wave
+        if neu.name == "PPN":
+            neu.input += go_wave

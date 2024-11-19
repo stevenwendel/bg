@@ -1,109 +1,86 @@
+import sys, os
+
+# Add the src directory to sys.path
+src_path = os.path.join(os.path.dirname(__file__), 'src')
+sys.path.append(src_path)
+
 import numpy as np
 import pandas as pd
+
 from src.neuron import *
 from src.utils import *
 from src.constants import * 
-from src.constants import dna_0
 from src.network import *
 from src.validation import *
+from src.dna import *
+from src.viz import *
 from copy import deepcopy
 
-def main(diagnostic = False, use_saved = True):
+def main():
+    diagnostic = {
+        'show_dna_matrix' : True,
+        'show_neuron_plots' : False,
+        'show_difference_histogram' : False,
+        'show_dna_scores': True
+    }
+
+    # === Creating Izhikevich neurons ===
+    # Note: these do NOT have instrisic histories
+    all_neurons = create_neurons()
     
     # === Preparing Network === 
-    periods, input_waves, alpha_array = create_experiment(
-                      tMax=tMax,
-                      bin_size=bin_size
-                      )
+    periods, input_waves, alpha_array = create_experiment()
+
+    # === Defining Criteria === # NEED TO FIX IN VALIDATION.PY FILE
+    difference_criteria = define_criteria(len(periods)-1) # Fix this to remove need for epochs; make create_criterion(neuron, on, off)
+
+    # === Evaluating DNA ===
+    # Initializing first dna sample: Can be loaded (dna_0) or attained through SA
+    test_dna=DNA_0
+
+    # Loop
+    for trial in range(MAX_TRIALS):
+        pass
     
-    # Create list of calibrated Izhikevich neurons
-    all_neurons = create_neurons(neuron_names)
+    # Loading dna into matrix
+    dna_matrix = load_dna(test_dna) 
 
-    # === Running Network and Storing Results ====    
-    def evaluate_dna(dna):
-        # Load DNA into matrix
-        weights_0 = load_dna(neuron_names, active_synapses, dna)
-        
-        if diagnostic:
-            print("Currently loaded matrix ---")
-            display_matrix(weights_0, neuron_names)
-        
-        neuron_data = {}
+    # Running network to score dna
+    dna_score, neuron_data, binned_differences = evaluate_dna(
+        dna_matrix=dna_matrix,
+        neurons=all_neurons,
+        alpha_array=alpha_array,
+        input_waves=input_waves,
+        criteria=difference_criteria
+        )
+    
+    # Pickle run data 
+    with open('./data/run_data.pkl','ab') as f:
+        pickle.dump((test_dna, dna_score, neuron_data, binned_differences),f)
 
-        for condition in ['experimental', 'control']:    
+    # Show diagnostic feedback
+    if diagnostic['show_dna_matrix']:
+        print("Currently loaded matrix ---")
+        display_matrix(dna_matrix, NEURON_NAMES)
+
+    if diagnostic['show_dna_scores']:
+        print(f'{dna_score=}: {test_dna}')
+    
+    if diagnostic['show_neuron_plots']:
+        for condition in ['experimental', 'control']:
+            plot_neurons_interactive(
+                        neurons=neuron_data[condition],
+                        sq_wave=input_waves[0], 
+                        go_wave=input_waves[1], 
+                        show_u=False)
             
-            if use_saved:
-                with open(f'./data/{condition}_neurons.pkl', 'rb') as f:
-                    neuron_data[condition]= pickle.load(f)
+    if diagnostic['show_difference_histogram']:
+        plot_binned_differences(binned_differences)
 
-            else:
-                run_network(weight_matrix=weights_0, 
-                            neurons=all_neurons, 
-                            sq_wave=input_waves[0],
-                            go_wave=input_waves[1],
-                            t_max=tMax, # I have this written as t_max and tMax throughout; should homogenize
-                            dt=dt, 
-                            alpha_array=alpha_array,
-                            control=False if condition == 'experimental' else True
-                            )
-                neuron_data[condition] = deepcopy(all_neurons)
-
-            if diagnostic:
-                plot_neurons_interactive(neurons=neuron_data[condition],
-                                        sq_wave=input_waves[0], 
-                                        go_wave=input_waves[1], 
-                                        t_max=tMax, 
-                                        show_u=False)
-        
-        # === Getting differences across bins ====        
-        binned_differences = get_binned_differences(
-            experimental_neurons=neuron_data['experimental'],
-            control_neurons=neuron_data['control'],
-            bin_size=bin_size)
-
-        if diagnostic:
-            plot_binned_differences(
-                binned_differences=binned_differences,
-                bin_size=bin_size,
-                neuron_names=neuron_names
-            )
-
-        target_binned_differences=get_neurons(binned_differences,criteria_names)
-
-        # === Defining Criteria ===
-        difference_criteria = define_criteria(len(periods)-1) # Fix this to remove need for epochs; make create_criterion(neuron, on, off)
-        # === Scoring ===
-        score = score_run(target_binned_differences, difference_criteria)
-        
-        # === Save score to pkl ===
-        with open('./data/run_data.pkl','ab') as f:
-            pickle.dump((
-                dna,
-                score,
-                neuron_data, 
-                binned_differences
-                ),f
-            )
-        return score
     
-    test_dna=dna_0
-    dna_score = evaluate_dna(test_dna)
-    print(f'{dna_score=}: {test_dna}')
+    
+    # test_dna=create_dna() # --> use simulated annealing
 
-    # === Save score to pkl === (can extract from above, but this is a shortcut)
-    with open('./data/dna_scores.pkl','ab') as f:
-        pickle.dump((test_dna,dna_score), f)
-
-    # === Testing loading ===
-    with open('./data/dna_scores.pkl','rb') as f:
-        try:
-            while True:
-                # Load each (dna_score, dna_0) pair
-                dna_score, test_dna = pickle.load(f)
-                print(f'Loaded dna_score: {dna_score}, dna_0: {test_dna}')
-        except EOFError:
-            # End of file reached
-            pass
 
 
 if __name__ == "__main__":
