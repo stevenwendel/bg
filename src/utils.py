@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-
+# Unnecessary now?
 def load_dna(all_neurons, free_weights_list, dna):
     assert len(free_weights_list)==len(dna), "Number of available synapses does not match length of DNA"
 

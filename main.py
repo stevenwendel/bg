@@ -6,8 +6,9 @@ from src.constants import *
 from src.constants import dna_0
 from src.network import *
 from src.validation import *
+from copy import deepcopy
 
-def main(diagnostic = True, use_saved = True):
+def main(diagnostic = False, use_saved = True):
     
     # === Preparing Network === 
     periods, input_waves, alpha_array = create_experiment(
@@ -45,7 +46,7 @@ def main(diagnostic = True, use_saved = True):
                             alpha_array=alpha_array,
                             control=False if condition == 'experimental' else True
                             )
-                neuron_data[condition] = all_neurons
+                neuron_data[condition] = deepcopy(all_neurons)
 
             if diagnostic:
                 plot_neurons_interactive(neurons=neuron_data[condition],
