@@ -58,6 +58,8 @@ def main():
     with open('./data/run_data.pkl','ab') as f:
         pickle.dump((test_dna, dna_score, neuron_data, binned_differences),f)
 
+
+
     # Show diagnostic feedback
     if diagnostic['show_dna_matrix']:
         print("Currently loaded matrix ---")
