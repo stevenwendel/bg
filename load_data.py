@@ -34,4 +34,22 @@ file_path2 = './data/dfs.pkl'
 # profile.to_file("your_report.html")
 
 df = pd.read_pickle(file_path2)
-print(df)
+
+# Check the DataFrame's index
+print("DataFrame Index:", df.index)
+
+# Print a portion of the DataFrame
+print("DataFrame Head:\n", df.head())
+
+# Use try-except to handle potential errors
+try:
+    print(df.loc["dna_score"])
+except KeyError as e:
+    print(f"KeyError: {e} - 'dna_score' not found in the index.")
+
+# Access the "dna_score" column
+try:
+    dna_score_column = df["dna_score"]
+    print("dna_score Column:\n", dna_score_column)
+except KeyError as e:
+    print(f"KeyError: {e} - 'dna_score' column not found.")
