@@ -1,8 +1,43 @@
 import pickle
-from src import *
-from src.neuron import Izhikevich
+from src.genetic_algorithm import * 
 import numpy as np
 import pandas as pd
+
+
+# # Create single DNA
+# dna = create_dna([0,10])
+
+# # Mutate all genes in DNA
+# for i, gene in enumerate(dna):
+#     dna[i] = random.normalvariate(gene,MUT_SIGMA)
+
+# Create POP_SIZE 
+curr_population=[create_dna(DNA_BOUNDS) for _ in range(POP_SIZE)]
+population_results = []
+
+for i, curr_dna in enumerate(curr_population):
+    dna_score  = random.randint(40,80)
+
+    population_results.append({
+        'dna': curr_dna,
+        'dna_score' : dna_score
+    })
+
+print(population_results)
+
+new_population = spawn_next_population(population_results)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -51,4 +86,5 @@ difference_criteria_by_epoch = experiment_criteria_by_epoch.combine(
 )
 
 print(difference_criteria_by_epoch)
+
 """

@@ -14,6 +14,7 @@ from src.network import *
 from src.validation import *
 from src.dna import *
 from src.viz import *
+from src.genetic_algorithm import *
 from copy import deepcopy
 
 def main():
@@ -35,49 +36,52 @@ def main():
     difference_criteria = define_criteria(len(periods)-1) # Fix this to remove need for epochs; make create_criterion(neuron, on, off)
 
     # === Evaluating DNA ===
-    # Initializing first dna sample: Can be loaded (dna_0) or attained through SA
-    test_dna=DNA_0
-
-    # Loop
-    for trial in range(MAX_TRIALS):
-        pass
+    curr_population = [create_dna(DNA_BOUNDS) for _ in range(POP_SIZE)]
     
-    # Loading dna into matrix
-    dna_matrix = load_dna(test_dna) 
+    for generation in range(NUM_GENERATIONS):
+        print(f"Generation {generation+1}")
+        population_results = []
 
-    # Running network to score dna
-    dna_score, neuron_data, binned_differences = evaluate_dna(
-        dna_matrix=dna_matrix,
-        neurons=all_neurons,
-        alpha_array=alpha_array,
-        input_waves=input_waves,
-        criteria=difference_criteria
-        )
-    
-    # Pickle run data 
-    with open('./data/run_data.pkl','ab') as f:
-        pickle.dump((test_dna, dna_score, neuron_data, binned_differences),f)
+        for i, curr_dna in enumerate(curr_population):
+            # Loading dna into matrix
+            dna_matrix = load_dna(curr_dna) 
 
-
-
-    # Show diagnostic feedback
-    if diagnostic['show_dna_matrix']:
-        print("Currently loaded matrix ---")
-        display_matrix(dna_matrix, NEURON_NAMES)
-
-    if diagnostic['show_dna_scores']:
-        print(f'{dna_score=}: {test_dna}')
-    
-    if diagnostic['show_neuron_plots']:
-        for condition in ['experimental', 'control']:
-            plot_neurons_interactive(
-                        neurons=neuron_data[condition],
-                        sq_wave=input_waves[0], 
-                        go_wave=input_waves[1], 
-                        show_u=False)
+            # Running network to score dna
+            dna_score, neuron_data, binned_differences = evaluate_dna(
+                dna_matrix=dna_matrix,
+                neurons=all_neurons,
+                alpha_array=alpha_array,
+                input_waves=input_waves,
+                criteria=difference_criteria
+                )
             
-    if diagnostic['show_difference_histogram']:
-        plot_binned_differences(binned_differences)
+            population_results.append({
+                'dna': curr_dna,
+                'dna_score' : dna_score
+            })
+
+            # Pickle run data 
+            with open('./data/run_data.pkl','ab') as f:
+                pickle.dump((generation, curr_dna, dna_score, neuron_data, binned_differences),f)
+
+
+            # Show diagnostic feedback
+            if diagnostic['show_dna_matrix']:
+                print("Currently loaded matrix ---")
+                display_matrix(dna_matrix, NEURON_NAMES)
+
+            if diagnostic['show_dna_scores']:
+                print(f'{dna_score=}: {curr_dna}')
+            
+            if diagnostic['show_neuron_plots']:
+                for condition in ['experimental', 'control']:
+                    plot_neurons_interactive(neurons=neuron_data[condition], sq_wave=input_waves[0], go_wave=input_waves[1], show_u=False)
+                    
+            if diagnostic['show_difference_histogram']:
+                plot_binned_differences(binned_differences)
+            
+        curr_population = spawn_next_population(population_results)
+        print(curr_population)
 
     
     

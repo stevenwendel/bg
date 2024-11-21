@@ -1,9 +1,21 @@
 # I should make these all caps; will need to learn how to change all varibales across all files though...
-MAX_TRIALS = 100
 
+# Genetic Algorithm Config
+GA_CONFIG = {}
+NUM_GENERATIONS = 2
+POP_SIZE = 3
+MUT_RATE = 0.1
+MUT_SIGMA = 0.3
+RANK_DEPTH = 2
+ELITE_SIZE = 0
+CROSSOVER_POINT = None # Randomly selecting all genes
+DNA_BOUNDS = [0,400]
+
+# Time Config
 TMAX = 5000
 BIN_SIZE = 250
 
+# Setup Config
 GO_DURATION = 400 # I should take all the constants from create_experiment and put them here
 GO_STRENGTH = 850.
 CUE_STRENGTH = 145.
