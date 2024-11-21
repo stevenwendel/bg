@@ -60,12 +60,12 @@ def score_run(binned_differences_df: pd.DataFrame, diff_criteria_df: pd.DataFram
         # print(f'{neuron_ts=}')
         # print(f'{criteria_ts=}')    
         for period in criteria_ts.index:
-            expected = True if abs(criteria_ts[period]) > 0 else False
-            active = neuron_ts[period] > 0
+            expected = True if criteria_ts[period] > 0 else False
+            active = abs(neuron_ts[period]) > 0
             if active and expected:
                 score += 1
             elif not active and not expected:
-                score += 1
+                score += 0
             else:
                 score -= 1
     return score

@@ -20,8 +20,8 @@ from copy import deepcopy
 def main():
     diagnostic = {
         'show_dna_matrix' : False,
-        'show_neuron_plots' : True,
-        'show_difference_histogram' : True,
+        'show_neuron_plots' : False,
+        'show_difference_histogram' : False,
         'show_dna_scores': False
     }
 
@@ -57,7 +57,7 @@ def main():
                 criteria=difference_criteria
                 )
             
-            print(f'{generation+1}.{i+1} score: {dna_score}, DNA: {curr_dna}')
+            print(f'{generation}.{i+1} score: {dna_score}, DNA: {curr_dna}')
 
             population_results.append({
                 'dna': curr_dna,
@@ -80,7 +80,16 @@ def main():
             # Pickle run data 
             with open('./data/run_data.pkl','ab') as f:
                 pickle.dump(data_glob, f)
-            
+
+            # if generation == 1 and i==8:
+            #     diagnostic = {
+            #         'show_dna_matrix' : False,
+            #         'show_neuron_plots' : True,
+            #         'show_difference_histogram' : True,
+            #         'show_dna_scores': False
+            #     }
+
+
             # Show diagnostic feedback
             if diagnostic['show_dna_matrix']:
                 print("Currently loaded matrix ---")
