@@ -46,7 +46,7 @@ def spawn_next_population(curr_pop: list[list[float]]) -> list[list[float]]:
 
         for i, synapse in enumerate(ACTIVE_SYNAPSES):
             gene = random.choice([parent1[i], parent2[i]])
-            gene = random.normalvariate(gene, MUT_SIGMA) if random.random() < MUT_RATE else gene
+            gene = random.normalvariate(gene, gene * MUT_SIGMA) if random.random() < MUT_RATE else gene
             child_dna.append(int(gene))
 
         next_dnas.append(child_dna)

@@ -59,6 +59,10 @@ def main():
             
             print(f'{generation}.{i+1} score: {dna_score}, DNA: {curr_dna}')
 
+            # TURN SCORE INTO PERCENT, 
+            # SO THAT IT HAS RELATIVE MEANING 
+            # WHEN NUM_PERIODS CHANGE
+
             population_results.append({
                 'dna': curr_dna,
                 'dna_score' : dna_score

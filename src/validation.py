@@ -65,7 +65,7 @@ def score_run(binned_differences_df: pd.DataFrame, diff_criteria_df: pd.DataFram
             if active and expected:
                 score += 1
             elif not active and not expected:
-                score += 0
+                score += 1
             else:
                 score -= 1
     return score
