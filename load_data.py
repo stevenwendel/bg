@@ -1,26 +1,37 @@
 import pickle
 import pandas as pd
-import numpy as np
-file_path = './data/run_data.pkl'
+from ydata_profiling import ProfileReport
 
+file_path1 = './data/run_data.pkl'
+file_path2 = './data/dfs.pkl'
 
-with open(file_path,'rb') as f:
-        try:
-            while True:
-                item = pickle.load(f)
-                print(f'{item[0]=}')
-                print(f'{item[1]=}')
-                print(f'{item[2]=}')
-                print(f'{item[3]=}')
-                print(f'{item[4]=}')
-                
-        except EOFError:
-            # End of file reached
-            pass
+# def pkl_to_dataframe(file_path: str) -> pd.DataFrame:
+#     data = []
 
-"""            with open('./data/run_data.pkl','ab') as f:
-                pickle.dump((generation, curr_dna, dna_score, neuron_data, binned_differences),f)
-"""
+#     with open(file_path, 'rb') as file:
+#         try:
+#             while True:
+#                 # Load each dictionary from the pickle file
+#                 item = pickle.load(file)
+#                 data.append(item)
+#         except EOFError:
+#             # End of file reached
+#             pass
 
+#     # Convert the list of dictionaries to a DataFrame
+#     df = pd.DataFrame(data, columns=["generation", "curr_dna","dna_score", "neuron_data", "binned_differences"])
+#     return df
 
-# load_neurons('data/run_data.pkl')
+# # Example usage
+
+# df = pkl_to_dataframe(file_path)
+# print(df)
+
+# # Generate the profile report
+# profile = ProfileReport(df, title="Pandas Profiling Report", explorative=True)
+
+# # Save the report to an HTML file
+# profile.to_file("your_report.html")
+
+df = pd.read_pickle(file_path2)
+print(df)

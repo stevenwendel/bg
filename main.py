@@ -6,7 +6,7 @@ sys.path.append(src_path)
 
 import numpy as np
 import pandas as pd
-
+import shelve
 from src.neuron import *
 from src.utils import *
 from src.constants import * 
@@ -19,10 +19,10 @@ from copy import deepcopy
 
 def main():
     diagnostic = {
-        'show_dna_matrix' : True,
-        'show_neuron_plots' : False,
-        'show_difference_histogram' : False,
-        'show_dna_scores': True
+        'show_dna_matrix' : False,
+        'show_neuron_plots' : True,
+        'show_difference_histogram' : True,
+        'show_dna_scores': False
     }
 
     # === Creating Izhikevich neurons ===
@@ -38,8 +38,10 @@ def main():
     # === Evaluating DNA ===
     curr_population = [create_dna(DNA_BOUNDS) for _ in range(POP_SIZE)]
     
+    results_df = pd.DataFrame()
+
     for generation in range(NUM_GENERATIONS):
-        print(f"Generation {generation+1}")
+        print(f"Generation {generation}")
         population_results = []
 
         for i, curr_dna in enumerate(curr_population):
@@ -55,16 +57,30 @@ def main():
                 criteria=difference_criteria
                 )
             
+            print(f'{generation+1}.{i+1} score: {dna_score}, DNA: {curr_dna}')
+
             population_results.append({
                 'dna': curr_dna,
                 'dna_score' : dna_score
             })
 
+
+            data_glob = {
+                'generation': generation,
+                'curr_dna': curr_dna,
+                'dna_score': dna_score,
+                'neuron_data': neuron_data,
+                'binned_differences': binned_differences
+            }
+
+            new_row_df = pd.DataFrame([data_glob])
+            results_df = pd.concat([results_df, new_row_df], ignore_index=True)
+
+
             # Pickle run data 
             with open('./data/run_data.pkl','ab') as f:
-                pickle.dump((generation, curr_dna, dna_score, neuron_data, binned_differences),f)
-
-
+                pickle.dump(data_glob, f)
+            
             # Show diagnostic feedback
             if diagnostic['show_dna_matrix']:
                 print("Currently loaded matrix ---")
@@ -81,7 +97,7 @@ def main():
                 plot_binned_differences(binned_differences)
             
         curr_population = spawn_next_population(population_results)
-        print(curr_population)
+    results_df.to_pickle('./data/dfs.pkl')
 
     
     

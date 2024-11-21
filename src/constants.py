@@ -2,12 +2,12 @@
 
 # Genetic Algorithm Config
 GA_CONFIG = {}
-NUM_GENERATIONS = 2
-POP_SIZE = 3
+NUM_GENERATIONS = 3
+POP_SIZE = 10
 MUT_RATE = 0.1
 MUT_SIGMA = 0.3
-RANK_DEPTH = 2
-ELITE_SIZE = 0
+RANK_DEPTH = 5
+ELITE_SIZE = 1
 CROSSOVER_POINT = None # Randomly selecting all genes
 DNA_BOUNDS = [0,400]
 

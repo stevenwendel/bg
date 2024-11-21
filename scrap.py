@@ -2,6 +2,11 @@ import pickle
 from src.genetic_algorithm import * 
 import numpy as np
 import pandas as pd
+import shelve
+
+with shelve.open('ga_database', 'r') as shelf:
+    for key in shelf.keys():
+        print(repr(key), repr(shelf[key]))
 
 
 # # Create single DNA
