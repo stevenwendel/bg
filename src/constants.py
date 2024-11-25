@@ -2,7 +2,7 @@
 
 # Genetic Algorithm Config
 GA_CONFIG = {}
-NUM_GENERATIONS = 10
+NUM_GENERATIONS = 5
 POP_SIZE = 500
 MUT_RATE = 0.15
 MUT_SIGMA = 0.3
