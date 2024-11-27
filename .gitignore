@@ -5,7 +5,7 @@ data/*.csv
 *.csv
 
 .venv
-
+myenv/
 # Python
 __pycache__/
 *.py[cod]
