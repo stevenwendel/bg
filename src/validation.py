@@ -2,50 +2,32 @@ import numpy as np
 import pandas as pd
 from src.constants import *
 
-# def is_firing(neu, window, threshold, validation_state):
-#     """
-#     Validates the firing rate of a neuron within a specified window.
-    
-#     Parameters:
-#         neu (Izhikevich): The neuron instance to validate.
-#         window (list of int): The time window [start, end] for validation.
-#         threshold (float): The firing rate threshold.
-#         validation_state (bool): The expected state (True for active, False for inactive).
-    
-#     Returns:
-#         bool: True if validation passes, False otherwise.
-#     """
-#     firing_rate = sum(neu.spike_times[window[0]:window[1]]) / (window[1] - window[0]) * 1000
-#     return (validation_state is None) or ((firing_rate > threshold) == validation_state)
-
-# def score_neuron(neu, criteria, validation_thresholds, validation_period_times):
-#     """
-#     Scores a single neuron based on the provided criteria.
-    
-#     Parameters:
-#         neu (Izhikevich): The neuron instance to score.
-#         criteria (pd.DataFrame): The validation criteria DataFrame.
-#         validation_thresholds (list of float): Thresholds for each neuron.
-#         validation_period_times (list of list of int): Time windows for each validation period.
-    
-#     Returns:
-#         tuple: (total_score, neuron_period_scores)
-#     """
-#     validation_matrix = criteria.to_numpy()
-#     neu_index = criteria.index.tolist().index(neu.name)
-#     neuron_period_scores = []
-#     for i, period in enumerate(validation_period_times):
-#         result = is_firing(
-#             neu,
-#             period,
-#             validation_thresholds[neu_index],
-#             validation_matrix[neu_index][i]
-#         )
-#         neuron_period_scores.append(result)
-#     total_score = sum(neuron_period_scores)
-#     return total_score, neuron_period_scores
 
 def score_run(binned_differences_df: pd.DataFrame, diff_criteria_df: pd.DataFrame):
+    """Scores how well neural activity matches expected criteria.
+
+    Compares binned firing rate differences between experimental and control conditions
+    against expected differences defined in criteria. Awards points when activity matches
+    expectations and penalizes mismatches.
+
+    Args:
+        binned_differences_df (pd.DataFrame): Observed firing rate differences between 
+            experimental and control conditions. Each row is a neuron, columns are time periods.
+        diff_criteria_df (pd.DataFrame): Expected differences between conditions.
+            Must have same shape as binned_differences_df. Positive values indicate expected
+            higher firing in experimental condition.
+
+    Returns:
+        int: Score indicating how well activity matched criteria. Higher is better.
+            +1 for each match (active when expected or inactive when not expected)
+            -1 for each mismatch (active when not expected or inactive when expected)
+
+    Example:
+        >>> differences = pd.DataFrame([[1,0], [0,-1]])  # 2 neurons, 2 time periods
+        >>> criteria = pd.DataFrame([[1,0], [0,0]])      # Expect activity only in [0,0]
+        >>> score = score_run(differences, criteria)
+        >>> assert score == 3  # 3 matches, 1 mismatch
+    """
     if binned_differences_df is not pd.DataFrame:
         binned_differences_df = pd.DataFrame(binned_differences_df)
     if diff_criteria_df is not pd.DataFrame:
@@ -70,20 +52,29 @@ def score_run(binned_differences_df: pd.DataFrame, diff_criteria_df: pd.DataFram
                 score -= 1
     return score
 
+
 def define_criteria(num_periods):
-    """
-    Defines the experiment and control criteria based on epochs and subdivisions.
-    
-    Parameters:
-        epochs (dict): Dictionary defining epoch names and their time ranges.
-        num_periods (int): Number of subdivisions per epoch.
-        validation_neurons (list of Izhikevich): List of neurons to validate.
-        my_free_weights_names (list of str): Names of the free weights.
-    
+    """Defines expected firing rate differences between experimental and control conditions.
+
+    Creates a matrix of expected differences in neural activity between experimental and 
+    control conditions across multiple time periods. Each row represents a neuron, and
+    each column represents a time period. A value of 1 indicates the experimental condition
+    should have higher firing, -1 indicates control should be higher, and 0 indicates no
+    expected difference.
+
+    Args:
+        num_periods (int): Total number of time periods to evaluate. Must be divisible by 5
+            since criteria are defined in 5 epochs and broadcast across periods.
+
     Returns:
-        tuple: (experiment_criteria, control_criteria, validation_period_times, validation_period_names)
+        np.ndarray: Matrix of shape (9, num_periods) containing expected differences between
+            experimental and control conditions for each neuron and time period.
+
+    Example:
+        >>> diff_matrix = define_criteria(20)  # 20 periods = 4 subdivisions per epoch
+        >>> assert diff_matrix.shape == (9, 20)
     """
-    
+
     # Experiment criteria by epoch
     experiment_criteria_by_epoch = np.array([
         [0, 1, 0, 0, 0],  # Somat
@@ -120,35 +111,7 @@ def define_criteria(num_periods):
 
 
 
-
-
 """
-    # Define validation period times and names
-    validation_period_times = []
-    validation_period_names = []
-    for epoch_name, (start, end) in epochs.items():
-        epoch_duration = end - start
-        period_duration = epoch_duration / number_of_subdivisions
-        for subdivision in range(number_of_subdivisions):
-            period_start = int(start + subdivision * period_duration)
-            period_end = int(period_start + period_duration)
-            validation_period_times.append([period_start, period_end])
-            validation_period_names.append(f'{epoch_name[0]}{subdivision + 1}')  # e.g., 's1', 's2', etc.
-    
-    # Create criteria DataFrames
-    def create_criteria_df(criteria_by_epoch):
-        master_list = []
-        for neuron_criteria in criteria_by_epoch:
-            neuron_divided_criteria = []
-            for epoch in neuron_criteria:
-                for _ in range(number_of_subdivisions):
-                    neuron_divided_criteria.append(epoch)
-            master_list.append(neuron_divided_criteria)
-        return pd.DataFrame(master_list, index=[neu.name for neu in validation_neurons], columns=validation_period_names)
-    
-    experiment_criteria = create_criteria_df(experiment_criteria_by_epoch)
-    control_criteria = create_criteria_df(control_criteria_by_epoch)
-    
     # NEED TO REIMPLEMENT THESE LITTLE CASES.
     # Hard to do because the number of periods is not pre-defined, so I don't know what part to look at.
     # Might be easiest to just SET the number of subdivisions, and 

@@ -1,5 +1,5 @@
 # I should make these all caps; will need to learn how to change all varibales across all files though...
-
+"""
 # Genetic Algorithm Config
 GA_CONFIG = {}
 NUM_GENERATIONS = 5
@@ -10,17 +10,17 @@ RANK_DEPTH = 250
 ELITE_SIZE = 5
 CROSSOVER_POINT = None # Randomly selecting all genes
 DNA_BOUNDS = [0,400]
-
-
 """
-NUM_GENERATIONS = 5
+
+
+NUM_GENERATIONS = 2
 POP_SIZE = 10
 MUT_RATE = 0.15
 MUT_SIGMA = 0.3
 RANK_DEPTH = 6
 ELITE_SIZE = 1
 CROSSOVER_POINT = None # Randomly selecting all genes
-DNA_BOUNDS = [0,400]"""
+DNA_BOUNDS = [0,400]
 
 # Time Config
 TMAX = 5000

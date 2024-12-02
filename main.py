@@ -12,12 +12,13 @@ from src.utils import *
 from src.constants import * 
 from src.network import *
 from src.validation import *
-from src.dna import *
 from src.viz import *
 from src.genetic_algorithm import *
 from copy import deepcopy
 
 def main():
+    os.makedirs('./data', exist_ok=True)
+    
     diagnostic = {
         'show_dna_matrix' : False,
         'show_neuron_plots' : False,
@@ -34,6 +35,7 @@ def main():
 
     # === Defining Criteria === # NEED TO FIX IN VALIDATION.PY FILE
     difference_criteria = define_criteria(len(periods)-1) # Fix this to remove need for epochs; make create_criterion(neuron, on, off)
+    max_score = (len(periods) - 1) * len(CRITERIA_NAMES)
 
     # === Evaluating DNA ===
     curr_population = [create_dna(DNA_BOUNDS) for _ in range(POP_SIZE)]
@@ -57,11 +59,8 @@ def main():
                 criteria=difference_criteria
                 )
             
-            print(f'{generation}.{i+1} score: {dna_score}, DNA: {curr_dna}')
+            print(f'{generation}.{i+1} score: {dna_score}({dna_score/max_score:.2%}), DNA: {curr_dna}')
 
-            # TURN SCORE INTO PERCENT, 
-            # SO THAT IT HAS RELATIVE MEANING 
-            # WHEN NUM_PERIODS CHANGE
 
             population_results.append({
                 'dna': curr_dna,
