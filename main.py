@@ -14,18 +14,24 @@ from src.network import *
 from src.validation import *
 from src.viz import *
 from src.genetic_algorithm import *
-from copy import deepcopy
+from copy import copy
+from datetime import datetime
 
 def main():
+
+    ### Settings ###
     os.makedirs('./data', exist_ok=True)
-    
+    save_path = f'./data/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
+   
     diagnostic = {
         'show_dna_matrix' : False,
         'show_neuron_plots' : False,
         'show_difference_histogram' : False,
         'show_dna_scores': False
     }
+    ###############
 
+    
     # === Creating Izhikevich neurons ===
     # Note: these do NOT have instrisic histories
     all_neurons = create_neurons()
@@ -39,12 +45,13 @@ def main():
 
     # === Evaluating DNA ===
     curr_population = [create_dna(DNA_BOUNDS) for _ in range(POP_SIZE)]
-    
-    results_df = pd.DataFrame()
+
+    save_dict = {}
 
     for generation in range(NUM_GENERATIONS):
         print(f"Generation {generation}")
         population_results = []
+        save_dict[f'generation{generation}'] = {}
 
         for i, curr_dna in enumerate(curr_population):
             # Loading dna into matrix
@@ -59,30 +66,21 @@ def main():
                 criteria=difference_criteria
                 )
             
-            print(f'{generation}.{i+1} score: {dna_score}({dna_score/max_score:.2%}), DNA: {curr_dna}')
+            print(f'{generation}.{i} score: {dna_score}({dna_score/max_score:.2%}), DNA: {curr_dna}')
 
-
+            # Appending results to population_results for spawning next generation (requires list of dicts)
             population_results.append({
                 'dna': curr_dna,
                 'dna_score' : dna_score
             })
 
-
-            data_glob = {
-                'generation': generation,
-                'curr_dna': curr_dna,
-                'dna_score': dna_score,
-                'neuron_data': neuron_data,
-                'binned_differences': binned_differences
+            # Adding to master dictionary for quickly aving results to pickle file
+            save_dict[f'generation{generation}'][f'iteration{i}'] = {
+                'dna': curr_dna,
+                'dna_score' : dna_score,    
+                'neuron_data' : neuron_data,
+                'binned_differences' : binned_differences
             }
-
-            new_row_df = pd.DataFrame([data_glob])
-            results_df = pd.concat([results_df, new_row_df], ignore_index=True)
-
-
-            # Pickle run data 
-            with open('./data/run_data.pkl','ab') as f:
-                pickle.dump(data_glob, f)
 
             # if generation == 1 and i==8:
             #     diagnostic = {
@@ -109,8 +107,10 @@ def main():
                 plot_binned_differences(binned_differences)
             
         curr_population = spawn_next_population(population_results)
-    results_df.to_pickle('./data/dfs.pkl')
 
+    # Pickle run data 
+    with open(save_path,'ab') as f:
+        pickle.dump(save_dict, f)
     
     
     # test_dna=create_dna() # --> use simulated annealing

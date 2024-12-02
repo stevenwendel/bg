@@ -182,7 +182,7 @@ def score_population(dnas, free_weights_list, pop_size, validation_neurons, expe
     return scores
 
 
-def spawn_next_population(curr_pop: list[list[float]]) -> list[list[float]]:
+def spawn_next_population(curr_pop: list[dict]) -> list[list[float]]:
     """Generates the next population of DNA sequences through selection and mutation.
 
     Creates a new population by:
@@ -195,14 +195,16 @@ def spawn_next_population(curr_pop: list[list[float]]) -> list[list[float]]:
         - Mutation drawn from normal distribution with std=gene*MUT_SIGMA
 
     Args:
-        curr_pop (list[list[float]]): Current population as list of [dna, dna_score] pairs
-            where dna is list of float weights and dna_score is float fitness score
+        curr_pop (list[dict]): Current population as list of dictionaries, where each dict
+            contains:
+            - 'dna': list[float] - list of synaptic weights
+            - 'dna_score': float - fitness score for this DNA sequence
 
     Returns:
         list[list[float]]: New population of DNA sequences, with length POP_SIZE
 
     Example:
-        >>> curr_pop = [[dna1, score1], [dna2, score2], ...]
+        >>> curr_pop = [{'dna': [1.0, 2.0], 'dna_score': 0.8}, ...]
         >>> next_pop = spawn_next_population(curr_pop)
         >>> assert len(next_pop) == POP_SIZE
     """
