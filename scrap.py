@@ -1,8 +1,23 @@
-import pickle
-from src.genetic_algorithm import * 
+import sys, os
+
+# Add the src directory to sys.path
+src_path = os.path.join(os.path.dirname(__file__), 'src')
+sys.path.append(src_path)
+
 import numpy as np
 import pandas as pd
 import shelve
+from src.neuron import *
+from src.utils import *
+from src.constants import * 
+from src.network import *
+from src.validation import *
+from src.viz import *
+from src.genetic_algorithm import *
+from copy import copy
+from datetime import datetime
+
+
 
 # with shelve.open('ga_database', 'r') as shelf:
 #     for key in shelf.keys():
