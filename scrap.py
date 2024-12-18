@@ -16,8 +16,15 @@ from src.viz import *
 from src.genetic_algorithm import *
 from copy import copy
 from datetime import datetime
+import time
 
+start_time = time.time()
 
+time.sleep(2)
+
+end_time = time.time()
+
+print(f"Time taken: {end_time - start_time} seconds")
 
 # with shelve.open('ga_database', 'r') as shelf:
 #     for key in shelf.keys():

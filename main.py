@@ -16,13 +16,18 @@ from src.viz import *
 from src.genetic_algorithm import *
 from copy import copy
 from datetime import datetime
+import time
 
 def main():
+    start_time = time.time()
+    print(start_time)   
+
 
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
-   
+
+
     diagnostic = {
         'show_dna_matrix' : False,
         'show_neuron_plots' : False,
@@ -112,7 +117,9 @@ def main():
     with open(save_path,'ab') as f:
         pickle.dump(save_dict, f)
     
-    
+    end_time = time.time()
+    print(f"Time taken: {end_time - start_time} seconds")
+
     # test_dna=create_dna() # --> use simulated annealing
 
 
