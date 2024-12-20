@@ -54,26 +54,6 @@ def score_run(binned_differences_df: pd.DataFrame, diff_criteria_df: pd.DataFram
 
 
 def define_criteria(num_periods):
-    """Defines expected firing rate differences between experimental and control conditions.
-
-    Creates a matrix of expected differences in neural activity between experimental and 
-    control conditions across multiple time periods. Each row represents a neuron, and
-    each column represents a time period. A value of 1 indicates the experimental condition
-    should have higher firing, -1 indicates control should be higher, and 0 indicates no
-    expected difference.
-
-    Args:
-        num_periods (int): Total number of time periods to evaluate. Must be divisible by 5
-            since criteria are defined in 5 epochs and broadcast across periods.
-
-    Returns:
-        np.ndarray: Matrix of shape (9, num_periods) containing expected differences between
-            experimental and control conditions for each neuron and time period.
-
-    Example:
-        >>> diff_matrix = define_criteria(20)  # 20 periods = 4 subdivisions per epoch
-        >>> assert diff_matrix.shape == (9, 20)
-    """
 
     # Experiment criteria by epoch
     experiment_criteria_by_epoch = np.array([
