@@ -87,26 +87,7 @@ def load_dna(dna: list[float]) -> np.ndarray:
 
 # === Running Network and Storing Results ====    
 def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
-    """Evaluates a DNA weight matrix by running experimental and control network simulations.
 
-    Runs the neural network with the given weight matrix under both experimental and control 
-    conditions. Compares the spiking differences between conditions and scores the results
-    according to provided criteria.
-
-    Args:
-        dna_matrix: 2D numpy array containing synaptic weights derived from a DNA sequence.
-        neurons: List of Izhikevich neuron objects representing the network.
-        alpha_array: Array of alpha function values for synaptic transmission.
-        input_waves: List containing [cue_wave, go_wave] input signals.
-        criteria: Scoring criteria for evaluating network performance.
-
-    Returns:
-        tuple containing:
-            - score (float): Overall performance score based on criteria
-            - neuron_data (dict): Dict containing minimal Izhikevich neurons for both conditions
-                with only hist_V and spike_times attributes preserved
-            - binned_differences (ndarray): Binned spike count differences between conditions
-    """
     neuron_data = {'experimental': [], 'control': []}
 
     for condition in ['experimental', 'control']:    
@@ -123,10 +104,14 @@ def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
             alpha_array=alpha_array,
         )
 
+        # Neurons have been run and loaded with information. Should I reset them after this?
+
         # Create minimal Izhikevich neurons with just the required attributes
         minimal_neurons = []
         for n in neurons:
             minimal_neuron = Izhikevich(name=n.name)
+            
+            ### Should I drop hist_V for now? How much memory and time does it save?
             minimal_neuron.hist_V = n.hist_V.copy()
             minimal_neuron.spike_times = n.spike_times.copy()
             minimal_neurons.append(minimal_neuron)
@@ -139,6 +124,14 @@ def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
         control_neurons=neuron_data['control'])
 
     target_binned_differences = get_neurons(binned_differences, CRITERIA_NAMES)
+
+
+    """ Work on scoring HERE.
+    Currently, I'm just getting the neurons that match the criteria and then scoring the differences.
+    This is not the best way to do it. I should be scoring the experimental and control spike bins directly.
+
+    """
+
 
     # Score the results
     score = score_run(target_binned_differences, criteria)

@@ -64,24 +64,3 @@ CRITERIA_NAMES = [
         "VMresp",
         "PPN"
     ]
-
-
-CRITERIA_TIMES = {
-    "experimental_criterion" : {
-        "Somat": [EPOCHS['sample'][0], EPOCHS['sample'][1]],
-        "ALMprep": [EPOCHS['sample'][0], EPOCHS['delay'][1]],
-        "ALMinter": [EPOCHS['response'][0], EPOCHS['response'][0] + 300],
-        "ALMresp": [EPOCHS['delay'][0], EPOCHS['delay'][1]], #tMax -250?
-        "SNR1": [EPOCHS['sample'][0], EPOCHS['delay'][1]],
-        "SNR2": [EPOCHS['response'][0], TMAX-250],
-        "VMprep": [EPOCHS['sample'][0], EPOCHS['sample'][1]],
-        "VMresp": [EPOCHS['response'][0], TMAX-250],
-        "PPN": [EPOCHS['response'][0], EPOCHS['response'][0]+250]
-        }, 
-    "control_criterion" : {
-        "ALMinter": [EPOCHS['response'][0], EPOCHS['response'][0] + 300],
-        "SNR1": [0,TMAX],
-        "SNR2": [0,TMAX], 
-        "PPN": [EPOCHS['response'][0], EPOCHS['response'][0]+250]
-        }
-    }

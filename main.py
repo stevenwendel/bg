@@ -38,7 +38,7 @@ def main():
 
     
     # === Creating Izhikevich neurons ===
-    # Note: these do NOT have instrisic histories
+    # Note: these do NOT have instrisic histories; these are generated ONCE at beginning, and copied thereafter
     all_neurons = create_neurons()
     
     # === Preparing Network === 
