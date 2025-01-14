@@ -1,26 +1,27 @@
 # I should make these all caps; will need to learn how to change all varibales across all files though...
-"""
-# Genetic Algorithm Config
-GA_CONFIG = {}
-NUM_GENERATIONS = 5
-POP_SIZE = 500
-MUT_RATE = 0.15
-MUT_SIGMA = 0.3
-RANK_DEPTH = 250
-ELITE_SIZE = 5
-CROSSOVER_POINT = None # Randomly selecting all genes
-DNA_BOUNDS = [0,400]
-"""
 
-
-NUM_GENERATIONS = 10
-POP_SIZE = 500
-MUT_RATE = 0.15
-MUT_SIGMA = 0.3
-RANK_DEPTH = 250
-ELITE_SIZE = 10
-CROSSOVER_POINT = None # Randomly selecting all genes
-DNA_BOUNDS = [0,400]
+GA_CONFIG = {
+    "large":   {
+        "NUM_GENERATIONS" : 10,
+        "POP_SIZE" : 500,
+        "MUT_RATE" : 0.15,
+        "MUT_SIGMA" : 0.3,
+        "RANK_DEPTH" : 250,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,400]
+    },
+    "small": {
+        "NUM_GENERATIONS" : 3,
+        "POP_SIZE" : 10,
+        "MUT_RATE" : 0.15,
+        "MUT_SIGMA" : 0.3,
+        "RANK_DEPTH" : 5,
+        "ELITE_SIZE" : 1,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,400]
+    }
+}
 
 # Time Config
 TMAX = 5000
@@ -64,3 +65,84 @@ CRITERIA_NAMES = [
         "VMresp",
         "PPN"
     ]
+
+CRITERIA = {
+        # These are all intervals which should be ON for experimental condition; should be OFF otherwise 
+        "experimental" : {
+            "Somat": {
+                "interval":[EPOCHS['sample'][0], EPOCHS['sample'][1]],
+                "io": "on"
+            },
+            "ALMprep": {
+                "interval":[EPOCHS['sample'][0], EPOCHS['delay'][1]],
+                "io": "on"
+            },
+            "ALMinter": {
+                "interval":[EPOCHS['response'][0], EPOCHS['response'][0] + 300],
+                "io": "on"
+            },
+            "ALMresp": {
+                "interval":[EPOCHS['response'][0], EPOCHS['response'][1]], #tMax -250?
+                "io": "on"
+            },
+            "SNR1": {
+                "interval":[EPOCHS['sample'][0], EPOCHS['delay'][1]],
+                "io": "off"
+            },
+            "SNR2": {   
+                "interval":[EPOCHS['response'][0], TMAX-250],
+                "io": "off"
+            },
+            "VMprep": {
+                "interval":[EPOCHS['sample'][0], EPOCHS['delay'][1]],
+                "io": "on"
+            },
+            "VMresp": {
+                "interval":[EPOCHS['response'][0], TMAX-250],
+                "io": "on"
+            },
+            "PPN": {
+                "interval":[EPOCHS['response'][0], EPOCHS['response'][0]+250],
+                "io": "on"
+            } 
+        },
+        #I don't think I need this
+        "control" : {
+            "Somat": {
+                "interval":[EPOCHS['sample'][0], EPOCHS['sample'][1]],
+                "io": "off"
+            },
+                    "ALMprep": {
+            "interval":[EPOCHS['sample'][0], EPOCHS['delay'][1]],
+            "io": "on"
+            },
+            "ALMinter": {
+                "interval":[EPOCHS['response'][0], EPOCHS['response'][0] + 300],
+                "io": "off"
+            },
+            "ALMresp": {
+                "interval":[EPOCHS['response'][0], EPOCHS['response'][1]], #tMax -250?
+                "io": "off"
+            },
+            "SNR1": {
+                "interval":[0,TMAX],
+                "io": "on"
+            },
+            "SNR2": {   
+                "interval":[0,TMAX],
+                "io": "on"
+            },
+            "VMprep": {
+                "interval":[EPOCHS['sample'][0], EPOCHS['delay'][1]],
+                "io": "off"
+            },
+            "VMresp": {
+                "interval":[EPOCHS['response'][0], TMAX-250],
+                "io": "off"
+            },
+            "PPN": {
+                "interval":[EPOCHS['response'][0], EPOCHS['response'][0]+250],
+                "io": "on"
+            }
+        }
+    }

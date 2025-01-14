@@ -34,7 +34,8 @@ def main():
         'show_difference_histogram' : False,
         'show_dna_scores': False
     }
-    ###############
+    ga_set = 'small'
+
 
     
     # === Creating Izhikevich neurons ===
@@ -42,18 +43,19 @@ def main():
     all_neurons = create_neurons()
     
     # === Preparing Network === 
-    periods, input_waves, alpha_array = create_experiment()
+    splits, input_waves, alpha_array = create_experiment()
+    num_periods = len(splits) - 1
 
     # === Defining Criteria === # NEED TO FIX IN VALIDATION.PY FILE
-    difference_criteria = define_criteria(len(periods)-1) # Fix this to remove need for epochs; make create_criterion(neuron, on, off)
-    max_score = (len(periods) - 1) * len(CRITERIA_NAMES)
+    criteria_dict = define_criteria(num_periods)
+    max_score = (num_periods) * len(CRITERIA_NAMES)
 
     # === Evaluating DNA ===
-    curr_population = [create_dna(DNA_BOUNDS) for _ in range(POP_SIZE)]
+    curr_population = [create_dna(GA_CONFIG[ga_set]['DNA_BOUNDS']) for _ in range(GA_CONFIG[ga_set]['POP_SIZE'])]
 
     save_dict = {}
 
-    for generation in range(NUM_GENERATIONS):
+    for generation in range(GA_CONFIG[ga_set]['NUM_GENERATIONS']):
         print(f"Generation {generation}")
         population_results = []
         save_dict[f'generation{generation}'] = {}
@@ -63,28 +65,32 @@ def main():
             dna_matrix = load_dna(curr_dna) 
 
             # Running network to score dna
-            dna_score, neuron_data, binned_differences = evaluate_dna(
+            dna_scores, neuron_data = evaluate_dna(
                 dna_matrix=dna_matrix,
                 neurons=all_neurons,
                 alpha_array=alpha_array,
                 input_waves=input_waves,
-                criteria=difference_criteria
+                criteria=criteria_dict
                 )
             
-            print(f'{generation}.{i} score: {dna_score}({dna_score/max_score:.2%}), DNA: {curr_dna}')
-
+            total_score = sum(dna_scores.values())
+            print(f'{generation}.{i} === DNA: {curr_dna}') 
+            print(f'    === Control: {dna_scores["control"]}/{max_score}')
+            print(f'    === Experimental: {dna_scores["experimental"]}/{max_score}')
+            print(f'    === Overall: {total_score}({total_score/(2*max_score):.2%})')
+            print('\n')
             # Appending results to population_results for spawning next generation (requires list of dicts)
             population_results.append({
                 'dna': curr_dna,
-                'dna_score' : dna_score
+                'dna_score' : total_score
             })
 
             # Adding to master dictionary for quickly aving results to pickle file
             save_dict[f'generation{generation}'][f'iteration{i}'] = {
                 'dna': curr_dna,
-                'dna_score' : dna_score,    
+                'dna_score' : total_score,    
                 'neuron_data' : neuron_data,
-                'binned_differences' : binned_differences
+                # 'binned_differences' : binned_differences
             }
 
             # if generation == 1 and i==8:
@@ -102,16 +108,18 @@ def main():
                 display_matrix(dna_matrix, NEURON_NAMES)
 
             if diagnostic['show_dna_scores']:
-                print(f'{dna_score=}: {curr_dna}')
+                print(f'{dna_scores=}: {curr_dna}')
             
             if diagnostic['show_neuron_plots']:
                 for condition in ['experimental', 'control']:
                     plot_neurons_interactive(neurons=neuron_data[condition], sq_wave=input_waves[0], go_wave=input_waves[1], show_u=False)
                     
-            if diagnostic['show_difference_histogram']:
-                plot_binned_differences(binned_differences)
+            # if diagnostic['show_difference_histogram']:
+            #     plot_binned_differences(binned_differences)
             
-        curr_population = spawn_next_population(population_results)
+            if i==5: 
+                break
+        curr_population = spawn_next_population(population_results, GA_CONFIG[ga_set])
 
     # Pickle run data 
     with open(save_path,'ab') as f:

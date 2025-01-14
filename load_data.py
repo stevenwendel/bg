@@ -2,7 +2,7 @@ import pickle
 import pandas as pd
 
 file_path1 = './data/run_data.pkl'
-file_path2 = '/Users/stevenwendel/Documents/GitHub/bg/data/2024-12-01_23-59-24.pkl'
+file_path2 = '/Users/stevenwendel/Documents/GitHub/bg/data/2025-01-14_16-27-05.pkl'
 
 def pkl_to_dataframe(file_path: str) -> pd.DataFrame:
     data = []

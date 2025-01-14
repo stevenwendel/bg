@@ -21,26 +21,47 @@ def alpha_fit(alp_arr, time, time_max):
     return alpha_padded
 
 
-def get_binned_differences(experimental_neurons, control_neurons):
-    assert len(experimental_neurons) == len(control_neurons)
+def get_binned_spikes(neuron_spikes: np.ndarray):
 
-    num_neurons = int(len(experimental_neurons))
-    control_spikes = np.array([neu.spike_times for neu in control_neurons])
-    experimental_spikes = np.array([neu.spike_times for neu in experimental_neurons])
+    num_neurons = int(len(neuron_spikes))
+    binned_spikes = np.array([neu['spike_times'] for neu in neuron_spikes])
 
     binned_experimental_spikes = None
     binned_control_spikes = None
 
-    for i, set in enumerate([experimental_spikes, control_spikes]):
-        binned_spikes = np.reshape(set, 
+    binned_experimental_spikes = np.reshape(experimental_spikes, 
+                (num_neurons, int(TMAX/BIN_SIZE), BIN_SIZE)
+                  ).sum(axis=2)
+
+    binned_control_spikes = np.reshape(control_spikes, 
                 (num_neurons, int(TMAX/BIN_SIZE), BIN_SIZE)
                     ).sum(axis=2)
-        # print(f'{binned_spikes=}')
-        
-        if i == 0:
-            binned_experimental_spikes = binned_spikes
-        else:
-            binned_control_spikes = binned_spikes
+
+    binned_differences = (binned_experimental_spikes - binned_control_spikes).astype(int)
+    return binned_differences
+
+
+
+def get_binned_differences(experimental_neurons: dict[str,np.ndarray], #dict of neurons, each w hist_V and spike_times
+                           control_neurons: dict[np.ndarray,np.ndarray]):
+
+    assert len(experimental_neurons) == len(control_neurons)
+
+
+    num_neurons = int(len(experimental_neurons))
+    control_spikes = np.array([neu['spike_times'] for neu in control_neurons])
+    experimental_spikes = np.array([neu['spike_times'] for neu in experimental_neurons])
+
+    binned_experimental_spikes = None
+    binned_control_spikes = None
+
+    binned_experimental_spikes = np.reshape(experimental_spikes, 
+                (num_neurons, int(TMAX/BIN_SIZE), BIN_SIZE)
+                  ).sum(axis=2)
+
+    binned_control_spikes = np.reshape(control_spikes, 
+                (num_neurons, int(TMAX/BIN_SIZE), BIN_SIZE)
+                    ).sum(axis=2)
 
     binned_differences = (binned_experimental_spikes - binned_control_spikes).astype(int)
     return binned_differences

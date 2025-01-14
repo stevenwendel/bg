@@ -88,7 +88,8 @@ def load_dna(dna: list[float]) -> np.ndarray:
 # === Running Network and Storing Results ====    
 def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
 
-    neuron_data = {'experimental': [], 'control': []}
+    neuron_data = {}
+    scores = {}
 
     for condition in ['experimental', 'control']:    
         prepare_neurons(
@@ -106,37 +107,23 @@ def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
 
         # Neurons have been run and loaded with information. Should I reset them after this?
 
-        # Create minimal Izhikevich neurons with just the required attributes
-        minimal_neurons = []
+        condition_data = {}
         for n in neurons:
-            minimal_neuron = Izhikevich(name=n.name)
-            
-            ### Should I drop hist_V for now? How much memory and time does it save?
-            minimal_neuron.hist_V = n.hist_V.copy()
-            minimal_neuron.spike_times = n.spike_times.copy()
-            minimal_neurons.append(minimal_neuron)
-            
-        neuron_data[condition] = minimal_neurons
+            condition_data[n.name] = {
+                'hist_V': n.hist_V.copy(),
+                'spike_times': n.spike_times.copy()
+            }
+        neuron_data[condition] = condition_data
     
-    # Get differences across bins        
-    binned_differences = get_binned_differences(
-        experimental_neurons=neuron_data['experimental'],
-        control_neurons=neuron_data['control'])
+        target_neurons_spikes = np.array([neuron_data[condition][name]['spike_times'] for name in CRITERIA_NAMES])
+        target_neuron_spike_bins = np.reshape(target_neurons_spikes, (len(CRITERIA_NAMES), TMAX//BIN_SIZE, BIN_SIZE)
+                ).sum(axis=2)
+        target_neuron_criteria = criteria[condition]
 
-    target_binned_differences = get_neurons(binned_differences, CRITERIA_NAMES)
-
-
-    """ Work on scoring HERE.
-    Currently, I'm just getting the neurons that match the criteria and then scoring the differences.
-    This is not the best way to do it. I should be scoring the experimental and control spike bins directly.
-
-    """
-
-
-    # Score the results
-    score = score_run(target_binned_differences, criteria)
+        # Calculate the score
+        scores[condition] = calculate_score(target_neuron_spike_bins, target_neuron_criteria)
     
-    return score, neuron_data, binned_differences
+    return scores, neuron_data
 
 
 def score_population(dnas, free_weights_list, pop_size, validation_neurons, experiment_criteria, control_criteria):
@@ -175,7 +162,7 @@ def score_population(dnas, free_weights_list, pop_size, validation_neurons, expe
     return scores
 
 
-def spawn_next_population(curr_pop: list[dict]) -> list[list[float]]:
+def spawn_next_population(curr_pop: list[dict], ga_config: dict) -> list[list[float]]:
     """Generates the next population of DNA sequences through selection and mutation.
 
     Creates a new population by:
@@ -203,22 +190,22 @@ def spawn_next_population(curr_pop: list[dict]) -> list[list[float]]:
     """
 
     curr_pop.sort(key=lambda x: x['dna_score'], reverse=True)
-    survivors = curr_pop[:RANK_DEPTH]
-    next_dnas = [curr_pop[i]['dna'] for i in range(ELITE_SIZE)]
+    survivors = curr_pop[:ga_config['RANK_DEPTH']]
+    next_dnas = [curr_pop[i]['dna'] for i in range(ga_config['ELITE_SIZE'])]
     
-    for _ in range(POP_SIZE - ELITE_SIZE):
+    for _ in range(ga_config['POP_SIZE'] - ga_config['ELITE_SIZE']):
         parent1 = random.choice(survivors)['dna']
         parent2 = random.choice(survivors)['dna']
         child_dna=[]
 
         for i, synapse in enumerate(ACTIVE_SYNAPSES):
             gene = random.choice([parent1[i], parent2[i]])
-            gene = random.normalvariate(gene, gene * MUT_SIGMA) if random.random() < MUT_RATE else gene
+            gene = random.normalvariate(gene, gene * ga_config['MUT_SIGMA']) if random.random() < ga_config['MUT_RATE'] else gene
             child_dna.append(int(gene))
 
         next_dnas.append(child_dna)
     
-    assert len(next_dnas) == POP_SIZE
+    assert len(next_dnas) == ga_config['POP_SIZE']
     return next_dnas
 
 
