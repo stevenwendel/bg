@@ -20,6 +20,16 @@ GA_CONFIG = {
         "ELITE_SIZE" : 1,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,400]
+    },
+        "xlarge":   {
+        "NUM_GENERATIONS" : 20,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.2,
+        "MUT_SIGMA" : 0.3,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 150,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,500]
     }
 }
 
@@ -28,7 +38,7 @@ TMAX = 5000
 BIN_SIZE = 250
 
 # Setup Config
-GO_DURATION = 400 # I should take all the constants from create_experiment and put them here
+GO_DURATION = 100 # From the Wang paper directly
 GO_STRENGTH = 850.
 CUE_STRENGTH = 145.
 

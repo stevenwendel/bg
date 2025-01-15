@@ -34,7 +34,7 @@ def main():
         'show_difference_histogram' : False,
         'show_dna_scores': False
     }
-    ga_set = 'small'
+    ga_set = 'xlarge'
 
 
     
@@ -89,7 +89,7 @@ def main():
             save_dict[f'generation{generation}'][f'iteration{i}'] = {
                 'dna': curr_dna,
                 'dna_score' : total_score,    
-                'neuron_data' : neuron_data,
+                # 'neuron_data' : neuron_data,
                 # 'binned_differences' : binned_differences
             }
 
