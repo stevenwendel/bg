@@ -99,8 +99,12 @@ def calculate_score(matrix1, matrix2):
     # Loop through both matrices
     for i in range(len(matrix1)):
         for j in range(len(matrix1[0])):
-            if matrix1[i][j] == matrix2[i][j]:
-                score += 1  # Award a point if entries match
+            # Award a point if both entries are 0 or both are positive
+            if (matrix1[i][j] == 0 and matrix2[i][j] == 0) or (matrix1[i][j] > 0 and matrix2[i][j] > 0):
+                score += 1
+                # Special case scoring
+                if i==7 and 30<j<40:
+                    score+=3
 
     return score
 

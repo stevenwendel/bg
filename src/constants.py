@@ -21,21 +21,21 @@ GA_CONFIG = {
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,400]
     },
-        "xlarge":   {
+    "xlarge":   {
         "NUM_GENERATIONS" : 20,
         "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.2,
+        "MUT_RATE" : 0.15,
         "MUT_SIGMA" : 0.3,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 150,
+        "RANK_DEPTH" : 250,
+        "ELITE_SIZE" : 15,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,500]
+        "DNA_BOUNDS" : [0,400]
     }
 }
 
 # Time Config
 TMAX = 5000
-BIN_SIZE = 250
+BIN_SIZE = 100
 
 # Setup Config
 GO_DURATION = 100 # From the Wang paper directly
@@ -92,7 +92,7 @@ CRITERIA = {
                 "io": "on"
             },
             "ALMresp": {
-                "interval":[EPOCHS['response'][0], EPOCHS['response'][1]], #tMax -250?
+                "interval":[EPOCHS['response'][0], TMAX-250], #EPOCHS['response'][1]
                 "io": "on"
             },
             "SNR1": {

@@ -119,7 +119,6 @@ def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
         target_neuron_spike_bins = np.reshape(target_neurons_spikes, (len(CRITERIA_NAMES), TMAX//BIN_SIZE, BIN_SIZE)
                 ).sum(axis=2)
         target_neuron_criteria = criteria[condition]
-
         # Calculate the score
         scores[condition] = calculate_score(target_neuron_spike_bins, target_neuron_criteria)
     

@@ -22,10 +22,10 @@ def main():
     start_time = time.time()
     print(start_time)   
 
-
+    ga_set = 'large'
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
-    save_path = f'./data/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
+    save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
 
 
     diagnostic = {
@@ -34,7 +34,7 @@ def main():
         'show_difference_histogram' : False,
         'show_dna_scores': False
     }
-    ga_set = 'xlarge'
+    
 
 
     
@@ -46,7 +46,7 @@ def main():
     splits, input_waves, alpha_array = create_experiment()
     num_periods = len(splits) - 1
 
-    # === Defining Criteria === # NEED TO FIX IN VALIDATION.PY FILE
+    # === Defining Criteria === 
     criteria_dict = define_criteria(num_periods)
     max_score = (num_periods) * len(CRITERIA_NAMES)
 
@@ -116,9 +116,7 @@ def main():
                     
             # if diagnostic['show_difference_histogram']:
             #     plot_binned_differences(binned_differences)
-            
-            if i==5: 
-                break
+
         curr_population = spawn_next_population(population_results, GA_CONFIG[ga_set])
 
     # Pickle run data 
