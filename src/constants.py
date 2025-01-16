@@ -22,12 +22,12 @@ GA_CONFIG = {
         "DNA_BOUNDS" : [0,400]
     },
     "xlarge":   {
-        "NUM_GENERATIONS" : 20,
+        "NUM_GENERATIONS" : 50,
         "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.15,
-        "MUT_SIGMA" : 0.3,
-        "RANK_DEPTH" : 250,
-        "ELITE_SIZE" : 15,
+        "MUT_RATE" : 0.25,
+        "MUT_SIGMA" : 0.4,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 20,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,400]
     }
