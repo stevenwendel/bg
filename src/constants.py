@@ -22,7 +22,7 @@ GA_CONFIG = {
         "DNA_BOUNDS" : [0,400]
     },
     "xlarge":   {
-        "NUM_GENERATIONS" : 50,
+        "NUM_GENERATIONS" : 30,
         "POP_SIZE" : 1000,
         "MUT_RATE" : 0.25,
         "MUT_SIGMA" : 0.4,
