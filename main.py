@@ -22,7 +22,7 @@ def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = 'xlarge'
+    ga_set = 'large'
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'

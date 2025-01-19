@@ -105,6 +105,8 @@ def calculate_score(matrix1, matrix2):
                 # Special case scoring
                 if i==7 and 30<j<40:
                     score+=3
+    
+    # First attempt at applying L1 norm... 
 
     return score
 

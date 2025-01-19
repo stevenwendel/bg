@@ -42,14 +42,14 @@ GO_DURATION = 100 # From the Wang paper directly
 GO_STRENGTH = 850.
 CUE_STRENGTH = 145.
 
-DNA_0 = [75., 205., -90., -10., 65., 80., 320., -50., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320.]
+DNA_0 = [75., 205., -90., -10., 65., 80., 320., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320.]
 
 NEURON_NAMES = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
 
 ACTIVE_SYNAPSES = [
     ["Somat", "ALMprep"], ["Somat", "MSN1"], ["MSN1", "SNR1"], ["SNR1", "VMprep"],
-    ["VMprep", "ALMprep"], ["ALMprep", "VMprep"], ["ALMprep", "MSN2"], ["MSN2", "SNR2"],
-    ["SNR2", "VMprep"], ["SNR2", "VMresp"], ["PPN", "THALgo"], ["THALgo", "ALMinter"],
+    ["VMprep", "ALMprep"], ["ALMprep", "VMprep"], ["ALMprep", "MSN2"], ["MSN2", "SNR2"], #["SNR2", "VMprep"] REMOVED 1/17/25
+    ["SNR2", "VMresp"], ["PPN", "THALgo"], ["THALgo", "ALMinter"],
     ["THALgo", "ALMresp"], ["ALMinter", "ALMprep"], ["MSN3", "SNR3"], ["SNR3", "VMresp"],
     ["VMresp", "ALMresp"], ["ALMresp", "VMresp"], ["ALMresp", "MSN3"]
 ]
@@ -71,6 +71,7 @@ CRITERIA_NAMES = [
         "ALMresp",
         "SNR1",
         "SNR2",
+        "SNR3", #added this 1/16/2025
         "VMprep",
         "VMresp",
         "PPN"
@@ -96,10 +97,14 @@ CRITERIA = {
                 "io": "on"
             },
             "SNR1": {
+                "interval":[EPOCHS['sample'][0], EPOCHS['sample'][1]],
+                "io": "off"
+            },
+            "SNR2": {
                 "interval":[EPOCHS['sample'][0], EPOCHS['delay'][1]],
                 "io": "off"
             },
-            "SNR2": {   
+            "SNR3": {   
                 "interval":[EPOCHS['response'][0], TMAX-250],
                 "io": "off"
             },
@@ -136,9 +141,13 @@ CRITERIA = {
             },
             "SNR1": {
                 "interval":[0,TMAX],
+                "io": "off"
+            },
+            "SNR2": {
+                "interval":[0,TMAX],
                 "io": "on"
             },
-            "SNR2": {   
+            "SNR3": {   
                 "interval":[0,TMAX],
                 "io": "on"
             },
