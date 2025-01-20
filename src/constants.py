@@ -42,7 +42,8 @@ GO_DURATION = 100 # From the Wang paper directly
 GO_STRENGTH = 850.
 CUE_STRENGTH = 145.
 
-DNA_0 = [75., 205., -90., -10., 65., 80., 320., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320.]
+DNA_0 = [75., 205., -90., -10., 65., 80., 320., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320.,
+         0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
 
 NEURON_NAMES = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
 
@@ -51,7 +52,31 @@ ACTIVE_SYNAPSES = [
     ["VMprep", "ALMprep"], ["ALMprep", "VMprep"], ["ALMprep", "MSN2"], ["MSN2", "SNR2"], #["SNR2", "VMprep"] REMOVED 1/17/25
     ["SNR2", "VMresp"], ["PPN", "THALgo"], ["THALgo", "ALMinter"],
     ["THALgo", "ALMresp"], ["ALMinter", "ALMprep"], ["MSN3", "SNR3"], ["SNR3", "VMresp"],
-    ["VMresp", "ALMresp"], ["ALMresp", "VMresp"], ["ALMresp", "MSN3"]
+    ["VMresp", "ALMresp"], ["ALMresp", "VMresp"], ["ALMresp", "MSN3"],
+    #These new connections were added 1/17/25
+
+    # Somat to remaining ALM
+    ["Somat", "ALMinter"], ["Somat", "ALMresp"],
+    
+    # All MSN to all SNR (excluding existing)
+    ["MSN1", "SNR3"], ["MSN1", "SNR2"],
+    ["MSN2", "SNR1"], ["MSN2", "SNR3"],
+    ["MSN3", "SNR1"], ["MSN3", "SNR2"],
+    
+    # All SNR to all VM (excluding existing)
+    ["SNR1", "VMresp"],
+    ["SNR2", "VMprep"],
+    ["SNR3", "VMprep"],
+    
+    # All ALM to all MSN (excluding existing)
+    ["ALMinter", "MSN1"], ["ALMinter", "MSN2"], ["ALMinter", "MSN3"],
+    ["ALMresp", "MSN1"], ["ALMresp", "MSN2"],
+    
+    # All VM to all ALM (excluding existing)
+    ["VMprep", "ALMinter"], ["VMprep", "ALMresp"],
+    ["VMresp", "ALMprep"], ["VMresp", "ALMinter"]
+
+
 ]
 
 EPOCHS = {

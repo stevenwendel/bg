@@ -74,6 +74,8 @@ def load_dna(dna: list[float]) -> np.ndarray:
         >>> w.shape == (len(NEURON_NAMES), len(NEURON_NAMES))
         True
     """
+    print(f'{len(dna)=}')
+    print(f'{len(ACTIVE_SYNAPSES)=}')
     assert len(ACTIVE_SYNAPSES) == len(dna), "Number of available synapses does not match length of DNA"
 
     w = np.zeros((len(NEURON_NAMES), len(NEURON_NAMES)))
@@ -123,10 +125,20 @@ def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria, curr_d
         target_neuron_criteria = criteria[condition]
         # Calculate the score
 
-        # Normalize score by L1 norm of current DNA
-        l1_norm = norm(curr_dna, 1) * .01
-        print(f'L1 norm: {l1_norm}')
-        scores[condition] = calculate_score(target_neuron_spike_bins, target_neuron_criteria) - int(l1_norm) #should add curr_dna to arguments...
+        # # Normalize score by L1 norm of current DNA
+        # l1_norm = norm(curr_dna, 1) 
+        # l1_norm_transform = l1_norm
+        # print(f'L1 norm: {l1_norm}')
+
+        # def normal_dist(x, mean, sd):
+        #     prob_density = (np.pi*sd) * np.exp(-0.5*((x-mean)/sd)**2)
+        #     return prob_density
+
+        #Indicator function for zero weights; scaled
+        bins_totes = target_neuron_spike_bins.shape[1] *2 #mulitiplied by 2 to account for control and experimental; 
+        mui= bins_totes * 1/target_neuron_spike_bins.shape[0] # percent of bins I'm willing to sacrifice for a zero weight
+        zero_count = sum(mui for gene in curr_dna if abs(gene) < 5)
+        scores[condition] = calculate_score(target_neuron_spike_bins, target_neuron_criteria) + zero_count #should add curr_dna to arguments...
     
     return scores, neuron_data
 
