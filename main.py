@@ -70,7 +70,8 @@ def main():
                 neurons=all_neurons,
                 alpha_array=alpha_array,
                 input_waves=input_waves,
-                criteria=criteria_dict
+                criteria=criteria_dict,
+                curr_dna=curr_dna
                 )
             
             total_score = sum(dna_scores.values())

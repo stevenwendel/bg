@@ -9,6 +9,8 @@ from src.network import run_network
 from src.validation import *
 from copy import deepcopy
 
+from scipy.linalg import norm
+
 # def initialize_genetic_algorithm(pop_size=500, mut_rate=0.1, mut_sigma=0.3, rank_depth=None, crossover_point=None, num_gen=10, elite_passthrough=5, bounds=[0, 400], my_free_weights=None, path=''):
 """
 Initializes parameters and creates the initial population for the genetic algorithm.
@@ -86,7 +88,7 @@ def load_dna(dna: list[float]) -> np.ndarray:
 
 
 # === Running Network and Storing Results ====    
-def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
+def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria, curr_dna):
 
     neuron_data = {}
     scores = {}
@@ -120,7 +122,11 @@ def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
                 ).sum(axis=2)
         target_neuron_criteria = criteria[condition]
         # Calculate the score
-        scores[condition] = calculate_score(target_neuron_spike_bins, target_neuron_criteria)
+
+        # Normalize score by L1 norm of current DNA
+        l1_norm = norm(curr_dna, 1) * .01
+        print(f'L1 norm: {l1_norm}')
+        scores[condition] = calculate_score(target_neuron_spike_bins, target_neuron_criteria) - int(l1_norm) #should add curr_dna to arguments...
     
     return scores, neuron_data
 

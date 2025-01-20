@@ -8,6 +8,7 @@ from src.neuron import Izhikevich
 from src.constants import *
 
 
+
 # def score_run(binned_differences_df: pd.DataFrame, diff_criteria_df: pd.DataFrame):
 #     """Scores how well neural activity matches expected criteria.
 
@@ -107,6 +108,11 @@ def calculate_score(matrix1, matrix2):
                     score+=3
     
     # First attempt at applying L1 norm... 
+    # Could use this to calcualte score for matrices... 
+    # l1_norm = norm(matrix1 - matrix2, ord=1)
+
+    # Gonna put this in the GA.py script... 
+    # score -= l1_norm
 
     return score
 
