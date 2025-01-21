@@ -11,17 +11,7 @@ from copy import deepcopy
 
 from scipy.linalg import norm
 
-# def initialize_genetic_algorithm(pop_size=500, mut_rate=0.1, mut_sigma=0.3, rank_depth=None, crossover_point=None, num_gen=10, elite_passthrough=5, bounds=[0, 400], my_free_weights=None, path=''):
-"""
-Initializes parameters and creates the initial population for the genetic algorithm.
-"""
-# if rank_depth is None:
-#     rank_depth = int(np.floor(pop_size / 3))
-# if crossover_point is None:
-#     crossover_point = int(np.floor(len(my_free_weights) / 2))
 
-# random.seed(0)
-# file_path = f'{path}pop{pop_size}_gen{num_gen}'
 
 def create_dna(bounds: list[float]) -> list[float]:
     """Creates a single strand of DNA representing synaptic weights for a neural network.
@@ -49,6 +39,8 @@ def create_dna(bounds: list[float]) -> list[float]:
         dna.append(dna_val)
     return dna
 
+
+
 def load_dna(dna: list[float]) -> np.ndarray:
     """Converts a DNA sequence of synaptic weights into a weight matrix for a neural network.
 
@@ -74,8 +66,7 @@ def load_dna(dna: list[float]) -> np.ndarray:
         >>> w.shape == (len(NEURON_NAMES), len(NEURON_NAMES))
         True
     """
-    print(f'{len(dna)=}')
-    print(f'{len(ACTIVE_SYNAPSES)=}')
+
     assert len(ACTIVE_SYNAPSES) == len(dna), "Number of available synapses does not match length of DNA"
 
     w = np.zeros((len(NEURON_NAMES), len(NEURON_NAMES)))
@@ -135,48 +126,14 @@ def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria, curr_d
         #     return prob_density
 
         #Indicator function for zero weights; scaled
-        bins_totes = target_neuron_spike_bins.shape[1] *2 #mulitiplied by 2 to account for control and experimental; 
-        mui= bins_totes * 1/target_neuron_spike_bins.shape[0] # percent of bins I'm willing to sacrifice for a zero weight
-        zero_count = sum(mui for gene in curr_dna if abs(gene) < 5)
-        scores[condition] = calculate_score(target_neuron_spike_bins, target_neuron_criteria) + zero_count #should add curr_dna to arguments...
+        # bins_totes = target_neuron_spike_bins.shape[1] *2 #mulitiplied by 2 to account for control and experimental; 
+        # mui= bins_totes * 1/target_neuron_spike_bins.shape[0] # percent of bins I'm willing to sacrifice for a zero weight
+        # zero_count = sum(mui for gene in curr_dna if abs(gene) < 5)
+
+        scores[condition] = calculate_score(target_neuron_spike_bins, target_neuron_criteria)  #should add curr_dna to arguments...
     
     return scores, neuron_data
 
-
-def score_population(dnas, free_weights_list, pop_size, validation_neurons, experiment_criteria, control_criteria):
-    """Score a population of DNA sequences by evaluating network performance.
-
-    Evaluates each DNA sequence in the population by:
-    1. Converting DNA to weight matrix
-    2. Running network simulation in experimental and control conditions
-    3. Calculating overall score as sum of experimental and control scores
-
-    Args:
-        dnas (list): List of DNA sequences to evaluate
-        free_weights_list (list): List of synaptic weights that can be modified
-        pop_size (int): Size of the population
-        validation_neurons (list): List of neuron objects for validation
-        experiment_criteria (dict): Scoring criteria for experimental condition
-        control_criteria (dict): Scoring criteria for control condition
-
-    Returns:
-        list: List of [dna, score] pairs for each DNA sequence in population
-
-    Example:
-        >>> population_scores = score_population(dnas, weights, 100, neurons, exp_criteria, ctrl_criteria)
-        >>> best_dna = max(population_scores, key=lambda x: x[1])[0]
-    """
-    scores = []
-    for dna in dnas:
-        weight_matrix = load_dna(free_weights_list, dna)
-        run_network(weight_matrix, validation_neurons, sq_wave, go_wave, t_max, dt, alpha_array, control=False)
-        experiment_score = score_run(validation_neurons, experiment_criteria, validation_thresholds, validation_period_times)
-        run_network(weight_matrix, validation_neurons, sq_wave, go_wave, t_max, dt, alpha_array, control=True)
-        control_score = score_run(validation_neurons, control_criteria, validation_thresholds, validation_period_times)
-        overall_score = experiment_score + control_score
-        print(f'Score: {overall_score} | DNA: {dna}')
-        scores.append([dna, overall_score])
-    return scores
 
 
 def spawn_next_population(curr_pop: list[dict], ga_config: dict) -> list[list[float]]:
@@ -224,69 +181,3 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict) -> list[list[fl
     
     assert len(next_dnas) == ga_config['POP_SIZE']
     return next_dnas
-
-
-
-
-# Currently unused
-def run_genetic_algorithm(config, my_free_weights, validation_neurons, experiment_criteria, control_criteria, validation_thresholds, validation_period_times, t_max, dt, alpha_array, sq_wave, go_wave):
-    """Runs genetic algorithm optimization of neural network weights.
-
-    Evolves a population of weight matrices over multiple generations to optimize network behavior.
-    Each generation:
-    1. Scores current population by running network simulations
-    2. Creates next generation through selection and mutation
-    3. Saves generation results to pickle file
-
-    Args:
-        config (dict): Configuration parameters including:
-            - dnas (list): Initial population of weight matrices
-            - population_size (int): Size of population to maintain
-            - num_generations (int): Number of generations to run
-            - file_path (str): Base path for saving generation results
-            - rank_depth (int): Number of top individuals used for breeding
-            - mutation_rate (float): Probability of mutating each gene
-            - mutation_sigma (float): Standard deviation for mutations
-            - elite_passthrough (int): Number of top individuals preserved unchanged
-        my_free_weights (list): List of modifiable synaptic weights
-        validation_neurons (list): Neurons to validate behavior of
-        experiment_criteria (DataFrame): Target behavior for experimental condition
-        control_criteria (DataFrame): Target behavior for control condition
-        validation_thresholds (list): Firing rate thresholds for validation
-        validation_period_times (list): Time windows for validation
-        t_max (int): Maximum simulation time
-        dt (float): Simulation time step
-        alpha_array (ndarray): Alpha function for synaptic transmission
-        sq_wave (ndarray): Square wave input
-        go_wave (ndarray): Go signal input
-
-    Returns:
-        list: Scores and DNA sequences for each generation
-
-    Example:
-        >>> config = {'dnas': initial_pop, 'population_size': 100, ...}
-        >>> results = run_genetic_algorithm(config, weights, neurons, ...)
-    """
-    dnas = config['dnas']
-    pop_size = config['population_size'] 
-    num_gen = config['num_generations']
-    file_path = config['file_path']
-    gen_scores = []
-
-    for gen in range(num_gen):
-        print(f'==== Generation {gen} =====')
-        scores = score_population(dnas, my_free_weights, pop_size, validation_neurons, experiment_criteria, control_criteria)
-        print('Finished scoring!')
-        
-        pop = [[dnas[i], scores[i][1]] for i in range(pop_size)]
-        gen_scores.append(pop)
-        dnas = spawn_next_generation(pop, config['rank_depth'], config['mutation_rate'], config['mutation_sigma'], config['elite_passthrough'], pop_size, my_free_weights)
-        
-        gen_df = pd.DataFrame([[gen, individual[0], individual[1]] for individual in pop], columns=['Gen #', 'DNA', 'Score'])
-        
-        # Saving as .pkl to Drive
-        save_path = f'{file_path}_complete.pkl' if gen == num_gen -1 else f'{file_path}_{gen+1}.pkl'
-        gen_df.to_pickle(save_path)
-        print(f'Saved to: {save_path}')
-
-    return gen_scores

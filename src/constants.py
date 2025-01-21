@@ -1,37 +1,3 @@
-# I should make these all caps; will need to learn how to change all varibales across all files though...
-
-GA_CONFIG = {
-    "large":   {
-        "NUM_GENERATIONS" : 10,
-        "POP_SIZE" : 500,
-        "MUT_RATE" : 0.15,
-        "MUT_SIGMA" : 0.3,
-        "RANK_DEPTH" : 250,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,400]
-    },
-    "small": {
-        "NUM_GENERATIONS" : 3,
-        "POP_SIZE" : 10,
-        "MUT_RATE" : 0.15,
-        "MUT_SIGMA" : 0.3,
-        "RANK_DEPTH" : 5,
-        "ELITE_SIZE" : 1,
-        "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,400]
-    },
-    "xlarge":   {
-        "NUM_GENERATIONS" : 30,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.25,
-        "MUT_SIGMA" : 0.4,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 20,
-        "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,400]
-    }
-}
 
 # Time Config
 TMAX = 5000
@@ -53,7 +19,9 @@ ACTIVE_SYNAPSES = [
     ["SNR2", "VMresp"], ["PPN", "THALgo"], ["THALgo", "ALMinter"],
     ["THALgo", "ALMresp"], ["ALMinter", "ALMprep"], ["MSN3", "SNR3"], ["SNR3", "VMresp"],
     ["VMresp", "ALMresp"], ["ALMresp", "VMresp"], ["ALMresp", "MSN3"],
-    #These new connections were added 1/17/25
+    
+    # These new connections were added 1/17/25
+    # "The only impossible connections I think are MSN->cortical, SNR->cortical"
 
     # Somat to remaining ALM
     ["Somat", "ALMinter"], ["Somat", "ALMresp"],
@@ -74,10 +42,19 @@ ACTIVE_SYNAPSES = [
     
     # All VM to all ALM (excluding existing)
     ["VMprep", "ALMinter"], ["VMprep", "ALMresp"],
-    ["VMresp", "ALMprep"], ["VMresp", "ALMinter"]
+    ["VMresp", "ALMprep"], ["VMresp", "ALMinter"],
 
+    # Recurrent MSN connections
+    ["MSN1", "MSN2"], ["MSN1", "MSN3"],
+    ["MSN2", "MSN3"], ["MSN2", "MSN1"],
+    ["MSN3", "MSN1"], ["MSN3", "MSN2"],
 
-]
+    # Recurrent ALM connections
+    ["ALMprep", "ALMinter"], ["ALMprep", "ALMresp"],
+    ["ALMinter", "ALMresp"], ["ALMinter", "ALMprep"],
+    ["ALMresp", "ALMinter"], ["ALMresp", "ALMprep"]
+    
+    ]
 
 EPOCHS = {
     'sample'   : [1000, 2000], #should there be a [0,1000] epoch?
@@ -146,15 +123,15 @@ CRITERIA = {
                 "io": "on"
             } 
         },
-        #I don't think I need this
+      
         "control" : {
             "Somat": {
                 "interval":[EPOCHS['sample'][0], EPOCHS['sample'][1]],
                 "io": "off"
             },
-                    "ALMprep": {
-            "interval":[EPOCHS['sample'][0], EPOCHS['delay'][1]],
-            "io": "on"
+            "ALMprep": {
+                "interval":[EPOCHS['sample'][0], EPOCHS['delay'][1]],
+                "io": "off"
             },
             "ALMinter": {
                 "interval":[EPOCHS['response'][0], EPOCHS['response'][0] + 300],
@@ -166,7 +143,7 @@ CRITERIA = {
             },
             "SNR1": {
                 "interval":[0,TMAX],
-                "io": "off"
+                "io": "on"
             },
             "SNR2": {
                 "interval":[0,TMAX],
@@ -190,3 +167,46 @@ CRITERIA = {
             }
         }
     }
+
+GA_CONFIG = {
+    "large":   {
+        "NUM_GENERATIONS" : 10,
+        "POP_SIZE" : 500,
+        "MUT_RATE" : 0.15,
+        "MUT_SIGMA" : 0.3,
+        "RANK_DEPTH" : 250,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,400]
+    },
+    "small": {
+        "NUM_GENERATIONS" : 3,
+        "POP_SIZE" : 10,
+        "MUT_RATE" : 0.15,
+        "MUT_SIGMA" : 0.3,
+        "RANK_DEPTH" : 5,
+        "ELITE_SIZE" : 1,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,400]
+    },
+    "xlarge":   {
+        "NUM_GENERATIONS" : 30,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.25,
+        "MUT_SIGMA" : 0.4,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 20,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,400]
+    },
+    "xlarge_highMutation":   {
+        "NUM_GENERATIONS" : 30,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.30,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 200,
+        "ELITE_SIZE" : 20,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,400]
+    }
+}

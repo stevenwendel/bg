@@ -17,12 +17,13 @@ from src.genetic_algorithm import *
 from copy import copy
 from datetime import datetime
 import time
+from multiprocessing import Pool
 
 def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = 'large'
+    ga_set = 'xlarge_highMutation'
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
