@@ -19,11 +19,12 @@ from datetime import datetime
 import time
 from multiprocessing import Pool
 
+
 def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = 'xlarge_highMutation'
+    ga_set = 'xxlarge_highMutation'
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
@@ -35,10 +36,7 @@ def main():
         'show_difference_histogram' : False,
         'show_dna_scores': False
     }
-    
-
-
-    
+        
     # === Creating Izhikevich neurons ===
     # Note: these do NOT have instrisic histories; these are generated ONCE at beginning, and copied thereafter
     all_neurons = create_neurons()
@@ -61,63 +59,18 @@ def main():
         population_results = []
         save_dict[f'generation{generation}'] = {}
 
-        for i, curr_dna in enumerate(curr_population):
-            # Loading dna into matrix
-            dna_matrix = load_dna(curr_dna) 
+        with Pool() as pool:
+            args_list = [(dna, all_neurons, alpha_array, input_waves, criteria_dict, generation, max_score) 
+                        for dna in curr_population]
+            drone_results = pool.imap_unordered(drone_evaluate_dna, args_list)
+            for curr_dna, total_score in drone_results:
+                population_results.append(
+                    {'dna': curr_dna, 
+                     'dna_score' : total_score
+                     })
 
-            # Running network to score dna
-            dna_scores, neuron_data = evaluate_dna(
-                dna_matrix=dna_matrix,
-                neurons=all_neurons,
-                alpha_array=alpha_array,
-                input_waves=input_waves,
-                criteria=criteria_dict,
-                curr_dna=curr_dna
-                )
-            
-            total_score = sum(dna_scores.values())
-            print(f'{generation}.{i} === DNA: {curr_dna}') 
-            print(f'    === Control: {dna_scores["control"]}/{max_score}')
-            print(f'    === Experimental: {dna_scores["experimental"]}/{max_score}')
-            print(f'    === Overall: {total_score}({total_score/(2*max_score):.2%})')
-            print('\n')
-            # Appending results to population_results for spawning next generation (requires list of dicts)
-            population_results.append({
-                'dna': curr_dna,
-                'dna_score' : total_score
-            })
-
-            # Adding to master dictionary for quickly aving results to pickle file
-            save_dict[f'generation{generation}'][f'iteration{i}'] = {
-                'dna': curr_dna,
-                'dna_score' : total_score,    
-                # 'neuron_data' : neuron_data,
-                # 'binned_differences' : binned_differences
-            }
-
-            # if generation == 1 and i==8:
-            #     diagnostic = {
-            #         'show_dna_matrix' : False,
-            #         'show_neuron_plots' : True,
-            #         'show_difference_histogram' : True,
-            #         'show_dna_scores': False
-            #     }
-
-
-            # Show diagnostic feedback
-            if diagnostic['show_dna_matrix']:
-                print("Currently loaded matrix ---")
-                display_matrix(dna_matrix, NEURON_NAMES)
-
-            if diagnostic['show_dna_scores']:
-                print(f'{dna_scores=}: {curr_dna}')
-            
-            if diagnostic['show_neuron_plots']:
-                for condition in ['experimental', 'control']:
-                    plot_neurons_interactive(neurons=neuron_data[condition], sq_wave=input_waves[0], go_wave=input_waves[1], show_u=False)
-                    
-            # if diagnostic['show_difference_histogram']:
-            #     plot_binned_differences(binned_differences)
+        # Quick save to temp dict (repository for all dna across all generations)   
+        save_dict[f'generation{generation}'] = population_results
 
         curr_population = spawn_next_population(population_results, GA_CONFIG[ga_set])
 

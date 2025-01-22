@@ -134,7 +134,30 @@ def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria, curr_d
     
     return scores, neuron_data
 
+def drone_evaluate_dna(args):
+    curr_dna, all_neurons, alpha_array, input_waves, criteria_dict, generation, max_score = args
+    
+    # Loading dna into matrix
+    dna_matrix = load_dna(curr_dna) 
 
+    # Running network to score dna
+    dna_scores, neuron_data = evaluate_dna(
+        dna_matrix=dna_matrix,
+        neurons=all_neurons,
+        alpha_array=alpha_array,
+        input_waves=input_waves,
+        criteria=criteria_dict,
+        curr_dna=curr_dna
+        )
+    
+    total_score = sum(dna_scores.values())
+
+    print(f'Gen {generation} === DNA: {curr_dna}') 
+    print(f'    === Control: {dna_scores["control"]}/{max_score}')
+    print(f'    === Experimental: {dna_scores["experimental"]}/{max_score}')
+    print(f'    === Overall: {total_score}({total_score/(2*max_score):.2%})\n')
+
+    return curr_dna, total_score
 
 def spawn_next_population(curr_pop: list[dict], ga_config: dict) -> list[list[float]]:
     """Generates the next population of DNA sequences through selection and mutation.

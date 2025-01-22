@@ -16,9 +16,9 @@ NEURON_NAMES = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "P
 ACTIVE_SYNAPSES = [
     ["Somat", "ALMprep"], ["Somat", "MSN1"], ["MSN1", "SNR1"], ["SNR1", "VMprep"],
     ["VMprep", "ALMprep"], ["ALMprep", "VMprep"], ["ALMprep", "MSN2"], ["MSN2", "SNR2"], #["SNR2", "VMprep"] REMOVED 1/17/25
-    ["SNR2", "VMresp"], ["PPN", "THALgo"], ["THALgo", "ALMinter"],
-    ["THALgo", "ALMresp"], ["ALMinter", "ALMprep"], ["MSN3", "SNR3"], ["SNR3", "VMresp"],
-    ["VMresp", "ALMresp"], ["ALMresp", "VMresp"], ["ALMresp", "MSN3"],
+    ["SNR2", "VMresp"], ["PPN", "THALgo"], ["THALgo", "ALMinter"], ["THALgo", "ALMresp"], 
+    ["ALMinter", "ALMprep"], ["MSN3", "SNR3"], ["SNR3", "VMresp"], ["VMresp", "ALMresp"], 
+    ["ALMresp", "VMresp"], ["ALMresp", "MSN3"],
     
     # These new connections were added 1/17/25
     # "The only impossible connections I think are MSN->cortical, SNR->cortical"
@@ -135,7 +135,7 @@ CRITERIA = {
             },
             "ALMinter": {
                 "interval":[EPOCHS['response'][0], EPOCHS['response'][0] + 300],
-                "io": "off"
+                "io": "on"
             },
             "ALMresp": {
                 "interval":[EPOCHS['response'][0], EPOCHS['response'][1]], #tMax -250?
@@ -200,11 +200,21 @@ GA_CONFIG = {
         "DNA_BOUNDS" : [0,400]
     },
     "xlarge_highMutation":   {
-        "NUM_GENERATIONS" : 30,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.30,
+        "NUM_GENERATIONS" : 75,
+        "POP_SIZE" : 2000,
+        "MUT_RATE" : 0.35,
+        "MUT_SIGMA" : 0.3,
+        "RANK_DEPTH" : 400,
+        "ELITE_SIZE" : 20,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,400]
+    },
+        "xxlarge_highMutation":   {
+        "NUM_GENERATIONS" : 300,
+        "POP_SIZE" : 4000,
+        "MUT_RATE" : 0.35,
         "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 200,
+        "RANK_DEPTH" : 1000,
         "ELITE_SIZE" : 20,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,400]
