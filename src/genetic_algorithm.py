@@ -73,8 +73,12 @@ def load_dna(dna: list[float]) -> np.ndarray:
     for i, synapse in enumerate(ACTIVE_SYNAPSES):
         origin, termina = synapse
         
-        origin_index = NEURON_NAMES.index(origin)
-        termina_index = NEURON_NAMES.index(termina)
+        try:
+            origin_index = NEURON_NAMES.index(origin)
+            termina_index = NEURON_NAMES.index(termina)
+        except ValueError as e:
+            raise ValueError(f"Invalid synapse '{synapse}': {e}")
+
         w[origin_index, termina_index] = dna[i]
     return w
 
@@ -110,27 +114,12 @@ def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria, curr_d
             }
         neuron_data[condition] = condition_data
     
-        target_neurons_spikes = np.array([neuron_data[condition][name]['spike_times'] for name in CRITERIA_NAMES])
-        target_neuron_spike_bins = np.reshape(target_neurons_spikes, (len(CRITERIA_NAMES), TMAX//BIN_SIZE, BIN_SIZE)
+        critical_neurons_spikes = np.array([neuron_data[condition][name]['spike_times'] for name in CRITERIA_NAMES])
+        critical_neuron_spike_bins = np.reshape(critical_neurons_spikes, (len(CRITERIA_NAMES), TMAX//BIN_SIZE, BIN_SIZE) #I think this is a problem... how does Sum work?
                 ).sum(axis=2)
-        target_neuron_criteria = criteria[condition]
-        # Calculate the score
+        critical_neuron_criteria = criteria[condition]
 
-        # # Normalize score by L1 norm of current DNA
-        # l1_norm = norm(curr_dna, 1) 
-        # l1_norm_transform = l1_norm
-        # print(f'L1 norm: {l1_norm}')
-
-        # def normal_dist(x, mean, sd):
-        #     prob_density = (np.pi*sd) * np.exp(-0.5*((x-mean)/sd)**2)
-        #     return prob_density
-
-        #Indicator function for zero weights; scaled
-        # bins_totes = target_neuron_spike_bins.shape[1] *2 #mulitiplied by 2 to account for control and experimental; 
-        # mui= bins_totes * 1/target_neuron_spike_bins.shape[0] # percent of bins I'm willing to sacrifice for a zero weight
-        # zero_count = sum(mui for gene in curr_dna if abs(gene) < 5)
-
-        scores[condition] = calculate_score(target_neuron_spike_bins, target_neuron_criteria)  #should add curr_dna to arguments...
+        scores[condition] = calculate_score(critical_neuron_spike_bins, critical_neuron_criteria, condition)  #should add curr_dna to arguments...
     
     return scores, neuron_data
 

@@ -24,7 +24,7 @@ def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = 'xxlarge_highMutation'
+    ga_set = 'large'
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
@@ -43,11 +43,10 @@ def main():
     
     # === Preparing Network === 
     splits, input_waves, alpha_array = create_experiment()
-    num_periods = len(splits) - 1
 
     # === Defining Criteria === 
-    criteria_dict = define_criteria(num_periods)
-    max_score = (num_periods) * len(CRITERIA_NAMES)
+    criteria_dict = define_criteria()
+    max_score = TMAX // BIN_SIZE * len(CRITERIA_NAMES)
 
     # === Evaluating DNA ===
     curr_population = [create_dna(GA_CONFIG[ga_set]['DNA_BOUNDS']) for _ in range(GA_CONFIG[ga_set]['POP_SIZE'])]

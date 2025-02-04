@@ -1,84 +1,36 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import numpy as np
 import pandas as pd
 from src.neuron import Izhikevich
 from src.constants import *
 
 
-
-# def score_run(binned_differences_df: pd.DataFrame, diff_criteria_df: pd.DataFrame):
-#     """Scores how well neural activity matches expected criteria.
-
-#     Compares binned firing rate differences between experimental and control conditions
-#     against expected differences defined in criteria. Awards points when activity matches
-#     expectations and penalizes mismatches.
-
-#     Args:
-#         binned_differences_df (pd.DataFrame): Observed firing rate differences between 
-#             experimental and control conditions. Each row is a neuron, columns are time periods.
-#         diff_criteria_df (pd.DataFrame): Expected differences between conditions.
-#             Must have same shape as binned_differences_df. Positive values indicate expected
-#             higher firing in experimental condition.
-
-#     Returns:
-#         int: Score indicating how well activity matched criteria. Higher is better.
-#             +1 for each match (active when expected or inactive when not expected)
-#             -1 for each mismatch (active when not expected or inactive when expected)
-
-#     Example:
-#         >>> differences = pd.DataFrame([[1,0], [0,-1]])  # 2 neurons, 2 time periods
-#         >>> criteria = pd.DataFrame([[1,0], [0,0]])      # Expect activity only in [0,0]
-#         >>> score = score_run(differences, criteria)
-#         >>> assert score == 3  # 3 matches, 1 mismatch
-#     """
-#     if binned_differences_df is not pd.DataFrame:
-#         binned_differences_df = pd.DataFrame(binned_differences_df)
-#     if diff_criteria_df is not pd.DataFrame:
-#         diff_criteria_df = pd.DataFrame(diff_criteria_df)
-     
-#     assert (binned_differences_df.shape == diff_criteria_df.shape), "Shapes are incongruent"
-
-#     score = 0
-#     for neu in diff_criteria_df.index:
-#         neuron_ts = binned_differences_df.loc[neu]
-#         criteria_ts = diff_criteria_df.loc[neu]
-#         # print(f'{neuron_ts=}')
-#         # print(f'{criteria_ts=}')    
-#         for period in criteria_ts.index:
-#             expected = True if criteria_ts[period] > 0 else False
-#             active = abs(neuron_ts[period]) > 0
-#             if active and expected:
-#                 score += 1
-#             elif not active and not expected:
-#                 score += 1
-#             else:
-#                 score -= 1
-#     return score
-
-
-def define_criteria(num_periods: int) -> dict[str, np.ndarray]:
+def define_criteria() -> dict[str, np.ndarray]:
 
     assert len(CRITERIA['experimental']) == len(CRITERIA['control']) == len(CRITERIA_NAMES), "Criteria for experimental and control conditions must be the same length"
 
     tMax = TMAX
-    num_criteria = len(CRITERIA_NAMES)
-    period_size = TMAX // num_periods
-
+    num_periods = TMAX // BIN_SIZE
     criteria = {}
 
     for condition in ['experimental', 'control']:
     
-        io_matrix = np.zeros((num_criteria, num_periods))
+        io_matrix = np.zeros((len(CRITERIA_NAMES), num_periods))
+        
+        # Set rows to 1 for names in the TONICALLY_ACTIVE list
+        for i, name in enumerate(CRITERIA_NAMES):
+            if name in TONICALLY_ACTIVE_NEURONS:
+                io_matrix[i, :] = 1  # Set the entire row to 1
+
         io_dict = CRITERIA[condition]
 
         for i, (key, value) in enumerate(io_dict.items()):
             interval = value['interval']
             io = value['io']
-            start_period = interval[0] // period_size
-            end_period = min(interval[1] // period_size, num_periods)
+            start_period = interval[0] // BIN_SIZE
+            end_period = min(interval[1] // BIN_SIZE, num_periods)
             io_matrix[i, start_period:end_period] = 1 if io == 'on' else 0
         criteria[condition] = io_matrix
 
@@ -90,22 +42,27 @@ def define_criteria(num_periods: int) -> dict[str, np.ndarray]:
     return criteria
 
 
-def calculate_score(matrix1, matrix2):
+def calculate_score(critSpikeMatrix, critCriteriaMatrix, condition):
     # Ensure matrices have the same dimensions
-    if len(matrix1) != len(matrix2) or len(matrix1[0]) != len(matrix2[0]):
+    if len(critSpikeMatrix) != len(critCriteriaMatrix) or len(critSpikeMatrix[0]) != len(critCriteriaMatrix[0]):
         raise ValueError("Matrices must have the same dimensions.")
 
     score = 0
 
     # Loop through both matrices
-    for i in range(len(matrix1)):
-        for j in range(len(matrix1[0])):
+    for i in range(len(critSpikeMatrix)):
+        for j in range(len(critSpikeMatrix[0])):
             # Award a point if both entries are 0 or both are positive
-            if (matrix1[i][j] == 0 and matrix2[i][j] == 0) or (matrix1[i][j] > 0 and matrix2[i][j] > 0):
+            if (critSpikeMatrix[i][j] == 0 and critCriteriaMatrix[i][j] == 0) or (critSpikeMatrix[i][j] > 0 and critCriteriaMatrix[i][j] > 0):
                 score += 1
-                # Special case scoring
-                if i==7 and 30<j<40:
-                    score+=3
+            else:
+                print(f'Neuron#: {CRITERIA_NAMES[i]} ==== Period#: {j} ==== Time: {j*BIN_SIZE}-{(j+1)*BIN_SIZE} ==== Condition: {condition}')
+                print(f'Spikes: {int(critSpikeMatrix[i][j])} ==== Criteria: {int(critCriteriaMatrix[i][j])}')
+                if (CRITERIA_NAMES[i] == 'ALMresp') and j==1:
+                    pass
+                # # Special case scoring
+                # if i==7 and 30<j<40:
+                #     score+=3
     
     # First attempt at applying L1 norm... 
     # Could use this to calcualte score for matrices... 
@@ -116,50 +73,6 @@ def calculate_score(matrix1, matrix2):
 
     return score
 
-""" ====deprecated====
-
-def score_run(
-        target_binned_differences: dict[str,np.ndarray], #Receiving target_binned_differences
-        io_criteria: np.ndarray) -> int: # 9x20 matrix (i.e. array of arrays) of 0s and 1s
-    
-    #check to see what i'm looking at
-    print(target_binned_differences)
-    print(io_criteria)
-
-    raise Exception("Not implemented")
-    
-    # For each CONDITION in neuron_data:
-    #     Use get_neurons to select neurons in CRITERIA_NAMES.
-    #     Compare the spike bins of EACH of the CONDITION neurons to the on/off states in criteria.
-    
-
-    if binned_differences_df is not pd.DataFrame:
-        binned_differences_df = pd.DataFrame(binned_differences_df)
-    if diff_criteria_df is not pd.DataFrame:
-        diff_criteria_df = pd.DataFrame(diff_criteria_df)
-     
-    assert (binned_differences_df.shape == diff_criteria_df.shape), "Shapes are incongruent"
-
-    score = 0
-    for neu in diff_criteria_df.index:
-        neuron_ts = binned_differences_df.loc[neu]
-        criteria_ts = diff_criteria_df.loc[neu]
-        # print(f'{neuron_ts=}')
-        # print(f'{criteria_ts=}')    
-        for period in criteria_ts.index:
-            expected = True if criteria_ts[period] > 0 else False
-            active = abs(neuron_ts[period]) > 0
-            if active and expected:
-                score += 1
-            elif not active and not expected:
-                score += 1
-            else:
-                score -= 1
-    return score
-
-
-
-"""
 """
     # NEED TO REIMPLEMENT THESE LITTLE CASES.
     # Hard to do because the number of periods is not pre-defined, so I don't know what part to look at.

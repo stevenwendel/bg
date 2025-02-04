@@ -6,65 +6,102 @@ BIN_SIZE = 100
 # Setup Config
 GO_DURATION = 100 # From the Wang paper directly
 GO_STRENGTH = 850.
-CUE_STRENGTH = 145.
+CUE_STRENGTH = 150.
 
-DNA_0 = [75., 205., -90., -10., 65., 80., 320., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320.,
-         0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+
 
 NEURON_NAMES = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
-
+TONICALLY_ACTIVE_NEURONS = ["SNR1", "SNR2", "SNR3", "PPN", "THALgo"]
 ACTIVE_SYNAPSES = [
-    ["Somat", "ALMprep"], ["Somat", "MSN1"], ["MSN1", "SNR1"], ["SNR1", "VMprep"],
-    ["VMprep", "ALMprep"], ["ALMprep", "VMprep"], ["ALMprep", "MSN2"], ["MSN2", "SNR2"], #["SNR2", "VMprep"] REMOVED 1/17/25
-    ["SNR2", "VMresp"], ["PPN", "THALgo"], ["THALgo", "ALMinter"], ["THALgo", "ALMresp"], 
-    ["ALMinter", "ALMprep"], ["MSN3", "SNR3"], ["SNR3", "VMresp"], ["VMresp", "ALMresp"], 
-    ["ALMresp", "VMresp"], ["ALMresp", "MSN3"],
-    
-    # These new connections were added 1/17/25
-    # "The only impossible connections I think are MSN->cortical, SNR->cortical"
+    # Connections from Somat
+    ["Somat", "ALMprep"], ["Somat", "ALMinter"], ["Somat", "ALMresp"], ["Somat", "MSN1"],
 
-    # Somat to remaining ALM
-    ["Somat", "ALMinter"], ["Somat", "ALMresp"],
-    
-    # All MSN to all SNR (excluding existing)
-    ["MSN1", "SNR3"], ["MSN1", "SNR2"],
-    ["MSN2", "SNR1"], ["MSN2", "SNR3"],
-    ["MSN3", "SNR1"], ["MSN3", "SNR2"],
-    
-    # All SNR to all VM (excluding existing)
-    ["SNR1", "VMresp"],
-    ["SNR2", "VMprep"],
-    ["SNR3", "VMprep"],
-    
-    # All ALM to all MSN (excluding existing)
+    # Connections from MSN to SNR
+    ["MSN1", "SNR1"], ["MSN1", "SNR2"], ["MSN1", "SNR3"],
+    ["MSN2", "SNR1"], ["MSN2", "SNR2"], ["MSN2", "SNR3"],
+    ["MSN3", "SNR1"], ["MSN3", "SNR2"], ["MSN3", "SNR3"],
+
+    # Connections from SNR to VM
+    ["SNR1", "VMprep"], ["SNR1", "VMresp"],
+    ["SNR2", "VMprep"], ["SNR2", "VMresp"],
+    ["SNR3", "VMprep"], ["SNR3", "VMresp"],
+
+    # Connections from VM to ALM
+    ["VMprep", "ALMprep"], ["VMprep", "ALMinter"], ["VMprep", "ALMresp"],
+    ["VMresp", "ALMprep"], ["VMresp", "ALMinter"], ["VMresp", "ALMresp"],
+
+    # Connections from ALM to MSN
+    ["ALMprep", "MSN2"],
     ["ALMinter", "MSN1"], ["ALMinter", "MSN2"], ["ALMinter", "MSN3"],
-    ["ALMresp", "MSN1"], ["ALMresp", "MSN2"],
-    
-    # All VM to all ALM (excluding existing)
-    ["VMprep", "ALMinter"], ["VMprep", "ALMresp"],
-    ["VMresp", "ALMprep"], ["VMresp", "ALMinter"],
+    ["ALMresp", "MSN1"], ["ALMresp", "MSN2"], ["ALMresp", "MSN3"],
 
+    # Connections from ALM to VM
+    ["ALMprep", "VMprep"], ["ALMresp", "VMresp"],
     # Recurrent MSN connections
     ["MSN1", "MSN2"], ["MSN1", "MSN3"],
-    ["MSN2", "MSN3"], ["MSN2", "MSN1"],
+    ["MSN2", "MSN1"], ["MSN2", "MSN3"],
     ["MSN3", "MSN1"], ["MSN3", "MSN2"],
 
     # Recurrent ALM connections
     ["ALMprep", "ALMinter"], ["ALMprep", "ALMresp"],
-    ["ALMinter", "ALMresp"], ["ALMinter", "ALMprep"],
-    ["ALMresp", "ALMinter"], ["ALMresp", "ALMprep"]
+    ["ALMinter", "ALMprep"], ["ALMinter", "ALMresp"],
+    ["ALMresp", "ALMprep"], ["ALMresp", "ALMinter"], ["ALMresp", "VMresp"],
+
+    # Other key connections
+    ["PPN", "THALgo"], ["THALgo", "ALMinter"], ["THALgo", "ALMresp"]
+]
+
+# DNA_0 =           [75., 205., -90., -10., 65., 80., 320., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320.]
+# DNA_0_padded_50 = [75., 205., -90., -10., 65., 80., 320., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
+
+
+# ACTIVE_SYNAPSES_OLD = [
+#     ["Somat", "ALMprep"], ["Somat", "MSN1"], ["MSN1", "SNR1"], ["SNR1", "VMprep"],
+#     ["VMprep", "ALMprep"], ["ALMprep", "VMprep"], ["ALMprep", "MSN2"], ["MSN2", "SNR2"], #["SNR2", "VMprep"] REMOVED 1/17/25
+#     ["SNR2", "VMresp"], ["PPN", "THALgo"], ["THALgo", "ALMinter"], ["THALgo", "ALMresp"], 
+#     ["ALMinter", "ALMprep"], ["MSN3", "SNR3"], ["SNR3", "VMresp"], ["VMresp", "ALMresp"], 
+#     ["ALMresp", "VMresp"], ["ALMresp", "MSN3"],
     
-    ]
+#     # These new connections were added 1/17/25
+#     # "The only impossible connections I think are MSN->cortical, SNR->cortical"
+
+#     # Somat to remaining ALM
+#     ["Somat", "ALMinter"], ["Somat", "ALMresp"],
+    
+#     # All MSN to all SNR (excluding existing)
+#     ["MSN1", "SNR3"], ["MSN1", "SNR2"],
+#     ["MSN2", "SNR1"], ["MSN2", "SNR3"],
+#     ["MSN3", "SNR1"], ["MSN3", "SNR2"],
+    
+#     # All SNR to all VM (excluding existing)
+#     ["SNR1", "VMresp"],
+#     ["SNR2", "VMprep"],
+#     ["SNR3", "VMprep"],
+    
+#     # All ALM to all MSN (excluding existing)
+#     ["ALMinter", "MSN1"], ["ALMinter", "MSN2"], ["ALMinter", "MSN3"],
+#     ["ALMresp", "MSN1"], ["ALMresp", "MSN2"],
+    
+#     # All VM to all ALM (excluding existing)
+#     ["VMprep", "ALMinter"], ["VMprep", "ALMresp"],
+#     ["VMresp", "ALMprep"], ["VMresp", "ALMinter"],
+
+#     # Recurrent MSN connections
+#     ["MSN1", "MSN2"], ["MSN1", "MSN3"],
+#     ["MSN2", "MSN3"], ["MSN2", "MSN1"],
+#     ["MSN3", "MSN1"], ["MSN3", "MSN2"],
+
+#     # Recurrent ALM connections
+#     ["ALMprep", "ALMinter"], ["ALMprep", "ALMresp"],
+#     ["ALMinter", "ALMresp"], ["ALMinter", "ALMprep"],
+#     ["ALMresp", "ALMinter"], ["ALMresp", "ALMprep"]
+# ]
 
 EPOCHS = {
     'sample'   : [1000, 2000], #should there be a [0,1000] epoch?
     'delay'    : [2000, 3000],
     'response' : [3000, 4000] #should this be up to 5000?
     }
-
-
-go_signal_duration = 100 # / currently, a bunch of parameters are hard-coded in for create_experiment
-
 
 CRITERIA_NAMES = [
         "Somat",
@@ -87,7 +124,7 @@ CRITERIA = {
                 "io": "on"
             },
             "ALMprep": {
-                "interval":[EPOCHS['sample'][0], EPOCHS['delay'][1]],
+                "interval":[EPOCHS['sample'][0], EPOCHS['delay'][1] + 200], #Based on empirical results (eyeballing)
                 "io": "on"
             },
             "ALMinter": {
@@ -220,3 +257,67 @@ GA_CONFIG = {
         "DNA_BOUNDS" : [0,400]
     }
 }
+
+
+new_jh_weights = [
+    ("Somat", "ALMprep", 40),
+    ("Somat", "MSN1", 220),
+    ("MSN1", "SNR1", -90),
+    ("SNR1", "VMprep", -10),
+    ("VMprep", "ALMprep", 70),
+    ("ALMprep", "VMprep", 80),
+    ("ALMprep", "MSN2", 320),
+    ("MSN2", "SNR2", -50),
+    ("SNR2", "VMresp", -100),
+    ("PPN", "THALgo", 60),
+    ("THALgo", "ALMinter", 55),
+    ("ALMinter", "ALMprep", -50),
+    ("THALgo", "ALMresp", 30),
+    ("ALMresp", "MSN3", 320),
+    ("MSN3", "SNR3", -90),
+    ("SNR3", "VMresp", -50),
+    ("VMresp", "ALMresp", 85),
+    ("ALMresp", "VMresp", 90)
+]
+
+old_jh_weights = [
+    ("Somat", "ALMprep", 75.),
+    ("Somat", "MSN1", 205.),
+    ("MSN1", "SNR1", -90.),
+    ("SNR1", "VMprep", -10.),
+    ("VMprep", "ALMprep", 65.),
+    ("ALMprep", "VMprep", 80.),
+    ("ALMprep", "MSN2", 320.),
+    ("MSN2", "SNR2", -50.),
+    ("SNR2", "VMresp", -100.),
+    ("PPN", "THALgo", 60.),
+    ("THALgo", "ALMinter", 45.),
+    ("ALMinter", "ALMprep", -15.),
+    ("THALgo", "ALMresp", 30.),
+    ("ALMresp", "MSN3", 320.),
+    ("ALMresp", "VMresp", 90.),
+    ("MSN3", "SNR3", -90.),
+    ("SNR3", "VMresp", -50.),
+    ("VMresp", "ALMresp", 85.),
+]
+
+old_padded_dna_0 = [
+    ("Somat", "ALMprep", 75.0),
+    ("Somat", "MSN1", 205.0),
+    ("MSN1", "SNR1", -90.0),
+    ("SNR1", "VMprep", -10.0),
+    ("VMprep", "ALMprep", 65.0),
+    ("ALMprep", "VMprep", 80.0),
+    ("ALMprep", "MSN2", 320.0),
+    ("MSN2", "SNR2", -50.0),
+    ("SNR2", "VMresp", -100.0),
+    ("PPN", "THALgo", 60.0),
+    ("THALgo", "ALMinter", 45.0),
+    ("ALMinter", "ALMprep", -15.0),
+    ("THALgo", "ALMresp", 30.0),
+    ("ALMresp", "MSN3", 320.0),
+    ("ALMresp", "VMresp", 90.0),
+    ("MSN3", "SNR3", -90.0),
+    ("SNR3", "VMresp", -50.0),
+    ("VMresp", "ALMresp", 85.0),
+]

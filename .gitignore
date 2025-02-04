@@ -1,8 +1,8 @@
 # # Data files
-# data/*.pkl
-# data/*.csv
-# *.pkl
-# *.csv
+data/*.pkl
+data/*.csv
+*.pkl
+*.csv
 
 .venv
 myenv/

@@ -95,3 +95,21 @@ def load_neurons(file_path: str):
         except EOFError:
             # End of file reached
             pass
+
+# Function to create a DNA string
+def create_dna_string(weights, active_synapses):
+    # Initialize a DNA list with zeros
+    dna = [0] * len(active_synapses)
+    
+    # Iterate through the weights
+    for source, target, weight in weights:
+        # Find the index of the connection in ACTIVE_SYNAPSES
+        try:
+            index = active_synapses.index([source, target])
+            # Insert the weight at the found index
+            dna[index] = weight
+        except ValueError:
+            # If the connection is not found, you can choose to ignore or handle it
+            print(f"Connection {source} -> {target} not found in ACTIVE_SYNAPSES.")
+   
+    return dna
