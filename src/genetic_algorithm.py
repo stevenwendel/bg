@@ -42,44 +42,25 @@ def create_dna(bounds: list[float]) -> list[float]:
 
 
 def load_dna(dna: list[float]) -> np.ndarray:
-    """Converts a DNA sequence of synaptic weights into a weight matrix for a neural network.
-
-    Takes a list of synaptic weights (DNA) and creates a weight matrix where each entry w[i,j] 
-    represents the connection strength from neuron i to neuron j. Only synapses specified in 
-    ACTIVE_SYNAPSES are populated, all others remain 0.
-
-    Args:
-        dna: A list of float values representing synaptic weights. Must have same length as 
-            ACTIVE_SYNAPSES. Each value corresponds to the weight of one synapse.
-
-    Returns:
-        A 2D numpy array of shape (n_neurons, n_neurons) containing the weight matrix, where
-        n_neurons is the number of neurons in NEURON_NAMES. Matrix entry w[i,j] represents 
-        the connection strength from neuron i to neuron j.
-
-    Raises:
-        AssertionError: If length of dna does not match number of active synapses.
-
-    Example:
-        >>> dna = [1.0, -2.0, 3.0] # Weights for 3 synapses
-        >>> w = load_dna(dna)
-        >>> w.shape == (len(NEURON_NAMES), len(NEURON_NAMES))
-        True
-    """
-
     assert len(ACTIVE_SYNAPSES) == len(dna), "Number of available synapses does not match length of DNA"
-
     w = np.zeros((len(NEURON_NAMES), len(NEURON_NAMES)))
+    connection_count = {}  # Dictionary to keep track of added connections
+
     for i, synapse in enumerate(ACTIVE_SYNAPSES):
-        origin, termina = synapse
+        origin, target = synapse
         
         try:
             origin_index = NEURON_NAMES.index(origin)
-            termina_index = NEURON_NAMES.index(termina)
+            target_index = NEURON_NAMES.index(target)
         except ValueError as e:
             raise ValueError(f"Invalid synapse '{synapse}': {e}")
 
-        w[origin_index, termina_index] = dna[i]
+        # If the connection has already been set, warn and sum the contribution
+        if (origin_index, target_index) in connection_count:
+            print(f"Warning: Duplicate connection {origin} -> {target} encountered; summing weights.")
+        w[origin_index, target_index] += dna[i]
+        connection_count[(origin_index, target_index)] = connection_count.get((origin_index, target_index), 0) + 1
+
     return w
 
 

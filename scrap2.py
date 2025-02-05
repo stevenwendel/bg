@@ -1,8 +1,10 @@
 from src.constants import *
-from src.utils import *
+from src.viz import display_matrix
 from src.genetic_algorithm import *
 import pandas as pd
 from src.validation import *
+import numpy as np
+from src.utils import alpha_fit
 
 # neuron_data = {}
 
@@ -54,5 +56,15 @@ from src.validation import *
 #     )), 
 #     sep='\n')
 
-print(load_dna(DNA_0_padded_50))
-print(load_dna(create_dna_string(old_padded_dna_0, ACTIVE_SYNAPSES_OLD)))
+# print(load_dna(DNA_0_padded_50))
+# print(load_dna(create_dna_string(old_padded_dna_0, ACTIVE_SYNAPSES_OLD)))
+t=1
+alpha_array = create_alpha_array(250, L=30)
+# alpha = alpha_fit(alpha_array[0:], t, TMAX)
+# print(*alpha[0:10])
+
+# alpha = alpha_fit(alpha_array[1:], t, TMAX)
+# print(*alpha[0:10])
+
+alpha = alpha_fit(alpha_array, t, TMAX)
+print(*alpha[0:10])

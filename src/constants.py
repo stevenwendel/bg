@@ -1,4 +1,3 @@
-
 # Time Config
 TMAX = 5000
 BIN_SIZE = 100
@@ -45,10 +44,10 @@ ACTIVE_SYNAPSES = [
     # Recurrent ALM connections
     ["ALMprep", "ALMinter"], ["ALMprep", "ALMresp"],
     ["ALMinter", "ALMprep"], ["ALMinter", "ALMresp"],
-    ["ALMresp", "ALMprep"], ["ALMresp", "ALMinter"], ["ALMresp", "VMresp"],
+    ["ALMresp", "ALMprep"], ["ALMresp", "ALMinter"],
 
     # Other key connections
-    ["PPN", "THALgo"], ["THALgo", "ALMinter"], ["THALgo", "ALMresp"]
+    ["PPN", "THALgo"], ["THALgo", "ALMinter"], ["THALgo", "ALMresp"],
 ]
 
 # DNA_0 =           [75., 205., -90., -10., 65., 80., 320., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320.]

@@ -27,7 +27,7 @@ class Izhikevich:
         self.u = 0.0
 
     def update(self, I_ext=0, sigma=0): 
-        noise = np.random.normal(0, 10)
+        noise = np.random.normal(0, sigma)
         dV = (self.k * (self.V - self.vr) * (self.V - self.vt) - self.u + I_ext + self.E + sigma * noise) / self.C
         du = self.a * (self.b * (self.V - self.vr) - self.u)
 
@@ -38,10 +38,11 @@ class Izhikevich:
             self.V = self.vreset
             self.u += self.d
             self.spiked = True
-            return self.V, self.u, self.spiked
-
-        self.spiked = False
+        else:
+            self.spiked = False
+    
         return self.V, self.u, self.spiked
+
     
 
 def create_neurons() ->list[Izhikevich]:
@@ -58,6 +59,7 @@ def create_neurons() ->list[Izhikevich]:
 
     SNR1.E = SNR2.E = SNR3.E = 120.0 
     PPN.E = 100.0 
+    ALMprep.E = 0.0
     return neurons
 
 def prepare_neurons(neurons: list[Izhikevich], cue_wave, go_wave, control):

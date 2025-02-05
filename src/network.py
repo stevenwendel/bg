@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from src.constants import *
@@ -24,22 +23,27 @@ def create_experiment():
     return periods, input_waves, alphaArray
 
 
-def run_network(neurons, weight_matrix, alpha_array):
-    w=weight_matrix
-    spikers = []
-
+# This should be correct. alpha array with t-1 starts at .08, which is the smallest, first value of alpha. 
+# This is supposed to be the first input to the neuron at each time step, which drives V.
+# Because we manually "spike" the neuron at t-1, t is the first time step that has an non-zeroalpha input.
+def run_network(neurons, weight_matrix, alpha_array): 
+    spikers = np.zeros(len(neurons))  # Initialize with zeros for all neurons
+        
     # Running the network
     for t in range(1, TMAX):
         # Distributing alphas
-        if spikers:
-            alpha = alpha_fit(alpha_array, t - 1, TMAX)
+        if np.any(spikers):
+            alpha = alpha_fit(alpha_array, t-1, TMAX)
             for i, post in enumerate(neurons):
-                post.input += alpha * np.dot(spikers, w)[i]
+                post.input += alpha * np.dot(spikers, weight_matrix)[i]
 
-        # Updating V and u, and collecting spikes
-        spikers = []
-        for neu in neurons:
+        # Collecting spikes from all neurons from previous time step
+        spikers = np.zeros(len(neurons))  # Initialize with zeros for all neurons
+
+        for i, neu in enumerate(neurons):
             neu.hist_V[t], neu.hist_u[t], neu.spike_times[t - 1] = neu.update(I_ext=neu.input[t], sigma=0)
-            spikers.append(neu.spiked)
+            spikers[i] = 1.0 if neu.spiked else 0.0  # Use 1.0 for spikes instead of True
             if neu.spiked:
                 neu.hist_V[t - 1] = neu.vpeak
+        
+        

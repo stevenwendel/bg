@@ -24,7 +24,7 @@ def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = 'large'
+    ga_set = 'small'
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
@@ -58,7 +58,7 @@ def main():
         population_results = []
         save_dict[f'generation{generation}'] = {}
 
-        with Pool() as pool:
+        with Pool(1) as pool:
             args_list = [(dna, all_neurons, alpha_array, input_waves, criteria_dict, generation, max_score) 
                         for dna in curr_population]
             drone_results = pool.imap_unordered(drone_evaluate_dna, args_list)
