@@ -223,7 +223,7 @@ GA_CONFIG = {
         "RANK_DEPTH" : 5,
         "ELITE_SIZE" : 1,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,400]
+        "DNA_BOUNDS" : [0,1000]
     },
     "xlarge":   {
         "NUM_GENERATIONS" : 30,
@@ -232,27 +232,47 @@ GA_CONFIG = {
         "MUT_SIGMA" : 0.4,
         "RANK_DEPTH" : 500,
         "ELITE_SIZE" : 20,
-        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,400]
     },
-    "xlarge_highMutation":   {
+    "highMutation_120 min":   { 
         "NUM_GENERATIONS" : 75,
         "POP_SIZE" : 2000,
         "MUT_RATE" : 0.35,
         "MUT_SIGMA" : 0.3,
         "RANK_DEPTH" : 400,
         "ELITE_SIZE" : 20,
-        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,400]
     },
-        "xxlarge_highMutation":   {
+    "highMutation_240min":   {
+        "NUM_GENERATIONS" : 150,
+        "POP_SIZE" : 2000,
+        "MUT_RATE" : 0.35,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 20,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,400]
+    },
+        "highMutation_480min":   {
+        "NUM_GENERATIONS" : 150,
+        "POP_SIZE" : 4000,
+        "MUT_RATE" : 0.4,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 1000,
+        "ELITE_SIZE" : 20,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,1000] # Should we allow extreme values?
+    },
+    "highMutation_36hr":   {
         "NUM_GENERATIONS" : 300,
         "POP_SIZE" : 4000,
         "MUT_RATE" : 0.35,
         "MUT_SIGMA" : 0.5,
         "RANK_DEPTH" : 1000,
         "ELITE_SIZE" : 20,
-        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,400]
     }
 }

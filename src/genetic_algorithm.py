@@ -166,8 +166,13 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict) -> list[list[fl
         child_dna=[]
 
         for i, synapse in enumerate(ACTIVE_SYNAPSES):
-            gene = random.choice([parent1[i], parent2[i]])
-            gene = random.normalvariate(gene, gene * ga_config['MUT_SIGMA']) if random.random() < ga_config['MUT_RATE'] else gene
+            if parent1[i] == 0 and parent2[i] == 0:
+                gene = 0
+            else:
+                gene = random.choice([parent1[i], parent2[i]])
+                gene = random.normalvariate(gene, gene * ga_config['MUT_SIGMA']) if random.random() < ga_config['MUT_RATE'] else gene
+                # Bounding DNA
+                gene = max(-abs(ga_config['DNA_BOUNDS'][1]), min(abs(ga_config['DNA_BOUNDS'][1]), gene))
             child_dna.append(int(gene))
 
         next_dnas.append(child_dna)

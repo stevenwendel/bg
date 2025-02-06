@@ -24,7 +24,7 @@ def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = 'small'
+    ga_set = "highMutation_480min"
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
@@ -56,9 +56,9 @@ def main():
     for generation in range(GA_CONFIG[ga_set]['NUM_GENERATIONS']):
         print(f"Generation {generation}")
         population_results = []
-        save_dict[f'generation{generation}'] = {}
+        save_dict[f'{generation}'] = {}
 
-        with Pool(1) as pool:
+        with Pool() as pool:
             args_list = [(dna, all_neurons, alpha_array, input_waves, criteria_dict, generation, max_score) 
                         for dna in curr_population]
             drone_results = pool.imap_unordered(drone_evaluate_dna, args_list)
@@ -69,7 +69,7 @@ def main():
                      })
 
         # Quick save to temp dict (repository for all dna across all generations)   
-        save_dict[f'generation{generation}'] = population_results
+        save_dict[f'{generation}'] = population_results
 
         curr_population = spawn_next_population(population_results, GA_CONFIG[ga_set])
 
