@@ -204,7 +204,7 @@ CRITERIA = {
         }
     }
 
-GA_CONFIG = {
+GA_CONFIG = { # I should store these configurations in the pkl file itself as a metadata field in the dictionary
     "large":   {
         "NUM_GENERATIONS" : 10,
         "POP_SIZE" : 500,
@@ -235,15 +235,15 @@ GA_CONFIG = {
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,400]
     },
-    "highMutation_120 min":   { 
-        "NUM_GENERATIONS" : 75,
+    "highMutation_150 min":   { 
+        "NUM_GENERATIONS" : 100,
         "POP_SIZE" : 2000,
         "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : 0.3,
-        "RANK_DEPTH" : 400,
-        "ELITE_SIZE" : 20,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 1000,
+        "ELITE_SIZE" : 10,
         "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,400]
+        "DNA_BOUNDS" : [0,1000]
     },
     "highMutation_240min":   {
         "NUM_GENERATIONS" : 150,
@@ -253,7 +253,7 @@ GA_CONFIG = {
         "RANK_DEPTH" : 500,
         "ELITE_SIZE" : 20,
         "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,400]
+        "DNA_BOUNDS" : [0,1000]
     },
         "highMutation_480min":   {
         "NUM_GENERATIONS" : 150,
