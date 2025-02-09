@@ -214,7 +214,8 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "RANK_DEPTH" : 250,
         "ELITE_SIZE" : 10,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,400]
+        "DNA_BOUNDS" : [0,400],
+        "TIME_TAKEN" : 4 
     },
     "small": {
         "NUM_GENERATIONS" : 3,
@@ -278,7 +279,7 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "TIME_TAKEN" : 410
     },
      "highMutation_B":   {
-        "NUM_GENERATIONS" : 150,
+        "NUM_GENERATIONS" : 250,
         "POP_SIZE" : 8000,
         "MUT_RATE" : 0.35,
         "MUT_SIGMA" : 0.5,
@@ -286,7 +287,7 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "ELITE_SIZE" : 20,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : None
+        "TIME_TAKEN" : 1100 #?
     },
     "highMutation_36hr":   {
         "NUM_GENERATIONS" : 300,
