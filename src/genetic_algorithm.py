@@ -34,7 +34,7 @@ def create_dna(bounds: list[float]) -> list[float]:
     dna = []
     for synapse in ACTIVE_SYNAPSES:
         dna_val = random.randint(bounds[0], bounds[1])
-        if synapse[0] in ["SNR1","SNR2", "SNR3", "MSN1", "MSN2", "MSN3", "ALMinter"]:
+        if synapse[0] in INHIBITORY_NEURONS:
             dna_val *= -1
         dna.append(dna_val)
     return dna
@@ -178,7 +178,7 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict) -> list[list[fl
                     gene = boundary
                 
                 # Inhibitory neurons have negative weights
-                if synapse[0] in ["SNR1","SNR2", "SNR3", "MSN1", "MSN2", "MSN3", "ALMinter"]:
+                if synapse[0] in INHIBITORY_NEURONS:
                     gene = -abs(gene)
                     
             child_dna.append(int(gene))

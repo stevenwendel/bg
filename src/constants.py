@@ -11,6 +11,7 @@ CUE_STRENGTH = 150.
 
 NEURON_NAMES = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
 TONICALLY_ACTIVE_NEURONS = ["SNR1", "SNR2", "SNR3", "PPN", "THALgo"]
+INHIBITORY_NEURONS = ["SNR1","SNR2", "SNR3", "MSN1", "MSN2", "MSN3", "ALMinter"]
 ACTIVE_SYNAPSES = [
     # Connections from Somat
     ["Somat", "ALMprep"], ["Somat", "ALMinter"], ["Somat", "ALMresp"], ["Somat", "MSN1"],

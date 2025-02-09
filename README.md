@@ -18,3 +18,14 @@
    - I need to check firing rates across a whole subdivision to determine if its firing
    - I need to compare the firing rates between experimental and control conditions
    - I need to make sure that my network still runs even though I've rearranged this whole thing.
+
+   ## Commandments
+   - Somatosensory neurons are activated (above baseline) only during the somatosensory period. (test sensitivity to sq wave intensity)
+   - A first set of ALM neurons shows sustained activation throughout the instruction and delay periods, and the specific neurons activated during this period predict the upcoming action.  
+   - A second set of ALM neurons is activated briefly at the time of the Go cue, regardless of the upcoming action.
+   - A third set of ALM neurons is activated during the behavioral response, and the specific neurons activated during this period predicts the upcoming action
+   - A first set of SNR neurons is inhibited only during the instruction cue and corresponds to the presented cue.
+   - A second set of SNR neurons shows sustained activation throughout the instruction and delay periods, and the specific neurons activated during this period predict the upcoming action.
+   - A set of VM neurons shows sustained activation throughout the instruction and delay periods, and the specific neurons activated during this period predict the upcoming action.
+   - A second set of VM neurons show activation during the behavioral response and the activation corresponds to the chosen action.
+   - The subject chooses the behavior that corresponds to the (pre-delay) instruction cue.
