@@ -55,9 +55,9 @@ def calculate_score(critSpikeMatrix, critCriteriaMatrix, condition):
             # Award a point if both entries are 0 or both are positive
             if (critSpikeMatrix[i][j] == 0 and critCriteriaMatrix[i][j] == 0) or (critSpikeMatrix[i][j] > 0 and critCriteriaMatrix[i][j] > 0):
                 score += 1
-            else:
-                print(f'Neuron#: {CRITERIA_NAMES[i]} ==== Period#: {j} ==== Time: {j*BIN_SIZE}-{(j+1)*BIN_SIZE} ==== Condition: {condition}')
-                print(f'Spikes: {int(critSpikeMatrix[i][j])} ==== Criteria: {int(critCriteriaMatrix[i][j])}')
+            # else:
+            #     print(f'Neuron#: {CRITERIA_NAMES[i]} ==== Period#: {j} ==== Time: {j*BIN_SIZE}-{(j+1)*BIN_SIZE} ==== Condition: {condition}')
+            #     print(f'Spikes: {int(critSpikeMatrix[i][j])} ==== Criteria: {int(critCriteriaMatrix[i][j])}')
             #     if (CRITERIA_NAMES[i] == 'ALMresp') and j==1:
             #         pass
     

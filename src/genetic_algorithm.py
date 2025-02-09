@@ -161,6 +161,7 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict) -> list[list[fl
     next_dnas = [curr_pop[i]['dna'] for i in range(ga_config['ELITE_SIZE'])]
     
     for _ in range(ga_config['POP_SIZE'] - ga_config['ELITE_SIZE']):
+        boundary = ga_config['DNA_BOUNDS'][1]
         parent1 = random.choice(survivors)['dna']
         parent2 = random.choice(survivors)['dna']
         child_dna=[]
@@ -171,8 +172,15 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict) -> list[list[fl
             else:
                 gene = random.choice([parent1[i], parent2[i]])
                 gene = random.normalvariate(gene, gene * ga_config['MUT_SIGMA']) if random.random() < ga_config['MUT_RATE'] else gene
+
                 # Bounding DNA
-                gene = max(-abs(ga_config['DNA_BOUNDS'][1]), min(abs(ga_config['DNA_BOUNDS'][1]), gene))
+                if abs(gene) > boundary:
+                    gene = boundary
+                
+                # Inhibitory neurons have negative weights
+                if synapse[0] in ["SNR1","SNR2", "SNR3", "MSN1", "MSN2", "MSN3", "ALMinter"]:
+                    gene = -abs(gene)
+                    
             child_dna.append(int(gene))
 
         next_dnas.append(child_dna)

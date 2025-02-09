@@ -228,14 +228,14 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
     "xlarge":   {
         "NUM_GENERATIONS" : 30,
         "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.25,
+        "MUT_RATE" : 0.3,
         "MUT_SIGMA" : 0.4,
         "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 20,
+        "ELITE_SIZE" : 10,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,400]
     },
-    "highMutation_150 min":   { 
+    "highMutation_10 min":   { 
         "NUM_GENERATIONS" : 100,
         "POP_SIZE" : 2000,
         "MUT_RATE" : 0.35,
@@ -255,7 +255,7 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,1000]
     },
-        "highMutation_480min":   {
+    "highMutation_480min":   {
         "NUM_GENERATIONS" : 150,
         "POP_SIZE" : 4000,
         "MUT_RATE" : 0.4,
@@ -263,7 +263,29 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "RANK_DEPTH" : 1000,
         "ELITE_SIZE" : 20,
         "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000] # Should we allow extreme values?
+        "DNA_BOUNDS" : [0,1000] 
+    },
+    "highMutation_A":   {
+        "NUM_GENERATIONS" : 150,
+        "POP_SIZE" : 4000,
+        "MUT_RATE" : 0.5,
+        "MUT_SIGMA" : 0.7,
+        "RANK_DEPTH" : 2000,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,1000], 
+        "TIME_TAKEN" : 410
+    },
+     "highMutation_B":   {
+        "NUM_GENERATIONS" : 150,
+        "POP_SIZE" : 8000,
+        "MUT_RATE" : 0.35,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 4000,
+        "ELITE_SIZE" : 20,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,1000], 
+        "TIME_TAKEN" : None
     },
     "highMutation_36hr":   {
         "NUM_GENERATIONS" : 300,
