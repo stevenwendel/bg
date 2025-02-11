@@ -5,6 +5,9 @@ import pandas as pd
 from src.validation import *
 import numpy as np
 from src.utils import alpha_fit
+import matplotlib.pyplot as plt
+from scipy.stats import skewnorm
+
 
 # neuron_data = {}
 
@@ -69,4 +72,30 @@ from src.utils import alpha_fit
 # alpha = alpha_fit(alpha_array, t, TMAX)
 # print(*alpha[0:10])
 
-print(len(ACTIVE_SYNAPSES))
+boundary = 1000
+sigma = .5
+mut_rate = 0.5
+gen_count = 200
+synapse = ["MSN1"]
+num_genes = 4
+gene_list = [random.uniform(-boundary, boundary) for _ in range(num_genes)]
+print([f"{gene:.2f}" for gene in gene_list])
+for i in range(gen_count):
+    new_gene_list = []
+    for g in gene_list:
+        gene = random.normalvariate(g, g*sigma) if random.random() < mut_rate else g
+
+        # Bounding DNA
+        if abs(gene) > boundary:
+            gene = boundary
+
+        # Inhibitory neurons have negative weights
+        if synapse[0] in INHIBITORY_NEURONS:
+            gene = -abs(gene)
+
+        new_gene_list.append(gene)
+
+    gene_list = new_gene_list
+    print(i, [f"{gene:.2f}" for gene in gene_list])
+
+

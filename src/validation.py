@@ -57,7 +57,7 @@ def calculate_score(critSpikeMatrix, critCriteriaMatrix, condition):
                 score += 1
             # else:
             #     print(f'Neuron#: {CRITERIA_NAMES[i]} ==== Period#: {j} ==== Time: {j*BIN_SIZE}-{(j+1)*BIN_SIZE} ==== Condition: {condition}')
-            #     print(f'Spikes: {int(critSpikeMatrix[i][j])} ==== Criteria: {int(critCriteriaMatrix[i][j])}')
+                # print(f'Spikes: {int(critSpikeMatrix[i][j])} ==== Criteria: {int(critCriteriaMatrix[i][j])}')
             #     if (CRITERIA_NAMES[i] == 'ALMresp') and j==1:
             #         pass
     
@@ -68,7 +68,10 @@ def calculate_score(critSpikeMatrix, critCriteriaMatrix, condition):
     # Gonna put this in the GA.py script... 
     # score -= l1_norm
 
-    return score
+    if condition == 'control':
+        score *= 0.5
+
+    return int(score)
 
 """
     # NEED TO REIMPLEMENT THESE LITTLE CASES.

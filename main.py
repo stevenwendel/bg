@@ -24,7 +24,7 @@ def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = "highMutation_B"
+    ga_set = "E"
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
@@ -71,7 +71,7 @@ def main():
         # Quick save to temp dict (repository for all dna across all generations)   
         save_dict[f'{generation}'] = population_results
 
-        curr_population = spawn_next_population(population_results, GA_CONFIG[ga_set])
+        curr_population = spawn_next_population(population_results, GA_CONFIG[ga_set], generation)
 
     # Pickle run data 
     with open(save_path,'ab') as f:

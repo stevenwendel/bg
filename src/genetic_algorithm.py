@@ -129,7 +129,7 @@ def drone_evaluate_dna(args):
 
     return curr_dna, total_score
 
-def spawn_next_population(curr_pop: list[dict], ga_config: dict) -> list[list[float]]:
+def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int) -> list[list[float]]:
     """Generates the next population of DNA sequences through selection and mutation.
 
     Creates a new population by:
@@ -167,20 +167,20 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict) -> list[list[fl
         child_dna=[]
 
         for i, synapse in enumerate(ACTIVE_SYNAPSES):
-            if parent1[i] == 0 and parent2[i] == 0:
-                gene = 0
-            else:
-                gene = random.choice([parent1[i], parent2[i]])
-                gene = random.normalvariate(gene, gene * ga_config['MUT_SIGMA']) if random.random() < ga_config['MUT_RATE'] else gene
 
-                # Bounding DNA
-                if abs(gene) > boundary:
-                    gene = boundary
+            gene = random.choice([parent1[i], parent2[i]])
+            
+            sigma = ga_config['MUT_SIGMA'] * (gene * np.sqrt(generation / ga_config['NUM_GENERATIONS']))            
+            gene = random.normalvariate(gene, sigma) if random.random() < ga_config['MUT_RATE'] else gene
+
+            # Bounding DNA
+            if abs(gene) > boundary:
+                gene = boundary
+
+            # Inhibitory neurons have negative weights
+            if synapse[0] in INHIBITORY_NEURONS:
+                gene = -abs(gene)
                 
-                # Inhibitory neurons have negative weights
-                if synapse[0] in INHIBITORY_NEURONS:
-                    gene = -abs(gene)
-                    
             child_dna.append(int(gene))
 
         next_dnas.append(child_dna)
