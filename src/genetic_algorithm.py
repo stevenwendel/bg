@@ -170,8 +170,12 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
 
             gene = random.choice([parent1[i], parent2[i]])
             
-            sigma = ga_config['MUT_SIGMA'] * (gene * np.sqrt(generation / ga_config['NUM_GENERATIONS']))            
+            sigma = ga_config['MUT_SIGMA'] * (gene * generation / ga_config['NUM_GENERATIONS'])            
             gene = random.normalvariate(gene, sigma) if random.random() < ga_config['MUT_RATE'] else gene
+
+            # Introduce jitter to allow zeroed-out genes to potentially become non-zero
+            jitter = random.uniform(-1, 1) * ga_config['DNA_BOUNDS'][1] * 0.1**(2*generation/ga_config['NUM_GENERATIONS'] + 1) -1  # Adjust the scale of jitter as needed            
+            gene += jitter
 
             # Bounding DNA
             if abs(gene) > boundary:
@@ -180,7 +184,11 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
             # Inhibitory neurons have negative weights
             if synapse[0] in INHIBITORY_NEURONS:
                 gene = -abs(gene)
-                
+            elif synapse[0] not in INHIBITORY_NEURONS:
+                gene = abs(gene)
+            else:
+                raise ValueError(f'Invalid synapse: {synapse}')
+            
             child_dna.append(int(gene))
 
         next_dnas.append(child_dna)

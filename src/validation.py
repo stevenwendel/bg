@@ -68,8 +68,8 @@ def calculate_score(critSpikeMatrix, critCriteriaMatrix, condition):
     # Gonna put this in the GA.py script... 
     # score -= l1_norm
 
-    if condition == 'control':
-        score *= 0.5
+    # if condition == 'control':
+    #     score *= 0.5
 
     return int(score)
 
