@@ -9,7 +9,8 @@ from plotly.subplots import make_subplots
 
 def create_alpha_array(length, L=30):
     alphas = [(td / L) * np.exp((L - td) / L) for td in range(1, length + 1)]
-    return np.array(alphas)
+    rounded_alphas = np.round(alphas, 3)
+    return np.array(rounded_alphas)
 
 def alpha_fit(alp_arr, time, time_max):
     alpha_padded = np.zeros(time_max)
