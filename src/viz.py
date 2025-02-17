@@ -27,8 +27,8 @@ def display_matrix(matrix, nodes):
     display(df) 
     
 def plot_neurons_interactive(hist_Vs, neuron_names, sq_wave, go_wave, show_u=False):
-    print(f'{hist_Vs=}')
-    print(f'{neuron_names=}')
+    # print(f'{hist_Vs=}')
+    # print(f'{neuron_names=}')
     assert len(hist_Vs) == len(neuron_names), "Must have the same number of neurons as the number of hist_Vs"
     n_neurons = len(neuron_names)
     n_cols = 1  # Set to 1 for a single column layout

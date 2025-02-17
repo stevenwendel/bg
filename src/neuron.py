@@ -28,11 +28,17 @@ class Izhikevich:
 
     def update(self, I_ext=0, sigma=0): 
         noise = np.random.normal(0, sigma)
-        dV = (self.k * (self.V - self.vr) * (self.V - self.vt) - self.u + I_ext + self.E + sigma * noise) / self.C
-        du = self.a * (self.b * (self.V - self.vr) - self.u)
 
-        self.V += dV    # Note: dt=1
-        self.u += du    # Note: dt=1
+        # Refractory period
+        if not self.spiked:
+            dV = (self.k * (self.V - self.vr) * (self.V - self.vt) - self.u + I_ext + self.E + sigma * noise) / self.C
+            du = self.a * (self.b * (self.V - self.vr) - self.u)
+
+            self.V += dV    # Note: dt=1
+            self.u += du    # Note: dt=1
+        else:
+            self.spiked = False
+
 
         if self.V >= self.vpeak:
             self.V = self.vreset
@@ -40,7 +46,7 @@ class Izhikevich:
             self.spiked = True
         else:
             self.spiked = False
-    
+
         return self.V, self.u, self.spiked
 
     
