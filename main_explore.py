@@ -35,7 +35,9 @@ splits, input_waves, alpha_array = create_experiment()
 criteria_dict = define_criteria()
 max_score = TMAX // BIN_SIZE * len(CRITERIA_NAMES)
 
-initial_dna = create_dna_string(new_jh_weights, ACTIVE_SYNAPSES)
+# initial_dna = create_dna_string(new_jh_weights, ACTIVE_SYNAPSES)
+initial_dna = [497, 0, 0, 1000, -108, -14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -459, 0, 0, 88, 0, 0, 0, 0, 628, 0, 0, 0, 0, 0, 0, 0, 353, 148, 0, 0, 0, 0, 0, 0, 0, 0, -691, 0, 0, 0, 28, 275, 179]
+
 sigma= GA_CONFIG[ga_set]['MUT_SIGMA'] * 10
 
 if __name__ == "__main__":

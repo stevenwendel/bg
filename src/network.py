@@ -33,7 +33,7 @@ def run_network(neurons, weight_matrix, alpha_array):
     for t in range(1, TMAX):
         # Distributing alphas
         if np.any(spikers):
-            alpha = alpha_fit(alpha_array, t-1, TMAX)
+            alpha = alpha_fit(alpha_array, t, TMAX)
             for i, post in enumerate(neurons):
                 post.input += alpha * np.dot(spikers, weight_matrix)[i]
 

@@ -376,7 +376,7 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "ELITE_SIZE" : 10,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 1450 # 24 hr
+        "TIME_TAKEN" : 1300 # 21.5 hr
     },  
     "highMutation_36hr":   {
         "NUM_GENERATIONS" : 300,
@@ -399,8 +399,8 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "DNA_BOUNDS" : [0,1000]
     },
     "explore_B":   {
-        "NUM_GENERATIONS" : 100,
-        "POP_SIZE" : 1000,
+        "NUM_GENERATIONS" : 300,
+        "POP_SIZE" : 2000,
         "MUT_RATE" : 0.35,
         "MUT_SIGMA" : .5,
         "RANK_DEPTH" : 500,
@@ -429,7 +429,7 @@ new_jh_weights = [
     ("MSN3", "SNR3", -90),
     ("SNR3", "VMresp", -50),
     ("VMresp", "ALMresp", 85),
-    ("ALMresp", "VMresp", 90000)
+    ("ALMresp", "VMresp", 90)
 ]
 
 old_jh_weights = [

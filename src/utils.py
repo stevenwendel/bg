@@ -9,16 +9,25 @@ from plotly.subplots import make_subplots
 
 def create_alpha_array(length, L=30):
     alphas = [(td / L) * np.exp((L - td) / L) for td in range(1, length + 1)]
-    rounded_alphas = np.round(alphas, 3)
+    rounded_alphas = np.round(alphas, 4)
     return np.array(rounded_alphas)
 
-def alpha_fit(alp_arr, time, time_max):
-    alpha_padded = np.zeros(time_max)
-    if time_max >= len(alp_arr) + time:
-        alpha_padded[time:time + len(alp_arr)] += alp_arr
+def alpha_fit(alp_arr, start_time, tmax=5000):
+    # Initialize a zero vector of the desired output length
+    alpha_padded = np.zeros(tmax)
+    
+    # Calculate the end time for the alpha array within the padded vector
+    end_time = start_time + len(alp_arr)
+    
+    # Check if the alpha array fits within the output length starting from start_time
+    if end_time <= tmax:
+        # If it fits, add the entire alpha array to the padded vector
+        alpha_padded[start_time:end_time] = alp_arr
     else:
-        trunc_size = time_max - time
-        alpha_padded[time:] += alp_arr[:trunc_size]
+        # If it doesn't fit, truncate the alpha array to fit within the output length
+        trunc_size = tmax - start_time
+        alpha_padded[start_time:] = alp_arr[:trunc_size]
+    
     return alpha_padded
 
 
