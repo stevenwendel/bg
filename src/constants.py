@@ -369,14 +369,14 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
     },
      "J":   {
         "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 6000,
+        "POP_SIZE" : 2500,
         "MUT_RATE" : 0.5,
         "MUT_SIGMA" : .5,
         "RANK_DEPTH" : 3000,
         "ELITE_SIZE" : 10,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 1300 # 21.5 hr
+        "TIME_TAKEN" : 650 # 10 hr
     },  
     "highMutation_36hr":   {
         "NUM_GENERATIONS" : 300,
@@ -399,7 +399,7 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "DNA_BOUNDS" : [0,1000]
     },
     "explore_B":   {
-        "NUM_GENERATIONS" : 300,
+        "NUM_GENERATIONS" : 100,
         "POP_SIZE" : 2000,
         "MUT_RATE" : 0.35,
         "MUT_SIGMA" : .5,
