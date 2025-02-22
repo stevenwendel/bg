@@ -175,6 +175,8 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
 
             # Introduce jitter to allow zeroed-out genes to potentially become non-zero
             unjittered_generations = 150
+            assert unjittered_generations < ga_config['NUM_GENERATIONS']
+            
             decay_rate = 1/2
             if generation < ga_config['NUM_GENERATIONS']-unjittered_generations:
                 jitter = random.uniform(-1, 1) * (ga_config['DNA_BOUNDS'][1] * 0.05) * .992 ** generation  # Adjust the scale of jitter as needed            

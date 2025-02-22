@@ -24,11 +24,13 @@ def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = "J"
+    ga_set = "K"
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
 
+    # Check things
+    assert GA_CONFIG[ga_set]['RANK_DEPTH'] <= GA_CONFIG[ga_set]['POP_SIZE']
 
     diagnostic = {
         'show_dna_matrix' : False,

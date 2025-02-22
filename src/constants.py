@@ -8,7 +8,6 @@ GO_STRENGTH = 850.
 CUE_STRENGTH = 150.
 
 
-
 NEURON_NAMES = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
 TONICALLY_ACTIVE_NEURONS = ["SNR1", "SNR2", "SNR3", "PPN", "THALgo"]
 INHIBITORY_NEURONS = ["SNR1","SNR2", "SNR3", "MSN1", "MSN2", "MSN3", "ALMinter"]
@@ -50,52 +49,6 @@ ACTIVE_SYNAPSES = [
     # Other key connections
     ["PPN", "THALgo"], ["THALgo", "ALMinter"], ["THALgo", "ALMresp"],
 ]
-
-# DNA_0 =           [75., 205., -90., -10., 65., 80., 320., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320.]
-# DNA_0_padded_50 = [75., 205., -90., -10., 65., 80., 320., -50., -100., 60., 45., 30., -15., -90., -50., 85., 90., 320., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
-
-
-# ACTIVE_SYNAPSES_OLD = [
-#     ["Somat", "ALMprep"], ["Somat", "MSN1"], ["MSN1", "SNR1"], ["SNR1", "VMprep"],
-#     ["VMprep", "ALMprep"], ["ALMprep", "VMprep"], ["ALMprep", "MSN2"], ["MSN2", "SNR2"], #["SNR2", "VMprep"] REMOVED 1/17/25
-#     ["SNR2", "VMresp"], ["PPN", "THALgo"], ["THALgo", "ALMinter"], ["THALgo", "ALMresp"], 
-#     ["ALMinter", "ALMprep"], ["MSN3", "SNR3"], ["SNR3", "VMresp"], ["VMresp", "ALMresp"], 
-#     ["ALMresp", "VMresp"], ["ALMresp", "MSN3"],
-    
-#     # These new connections were added 1/17/25
-#     # "The only impossible connections I think are MSN->cortical, SNR->cortical"
-
-#     # Somat to remaining ALM
-#     ["Somat", "ALMinter"], ["Somat", "ALMresp"],
-    
-#     # All MSN to all SNR (excluding existing)
-#     ["MSN1", "SNR3"], ["MSN1", "SNR2"],
-#     ["MSN2", "SNR1"], ["MSN2", "SNR3"],
-#     ["MSN3", "SNR1"], ["MSN3", "SNR2"],
-    
-#     # All SNR to all VM (excluding existing)
-#     ["SNR1", "VMresp"],
-#     ["SNR2", "VMprep"],
-#     ["SNR3", "VMprep"],
-    
-#     # All ALM to all MSN (excluding existing)
-#     ["ALMinter", "MSN1"], ["ALMinter", "MSN2"], ["ALMinter", "MSN3"],
-#     ["ALMresp", "MSN1"], ["ALMresp", "MSN2"],
-    
-#     # All VM to all ALM (excluding existing)
-#     ["VMprep", "ALMinter"], ["VMprep", "ALMresp"],
-#     ["VMresp", "ALMprep"], ["VMresp", "ALMinter"],
-
-#     # Recurrent MSN connections
-#     ["MSN1", "MSN2"], ["MSN1", "MSN3"],
-#     ["MSN2", "MSN3"], ["MSN2", "MSN1"],
-#     ["MSN3", "MSN1"], ["MSN3", "MSN2"],
-
-#     # Recurrent ALM connections
-#     ["ALMprep", "ALMinter"], ["ALMprep", "ALMresp"],
-#     ["ALMinter", "ALMresp"], ["ALMinter", "ALMprep"],
-#     ["ALMresp", "ALMinter"], ["ALMresp", "ALMprep"]
-# ]
 
 EPOCHS = {
     'sample'   : [1000, 2000], #should there be a [0,1000] epoch?
@@ -368,16 +321,27 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "TIME_TAKEN" : 475 # 8 hr
     },
      "J":   {
-        "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 2500,
+        "NUM_GENERATIONS" : 250,
+        "POP_SIZE" : 3000,
         "MUT_RATE" : 0.5,
         "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 3000,
+        "RANK_DEPTH" : 1000,
         "ELITE_SIZE" : 10,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 650 # 10 hr
+        "TIME_TAKEN" : 715 # 12 hr
     },  
+     "K":   {
+        "NUM_GENERATIONS" : 300,
+        "POP_SIZE" : 4000,
+        "MUT_RATE" : 0.5,
+        "MUT_SIGMA" : .8,
+        "RANK_DEPTH" : 2000,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,1000],
+        "TIME_TAKEN" : 1000 # 16 hr
+    },
     "highMutation_36hr":   {
         "NUM_GENERATIONS" : 300,
         "POP_SIZE" : 4000,

@@ -30,7 +30,7 @@ def run_network(neurons, weight_matrix, alpha_array):
     spikers = np.zeros(len(neurons))  # Initialize with zeros for all neurons
         
     # Running the network
-    for t in range(1, TMAX):
+    for t in range(TMAX):
         # Distributing alphas
         if np.any(spikers):
             alpha = alpha_fit(alpha_array, t, TMAX)
