@@ -92,7 +92,7 @@ def main():
 
     # Optionally, save the results to a new CSV file
     results_df = pd.DataFrame(results, columns=['Index', 'ScoreChanges'])
-    results_df.to_csv('/path/to/save/results.csv', index=False)
+    results_df.to_csv('/Users/stevenwendel/Documents/GitHub/bg/unique_df1.csv', index=False)
 
 if __name__ == "__main__":
     main()
