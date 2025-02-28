@@ -8,7 +8,7 @@ import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
 def create_alpha_array(length, L=30):
-    alphas = [(td / L) * np.exp((L - td) / L) for td in range(1, length + 1)]
+    alphas = [(td / L) * np.exp((L - td) / L) for td in range(1, length+1)]
     rounded_alphas = np.round(alphas, 4)
     return np.array(rounded_alphas)
 

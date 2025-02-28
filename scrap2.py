@@ -72,30 +72,33 @@ from scipy.stats import skewnorm
 # alpha = alpha_fit(alpha_array, t, TMAX)
 # print(*alpha[0:10])
 
-boundary = 1000
-sigma = .5
-mut_rate = 0.5
-gen_count = 200
-synapse = ["MSN1"]
-num_genes = 4
-gene_list = [random.uniform(-boundary, boundary) for _ in range(num_genes)]
-print([f"{gene:.2f}" for gene in gene_list])
-for i in range(gen_count):
-    new_gene_list = []
-    for g in gene_list:
-        gene = random.normalvariate(g, g*sigma) if random.random() < mut_rate else g
+# boundary = 1000
+# sigma = .5
+# mut_rate = 0.5
+# gen_count = 200
+# synapse = ["MSN1"]
+# num_genes = 4
+# gene_list = [random.uniform(-boundary, boundary) for _ in range(num_genes)]
+# print([f"{gene:.2f}" for gene in gene_list])
+# for i in range(gen_count):
+#     new_gene_list = []
+#     for g in gene_list:
+#         gene = random.normalvariate(g, g*sigma) if random.random() < mut_rate else g
 
-        # Bounding DNA
-        if abs(gene) > boundary:
-            gene = boundary
+#         # Bounding DNA
+#         if abs(gene) > boundary:
+#             gene = boundary
 
-        # Inhibitory neurons have negative weights
-        if synapse[0] in INHIBITORY_NEURONS:
-            gene = -abs(gene)
+#         # Inhibitory neurons have negative weights
+#         if synapse[0] in INHIBITORY_NEURONS:
+#             gene = -abs(gene)
 
-        new_gene_list.append(gene)
+#         new_gene_list.append(gene)
 
-    gene_list = new_gene_list
-    print(i, [f"{gene:.2f}" for gene in gene_list])
+#     gene_list = new_gene_list
+#     print(i, [f"{gene:.2f}" for gene in gene_list])
+pkl_path = "/Users/stevenwendel/Documents/GitHub/bg/data/K_2025-02-24_01-28-22.pkl"
 
-
+with open(pkl_path, 'rb') as f:
+    data = pickle.load(f)
+    print(f"Data from {pkl_path}: {data}")

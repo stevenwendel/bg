@@ -26,7 +26,7 @@ def display_matrix(matrix, nodes):
     df = pd.DataFrame(matrix, columns=nodes, index=nodes)
     display(df) 
     
-def plot_neurons_interactive(hist_Vs, neuron_names, sq_wave, go_wave, show_u=False):
+def plot_neurons_interactive(hist_Vs, neuron_names, sq_wave, go_wave, show_u=False, title=None):
     # print(f'{hist_Vs=}')
     # print(f'{neuron_names=}')
     assert len(hist_Vs) == len(neuron_names), "Must have the same number of neurons as the number of hist_Vs"
@@ -53,7 +53,9 @@ def plot_neurons_interactive(hist_Vs, neuron_names, sq_wave, go_wave, show_u=Fal
         fig.add_trace(go.Scatter(x=list(range(TMAX)), y=go_wave / 5, mode='lines', name='GoWave',
                                  line=dict(dash='dot', color='red'), hovertemplate=hover_template), row=row, col=col)
 
-    fig.update_layout(height=300 * n_rows, width=900, title_text="Neuron Dynamics", showlegend=False)
+    # Use the provided title if one is given, otherwise use the default
+    title_text = title if title is not None else "Neuron Dynamics"
+    fig.update_layout(height=300 * n_rows, width=900, title_text=title_text, showlegend=False)
     fig.show()
 
 

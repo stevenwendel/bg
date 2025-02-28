@@ -41,7 +41,7 @@ def run_network(neurons, weight_matrix, alpha_array):
         spikers = np.zeros(len(neurons))  # Initialize with zeros for all neurons
 
         for i, neu in enumerate(neurons):
-            neu.hist_V[t], neu.hist_u[t], neu.spike_times[t - 1] = neu.update(I_ext=neu.input[t], sigma=0)
+            neu.hist_V[t], neu.hist_u[t], neu.spike_times[t] = neu.update(I_ext=neu.input[t], sigma=0)
             spikers[i] = 1.0 if neu.spiked else 0.0  # Use 1.0 for spikes instead of True
             if neu.spiked:
                 neu.hist_V[t - 1] = neu.vpeak
