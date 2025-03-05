@@ -9,6 +9,7 @@ from src.viz import *
 from src.genetic_algorithm import *
 from multiprocessing import Pool
 from functools import partial
+import ast
 
 # Assuming evaluate_dna is a function that takes a DNA sequence and returns its score
 def get_dna_score(curr_dna):
@@ -55,7 +56,7 @@ def evaluate_dna_change(original_dna, index, original_score):
     return score_change
 
 def process_dna_row(row):
-    dna = eval(row['dna'])  # Convert string representation of list to actual list
+    dna = row['dna'] 
     original_score = row['dna_score']
     
     # Find indices of non-zero elements
@@ -77,8 +78,11 @@ def process_dna_row(row):
 
 def main():
     # Load the CSV file
-    df = pd.read_csv('/Users/stevenwendel/Documents/GitHub/bg/unique_df.csv')
-    
+    df = pd.read_csv('/Users/stevenwendel/Documents/GitHub/bg/minimized_df.csv')
+        
+    # Convert the 'dna' column from string representation to actual lists
+    df['dna'] = df['dna'].apply(ast.literal_eval)
+
     # Process each row in the dataframe
     results = []
     for index, row in df.iterrows():
@@ -92,7 +96,7 @@ def main():
 
     # Optionally, save the results to a new CSV file
     results_df = pd.DataFrame(results, columns=['Index', 'ScoreChanges'])
-    results_df.to_csv('/Users/stevenwendel/Documents/GitHub/bg/unique_df1.csv', index=False)
+    results_df.to_csv('/Users/stevenwendel/Documents/GitHub/bg/unique_df2.csv', index=False)
 
 if __name__ == "__main__":
     main()
