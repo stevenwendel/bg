@@ -59,6 +59,7 @@ def create_neurons() ->list[Izhikevich]:
         globals()[neu] = neuron_instance # Makes instances available globally
         neurons.append(neuron_instance) # Creates a list of all Iz neurons; note, these are the actual objects, not a list of names!
 
+    VMprep.E=VMresp.E=80
     SNR1.E = SNR2.E = SNR3.E = 120.0 
     PPN.E = 100.0 
     ALMprep.E = 0.0
