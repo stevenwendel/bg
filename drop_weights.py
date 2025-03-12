@@ -77,7 +77,7 @@ def process_dna_row(row):
     
     return score_change_list
 
-def filter_data(original_df):
+def filter_data(original_df, completely_reduced_dna):
 
     # === Filter for high scoring runs ===
     # Define the dna_score threshold
@@ -89,7 +89,7 @@ def filter_data(original_df):
     # === Filter for unique configurations ===
     max_synapses = 20
 
-    # Dictionary to store unique configurations and their details
+    ## Picking out indicies of unique configurations
     unique_configs = {}
     for index, row in filtered_df.iterrows():
         config = tuple(1 if weight != 0 else 0 for weight in row['dna'])
@@ -97,6 +97,9 @@ def filter_data(original_df):
         non_zero_count = sum(config)
         # Only consider configurations with non-zero counts of 18 or lower
         if non_zero_count <= max_synapses and config not in unique_configs:
+            # Yes, this will drop configurations that have potentially more "resilient" weights, in lieu of the maximally scoring weights, 
+            # but we're not going to get everything in general, so it's okay to drop some in exchange for computational efficiency.
+            
             # Store the index, dna_score, and non_zero count
             unique_configs[config] = {
                 'index': index,
@@ -113,14 +116,14 @@ def filter_data(original_df):
     print(unique_df)
 
 
-    # # === Load the minimized data ===
-    # # Load the CSV file
-    # df = pd.read_csv('/Users/stevenwendel/Documents/GitHub/bg/minimized_df.csv')
-        
+    # At this stage, we have a dataframe with 730+ scores, <20 synapses, and single representatives for any given unique configuration.
+
     # # Convert the 'dna' column from string representation to actual lists
     # df['dna'] = df['dna'].apply(ast.literal_eval)
 
-    # Process each row in the dataframe
+    # This step is going to create the score change list [101,0,0,8,8,6,0,...]
+    
+    # Processing each row in the dataframe
     results = []
     for index, row in unique_df.iterrows():
         print(index)
@@ -131,18 +134,18 @@ def filter_data(original_df):
     for index, score_change_list in results:
         print(f'Index: {index}, Score Changes: {score_change_list}')
 
-    # Optionally, save the results to a new CSV file
+    # Putting all those change vectors into a df. Optionally, could save the results to a CSV
     changes_df = pd.DataFrame(results, columns=['Index', 'ScoreChanges'])
 
 
-    # === Create new dataframe where indices of nonpositive score changes are set to 0 ===
+    # === Create new dataframe where indices of subthreshold score changes are set to 0 ===
 
     # Define the threshold
-    threshold = 3
+    threshold = 5
 
     # List to store minimized DNA
     minimized_dna_list = []
-
+    assert len(unique_df) == len(changes_df)
     # Iterate over each row in the dataframes
     for i in range(len(unique_df)):
         # Get the DNA and changes arrays
@@ -153,21 +156,37 @@ def filter_data(original_df):
         if isinstance(changes, str):
             changes = ast.literal_eval(changes)  # Use ast.literal_eval for safety
         
-        # Ensure all elements are integers
+        # Ensure all elements are integers 
         changes = list(map(int, changes))
         
+
+
+        ## Save fully minimized DNAs (i.e. nothing is below threshold for them)
+        # Check if all changes are either above threshold or 0
+        if all(change == 0 or change > threshold for change in changes):
+            # Save this DNA to fully minimal list since no more reductions needed
+            completely_reduced_dna = pd.concat([completely_reduced_dna, unique_df.iloc[i]])
+            continue # Skip to next DNA since this one is fully reduced
+
         # Create a new DNA list with elements set to 0 if the corresponding change is below the threshold
         for j in range(len(dna)):
             if (changes[j] <= threshold) and (dna[j] != 0):
                 minimized_dna = dna.copy()
                 minimized_dna[j] = 0
+                # Should produce a list of once-changed, unevaluated DNAs from the parents. 
+                # What happens to the parents who have no children (are fully reduced)?
             
                 # Append the minimized DNA to the list
                 minimized_dna_list.append({'dna': minimized_dna,
                                         'dna_score': unique_df.iloc[i]['dna_score'] - changes[j]})
 
+        # At this step, minimized_dna_list is full of DNA to be rerun, and see if any of them still work.
+        # the ones that do still work will be filtered; their deltas will be calculated; and repeat
+  
+
     # Return the list as a DataFrame
     return pd.DataFrame(minimized_dna_list)
+
 def main():
     start_time = time.time()
     # === Load the combined data ===
@@ -176,27 +195,21 @@ def main():
         combined_data = pickle.load(file)
 
     # Create a DataFrame from the combined data
-    all_runs_df = pd.DataFrame(combined_data)
-    prev_size = len(all_runs_df)
+    untested_dna = pd.DataFrame(combined_data)
     iteration = 0  # Initialize iteration counter
-    print(f'Iteration: {iteration}')
-    print(f'Current size: {len(all_runs_df)}')
-    print(f'Current df: {all_runs_df}')
     
-    while True:
-        minimized_df = filter_data(all_runs_df)
-        current_size = len(minimized_df)
+    # Initialize lists to store fully reduced DNAs
+    completely_reduced_dna = pd.DataFrame()
+    
+    print(f'Iteration: {iteration} ==== Current untestedsize: {len(untested_dna)}')
+
+    while len(untested_dna) > 0:
+        untested_dna = filter_data(untested_dna, completely_reduced_dna)
 
         # Save the minimized DataFrame to a CSV file
-        minimized_df.to_csv(f'minimized_data_pass_{iteration}.csv', index=False)
-        
-        # Break if size hasn't changed
-        if current_size >= prev_size:
-            break
-            
-        # Update for next iteration
-        all_runs_df = minimized_df
-        prev_size = current_size
+        untested_dna.to_csv(f'untested_data_pass_{iteration}.csv', index=False)
+        completely_reduced_dna.to_csv(f'completely_reduced_data_pass_{iteration}.csv', index=False)
+          
         iteration += 1  # Increment iteration counter
         
         print(f'Iteration: {iteration}')
@@ -206,3 +219,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#Should I not be dropping the index? it could serve as a barcode to see what is kept and what is dropped. Might fuck up my ilocs though.
