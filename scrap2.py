@@ -97,8 +97,15 @@ from scipy.stats import skewnorm
 
 #     gene_list = new_gene_list
 #     print(i, [f"{gene:.2f}" for gene in gene_list])
-pkl_path = "/Users/stevenwendel/Documents/GitHub/bg/data/K_2025-02-24_01-28-22.pkl"
+# pkl_path = "/Users/stevenwendel/Documents/GitHub/bg/data/K_2025-02-24_01-28-22.pkl"
 
-with open(pkl_path, 'rb') as f:
-    data = pickle.load(f)
-    print(f"Data from {pkl_path}: {data}")
+# with open(pkl_path, 'rb') as f:
+#     data = pickle.load(f)
+#     print(f"Data from {pkl_path}: {data}")
+
+print("hi")
+list = [1, 2, 3, 4, 5]
+mean = np.mean(list)
+list = list - np.array(mean)
+print(list)
+print("bye")

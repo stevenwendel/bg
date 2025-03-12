@@ -51,10 +51,21 @@ def calculate_score(critSpikeMatrix, critCriteriaMatrix, condition):
 
     # Loop through both matrices
     for i in range(len(critSpikeMatrix)):
+
+        if CRITERIA_NAMES[i] == 'VMprep' or CRITERIA_NAMES[i] == 'VMresp':
+            average_VM_spikes = np.ceil(np.mean(critSpikeMatrix[i]))
+            critSpikeMatrix[i] = critSpikeMatrix[i] - np.array(average_VM_spikes) #does this have to be the same length as critSpikeMatrix[i]?
+            critSpikeMatrix[i] = np.clip(critSpikeMatrix[i], 0, None)
+
+
         for j in range(len(critSpikeMatrix[0])):
             # Award a point if both entries are 0 or both are positive
             if (critSpikeMatrix[i][j] == 0 and critCriteriaMatrix[i][j] == 0) or (critSpikeMatrix[i][j] > 0 and critCriteriaMatrix[i][j] > 0):
                 score += 1
+            else: 
+                if CRITERIA_NAMES[i] == 'VMprep' or CRITERIA_NAMES[i] == 'VMresp':
+                    print(f'Neuron#: {CRITERIA_NAMES[i]} ==== Period#: {j} ==== Time: {j*BIN_SIZE}-{(j+1)*BIN_SIZE} ==== Condition: {condition}')
+                    print(f'Spikes: {int(critSpikeMatrix[i][j])} ==== Criteria: {int(critCriteriaMatrix[i][j])}')
             # else:
             #     print(f'Neuron#: {CRITERIA_NAMES[i]} ==== Period#: {j} ==== Time: {j*BIN_SIZE}-{(j+1)*BIN_SIZE} ==== Condition: {condition}')
             #     print(f'Spikes: {int(critSpikeMatrix[i][j])} ==== Criteria: {int(critCriteriaMatrix[i][j])}')
