@@ -201,9 +201,10 @@ def main():
     # Initialize lists to store fully reduced DNAs
     completely_reduced_dna = pd.DataFrame()
     
-    print(f'Iteration: {iteration} ==== Current untestedsize: {len(untested_dna)}')
 
     while len(untested_dna) > 0:
+        
+        print(f'Iteration: {iteration} ==== Current untestedsize: {len(untested_dna)}')
         untested_dna = filter_data(untested_dna, completely_reduced_dna)
 
         # Save the minimized DataFrame to a CSV file
@@ -211,11 +212,8 @@ def main():
         completely_reduced_dna.to_csv(f'completely_reduced_data_pass_{iteration}.csv', index=False)
           
         iteration += 1  # Increment iteration counter
-        
-        print(f'Iteration: {iteration}')
-        print(f'Current size: {len(minimized_df)}')
-        print(f'Current df: {minimized_df}')
-        print(f'Time taken: {time.time() - start_time:.2f} seconds')
+    
+    print(f'Time taken: {time.time() - start_time:.2f} seconds')
 
 if __name__ == "__main__":
     main()
