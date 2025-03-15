@@ -24,7 +24,7 @@ def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = "K"
+    ga_set = "J_high_pop"
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
@@ -58,7 +58,7 @@ def main():
     for generation in range(GA_CONFIG[ga_set]['NUM_GENERATIONS']):
         print(f"Generation {generation}")
         population_results = []
-        save_dict[f'{generation}'] = {}
+        save_dict[f'{generation}'] = {} #I should just put everything directly in same dict
 
         with Pool() as pool:
             args_list = [(dna, all_neurons, alpha_array, input_waves, criteria_dict, generation, max_score) 

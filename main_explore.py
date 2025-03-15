@@ -36,14 +36,15 @@ criteria_dict = define_criteria()
 max_score = TMAX // BIN_SIZE * len(CRITERIA_NAMES)
 
 # initial_dna = create_dna_string(new_jh_weights, ACTIVE_SYNAPSES)
-initial_dna = [497, 0, 0, 1000, -108, -14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -459, 0, 0, 88, 0, 0, 0, 0, 628, 0, 0, 0, 0, 0, 0, 0, 353, 148, 0, 0, 0, 0, 0, 0, 0, 0, -691, 0, 0, 0, 28, 275, 179]
+# initial_dna = [497, 0, 0, 1000, -108, -14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -459, 0, 0, 88, 0, 0, 0, 0, 628, 0, 0, 0, 0, 0, 0, 0, 353, 148, 0, 0, 0, 0, 0, 0, 0, 0, -691, 0, 0, 0, 28, 275, 179]
+initial_dna = create_dna_string(jh_weights_with_E, ACTIVE_SYNAPSES)
 
-sigma= GA_CONFIG[ga_set]['MUT_SIGMA'] * 10
+initial_sigma= GA_CONFIG[ga_set]['MUT_SIGMA'] * 10
 
 if __name__ == "__main__":
     curr_population = []
     for _ in range(GA_CONFIG[ga_set]['POP_SIZE']):
-        randomized_dna = np.round(np.random.normal(loc=initial_dna, scale=sigma)).astype(int)
+        randomized_dna = np.round(np.random.normal(loc=initial_dna, scale=initial_sigma)).astype(int)
         curr_population.append(randomized_dna)
 
     save_dict = {}

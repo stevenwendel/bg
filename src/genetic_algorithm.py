@@ -174,8 +174,8 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
             gene = random.normalvariate(gene, sigma) if random.random() < ga_config['MUT_RATE'] else gene
 
             # Introduce jitter to allow zeroed-out genes to potentially become non-zero
-            unjittered_generations = 150
-            assert unjittered_generations < ga_config['NUM_GENERATIONS']
+            unjittered_generations = np.min([ga_config['NUM_GENERATIONS'], 100])
+            # assert unjittered_generations < ga_config['NUM_GENERATIONS']
             
             decay_rate = 1/2
             if generation < ga_config['NUM_GENERATIONS']-unjittered_generations:

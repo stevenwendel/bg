@@ -38,47 +38,34 @@ def get_dna_score(curr_dna):
     print(f'    === Overall: {total_score}({total_score/(2*max_score):.2%})')
     print('\n')
 
-    return dna_score  # Random score for demonstration
+    return total_score  # Random score for demonstration
 
-def evaluate_dna_change(original_dna, index, original_score):
-    # Create a copy of the original DNA and set the specified index to zero
+def evaluate_dna_change(original_dna, index_to_zero):
     modified_dna = original_dna.copy()
-    modified_dna[index] = 0
-    
-    # Evaluate the modified DNA
-    new_score_dict = get_dna_score(modified_dna)
-    
-    # Assuming new_score_dict is a dictionary with keys like 'control' and 'experimental'
-    # You need to decide how to combine these into a single score
-    new_score = sum(new_score_dict.values())  # Example: sum all scores
-    
-    # Calculate the change in score
-    score_change = original_score - new_score
-    return score_change
+    modified_dna[index_to_zero] = 0
+    original_score = get_dna_score(original_dna)
+    new_score = get_dna_score(modified_dna)
+    return new_score - original_score
 
 def process_dna_row(row):
-    dna = row['dna'] 
-    original_score = row['dna_score']
-    
-    # Find indices of non-zero elements
+    dna = row['dna']
     non_zero_indices = [i for i, x in enumerate(dna) if x != 0]
     
-    # Use partial to fix the original DNA and score
-    evaluate_partial = partial(evaluate_dna_change, dna, original_score=original_score)
+    # Use partial to fix the first argument of evaluate_dna_change
+    evaluate_partial = partial(evaluate_dna_change, dna)
     
-    # Use multiprocessing to evaluate changes in parallel
     with Pool() as pool:
         score_changes = pool.map(evaluate_partial, non_zero_indices)
     
-    # Create a list of score changes with the same length as the original DNA
-    score_change_list = [0] * len(dna)
+    # Create a full list of changes with zeros for indices that were not evaluated
+    full_score_changes = [0] * len(dna)
     for idx, change in zip(non_zero_indices, score_changes):
-        score_change_list[idx] = change
+        full_score_changes[idx] = change
     
-    return score_change_list
+    return full_score_changes
 
 def filter_data(original_df, completely_reduced_dna):
-
+    
     # === Filter for high scoring runs ===
     # Define the dna_score threshold
     dna_threshold = 730
@@ -86,34 +73,7 @@ def filter_data(original_df, completely_reduced_dna):
     filtered_df = original_df[original_df['dna_score'] > dna_threshold].sort_values(by='dna_score', ascending=False).reset_index(drop=True)
 
 
-    # === Filter for unique configurations ===
-    max_synapses = 20
-
-    ## Picking out indicies of unique configurations
-    unique_configs = {}
-    for index, row in filtered_df.iterrows():
-        config = tuple(1 if weight != 0 else 0 for weight in row['dna'])
-        # Calculate the number of non-zero entries
-        non_zero_count = sum(config)
-        # Only consider configurations with non-zero counts of 18 or lower
-        if non_zero_count <= max_synapses and config not in unique_configs:
-            # Yes, this will drop configurations that have potentially more "resilient" weights, in lieu of the maximally scoring weights, 
-            # but we're not going to get everything in general, so it's okay to drop some in exchange for computational efficiency.
-            
-            # Store the index, dna_score, and non_zero count
-            unique_configs[config] = {
-                'index': index,
-                'dna_score': row['dna_score'],
-                'non_zero_count': non_zero_count
-            }
-
-    # Create a list of indices for the unique configurations
-    unique_indices = [details['index'] for details in unique_configs.values()]
-
-    # Create a new dataframe with only the unique configurations
-    unique_df = filtered_df.loc[unique_indices].copy().reset_index(drop=True)
-    print(f"Found {len(unique_df)} unique configurations")
-    print(unique_df)
+    unique_df = get_unique_representatives(filtered_df, max_synapses=20)
 
 
     # At this stage, we have a dataframe with 730+ scores, <20 synapses, and single representatives for any given unique configuration.
@@ -127,21 +87,22 @@ def filter_data(original_df, completely_reduced_dna):
     results = []
     for index, row in unique_df.iterrows():
         print(index)
-        score_change_list = process_dna_row(row)
-        results.append((index, score_change_list))  # Save index and score change list as a tuple
+        score_changes = process_dna_row(row)
+        results.append((index, score_changes))  # Save index and score change list as a tuple
     
     # Output the results
-    for index, score_change_list in results:
-        print(f'Index: {index}, Score Changes: {score_change_list}')
+    for index, score_changes in results:
+        print(f'Index: {index}, Score Changes: {score_changes}')
 
     # Putting all those change vectors into a df. Optionally, could save the results to a CSV
     changes_df = pd.DataFrame(results, columns=['Index', 'ScoreChanges'])
 
-
     # === Create new dataframe where indices of subthreshold score changes are set to 0 ===
 
     # Define the threshold
-    threshold = 5
+    threshold = -3
+
+    if all(change > threshold for change in changes_df['ScoreChanges']):
 
     # List to store minimized DNA
     minimized_dna_list = []
@@ -187,31 +148,32 @@ def filter_data(original_df, completely_reduced_dna):
     # Return the list as a DataFrame
     return pd.DataFrame(minimized_dna_list)
 
+
 def main():
     start_time = time.time()
-    # === Load the combined data ===
-    # Load the combined data from the .pkl file
-    with open('/Users/stevenwendel/Documents/GitHub/bg/combined_data.pkl', 'rb') as file:
-        combined_data = pickle.load(file)
-
-    # Create a DataFrame from the combined data
-    untested_dna = pd.DataFrame(combined_data)
-    iteration = 0  # Initialize iteration counter
     
+    with open('./data/unique_df7.pkl', 'rb') as f:
+        untested_df = pickle.load(f)
+
     # Initialize lists to store fully reduced DNAs
     completely_reduced_dna = pd.DataFrame()
     
+    iteration = 0  # Initialize iteration counter
 
-    while len(untested_dna) > 0:
-        
-        print(f'Iteration: {iteration} ==== Current untestedsize: {len(untested_dna)}')
-        untested_dna = filter_data(untested_dna, completely_reduced_dna)
+    # Save the minimized DataFrame to a CSV file
+    untested_df.to_csv(f'untested_data_pass_{iteration}.csv', index=False)
+    completely_reduced_dna.to_csv(f'completely_reduced_data_pass_{iteration}.csv', index=False)
 
-        # Save the minimized DataFrame to a CSV file
-        untested_dna.to_csv(f'untested_data_pass_{iteration}.csv', index=False)
-        completely_reduced_dna.to_csv(f'completely_reduced_data_pass_{iteration}.csv', index=False)
-          
+    while len(untested_df) > 0:
         iteration += 1  # Increment iteration counter
+        print(f'Iteration: {iteration} ==== Current untested size: {len(untested_df)}')
+
+        untested_df = filter_data(untested_df, completely_reduced_dna)
+
+         # Save the minimized DataFrame to a CSV file
+        untested_df.to_csv(f'untested_data_pass_{iteration}.csv', index=False)
+        completely_reduced_dna.to_csv(f'completely_reduced_data_pass_{iteration}.csv', index=False)
+
     
     print(f'Time taken: {time.time() - start_time:.2f} seconds')
 

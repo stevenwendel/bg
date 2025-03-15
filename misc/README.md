@@ -1,0 +1,31 @@
+## Version Control
+- 7/21/24
+ - updated vpeak function to match Jons. I think it's a bit wonky tbh, but it works now.
+- 8/16/24
+ - Gave up on using Gaussian smoothing to correlate connectomes. Going back to threshold firing rates as a means to score. Cleaning up and preparing to get a bunch of connectomes and their scores.
+- 9/3/24
+ - need to work on retrieving matrices that work from the select matrix function (borrow from my randomizer section of old).
+ - figure out how to save all the dna with their scores ([my_dna], score)
+ - work out selection function
+ - work out recombination function
+ - should add a way to weight some periods and/or neurons more than others (i.e. VMprep firing at r1 is vitally important). Maybe I can change my 0,0,1,0 validation matrix to numbers that are weights, and then just check == 0 to get the on/off behavior
+- 9/19/24
+ - Added control condition to validation criteria (made new validation matrix for it; adding scores from experimental and control together to get overall score)
+ - **Todo**
+   - Allow underlying matrix to mutate as a means to discover new connections
+   - Create a class for individual (dna), as well as generation and/or algorithm
+- 10/8/24
+   - I need to check firing rates across a whole subdivision to determine if its firing
+   - I need to compare the firing rates between experimental and control conditions
+   - I need to make sure that my network still runs even though I've rearranged this whole thing.
+
+   ## Commandments
+   - Somatosensory neurons are activated (above baseline) only during the somatosensory period. (test sensitivity to sq wave intensity)
+   - A first set of ALM neurons shows sustained activation throughout the instruction and delay periods, and the specific neurons activated during this period predict the upcoming action.  
+   - A second set of ALM neurons is activated briefly at the time of the Go cue, regardless of the upcoming action.
+   - A third set of ALM neurons is activated during the behavioral response, and the specific neurons activated during this period predicts the upcoming action
+   - A first set of SNR neurons is inhibited only during the instruction cue and corresponds to the presented cue.
+   - A second set of SNR neurons shows sustained activation throughout the instruction and delay periods, and the specific neurons activated during this period predict the upcoming action.
+   - A set of VM neurons shows sustained activation throughout the instruction and delay periods, and the specific neurons activated during this period predict the upcoming action.
+   - A second set of VM neurons show activation during the behavioral response and the activation corresponds to the chosen action.
+   - The subject chooses the behavior that corresponds to the (pre-delay) instruction cue.

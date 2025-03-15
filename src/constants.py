@@ -320,16 +320,27 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "DNA_BOUNDS" : [0,1000], 
         "TIME_TAKEN" : 475 # 8 hr
     },
-     "J":   {
-        "NUM_GENERATIONS" : 250,
-        "POP_SIZE" : 3000,
+     "J_high_pop":   {
+        "NUM_GENERATIONS" : 500,
+        "POP_SIZE" : 1000,
         "MUT_RATE" : 0.5,
         "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 1000,
+        "RANK_DEPTH" : 500,
         "ELITE_SIZE" : 10,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 715 # 12 hr
+        "TIME_TAKEN" : 437 # 7.3 hr
+    },
+     "J_high_gen":   {
+        "NUM_GENERATIONS" : 1000,
+        "POP_SIZE" : 500,
+        "MUT_RATE" : 0.5,
+        "MUT_SIGMA" : .5,
+        "RANK_DEPTH" : 250,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,1000], 
+        "TIME_TAKEN" : 440 # 7.3 hr
     },  
      "K":   {
         "NUM_GENERATIONS" : 300,
@@ -353,8 +364,8 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "DNA_BOUNDS" : [0,1000]
     },
     "explore_B":   {
-        "NUM_GENERATIONS" : 100,
-        "POP_SIZE" : 2000,
+        "NUM_GENERATIONS" : 150,
+        "POP_SIZE" : 1000,
         "MUT_RATE" : 0.35,
         "MUT_SIGMA" : .5,
         "RANK_DEPTH" : 500,
@@ -378,6 +389,27 @@ new_jh_weights = [
     ("PPN", "THALgo", 60),
     ("THALgo", "ALMinter", 55),
     ("ALMinter", "ALMprep", -50),
+    ("THALgo", "ALMresp", 30),
+    ("ALMresp", "MSN3", 320),
+    ("MSN3", "SNR3", -90),
+    ("SNR3", "VMresp", -50),
+    ("VMresp", "ALMresp", 85),
+    ("ALMresp", "VMresp", 90)
+]
+
+jh_weights_with_E = [
+    ("Somat", "ALMprep", 40),
+    ("Somat", "MSN1", 220),
+    ("MSN1", "SNR1", -90),
+    ("SNR1", "VMprep", -10),
+    ("VMprep", "ALMprep", 70),
+    ("ALMprep", "VMprep", 80),
+    ("ALMprep", "MSN2", 320),
+    ("MSN2", "SNR2", -50),
+    ("SNR2", "VMresp", -100),
+    ("PPN", "THALgo", 60),
+    ("THALgo", "ALMinter", 55),
+    ("ALMinter", "ALMprep", -200),
     ("THALgo", "ALMresp", 30),
     ("ALMresp", "MSN3", 320),
     ("MSN3", "SNR3", -90),

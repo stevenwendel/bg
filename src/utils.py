@@ -123,3 +123,58 @@ def create_dna_string(weights, active_synapses):
             print(f"Connection {source} -> {target} not found in ACTIVE_SYNAPSES.")
    
     return dna
+
+def flatten_pkl(pkl_data):
+    assert isinstance(pkl_data, dict)
+    assert isinstance(pkl_data['0'][0],dict)
+    # Flatten the data into a list of dictionaries
+    flattened_data = []
+    for generation, population_results in pkl_data.items():
+        for entry in population_results:
+            flattened_data.append({
+                'generation': generation,
+                'dna': entry['dna'],
+                'dna_score': entry['dna_score']
+            })
+    # Create a DataFrame from the flattened data
+    df = pd.DataFrame(flattened_data).sort_values(by='dna_score', ascending=False)
+    return df
+
+def get_unique_representatives(filtered_df, max_synapses=20):
+    """
+    Extracts unique DNA configurations from the filtered DataFrame.
+
+    Parameters:
+    - filtered_df (pd.DataFrame): DataFrame containing DNA configurations and scores.
+    - max_synapses (int): Maximum number of non-zero synapses allowed in a configuration.
+
+    Returns:
+    - pd.DataFrame: DataFrame containing unique DNA configurations.
+    """
+    # Dictionary to store unique configurations and their details
+    unique_configs = {}
+    for index, row in filtered_df.iterrows():
+        config = tuple(1 if weight != 0 else 0 for weight in row['dna'])
+        # Calculate the number of non-zero entries
+        non_zero_count = sum(config)
+        # Only consider configurations with non-zero counts of 18 or lower
+        if non_zero_count <= max_synapses and config not in unique_configs:
+            # Store the index, dna_score, and non_zero count
+            unique_configs[config] = {
+                'index': index,
+                'dna_score': row['dna_score'],
+                'non_zero_count': non_zero_count
+            }
+
+    # Create a list of indices for the unique configurations
+    unique_indices = [details['index'] for details in unique_configs.values()]
+
+    # Create a new dataframe with only the unique configurations
+    unique_df = filtered_df.loc[unique_indices].copy().reset_index(drop=True)
+
+    print(f"Found {len(unique_df)} unique configurations")
+    return unique_df
+
+    # Example usage:
+    # unique_df = get_unique_configurations(filtered_df)
+    # display(unique_df)
