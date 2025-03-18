@@ -137,7 +137,7 @@ def flatten_pkl(pkl_data):
                 'dna_score': entry['dna_score']
             })
     # Create a DataFrame from the flattened data
-    df = pd.DataFrame(flattened_data).sort_values(by='dna_score', ascending=False)
+    df = pd.DataFrame(flattened_data).sort_values(by='dna_score', ascending=False).reset_index(drop=True)
     return df
 
 def get_unique_representatives(filtered_df, max_synapses=20):

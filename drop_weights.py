@@ -102,7 +102,7 @@ def filter_data(original_df, completely_reduced_dna):
     # Define the threshold
     threshold = -3
 
-    if all(change > threshold for change in changes_df['ScoreChanges']):
+    # if all(change > threshold for change in changes_df['ScoreChanges']):
 
     # List to store minimized DNA
     minimized_dna_list = []

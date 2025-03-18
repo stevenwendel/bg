@@ -342,8 +342,8 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "DNA_BOUNDS" : [0,1000], 
         "TIME_TAKEN" : 440 # 7.3 hr
     },  
-     "K":   {
-        "NUM_GENERATIONS" : 300,
+     "K_high_gen":   {
+        "NUM_GENERATIONS" : 500,
         "POP_SIZE" : 2000,
         "MUT_RATE" : 0.5,
         "MUT_SIGMA" : .5,
@@ -351,7 +351,29 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "ELITE_SIZE" : 10,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,1000],
-        "TIME_TAKEN" : 840 # 14 hr
+        "TIME_TAKEN" : 691 # 11.5 hr?
+    },
+    "K_high_gen_2":   {
+        "NUM_GENERATIONS" : 1000,
+        "POP_SIZE" : 2000,
+        "MUT_RATE" : 0.5,
+        "MUT_SIGMA" : .5,
+        "RANK_DEPTH" : 1000,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,1000],
+        "TIME_TAKEN" : 1500 # 25
+    },
+    "K_high_gen_3":   {
+        "NUM_GENERATIONS" : 1000,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.5,
+        "MUT_SIGMA" : .5,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,1000],
+        "TIME_TAKEN" : 822 # 14 hr
     },
     "explore_A":   {
         "NUM_GENERATIONS" : 3,
