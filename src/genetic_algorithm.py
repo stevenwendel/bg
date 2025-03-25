@@ -122,14 +122,15 @@ def drone_evaluate_dna(args):
     
     total_score = sum(dna_scores.values())
 
-    print(f'Gen {generation} === DNA: {curr_dna}') 
-    print(f'    === Control: {dna_scores["control"]}/{max_score}')
-    print(f'    === Experimental: {dna_scores["experimental"]}/{max_score}')
-    print(f'    === Overall: {total_score}({total_score/(2*max_score):.2%})\n')
+    # print(f'Gen {generation} === DNA: {curr_dna}') 
+    # print(f'    === Control: {dna_scores["control"]}/{max_score}')
+    # print(f'    === Experimental: {dna_scores["experimental"]}/{max_score}')
+    # print(f'    === Overall: {total_score}({total_score/(2*max_score):.2%})\n')
+    print(f'{generation=} === {total_score=}')
 
     return curr_dna, total_score
 
-def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int) -> list[list[float]]:
+def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int, gen_max_scores: list) -> list[list[float]]:
     """Generates the next population of DNA sequences through selection and mutation.
 
     Creates a new population by:
@@ -156,21 +157,30 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
         >>> assert len(next_pop) == POP_SIZE
     """
 
+    
     curr_pop.sort(key=lambda x: x['dna_score'], reverse=True)
     survivors = curr_pop[:ga_config['RANK_DEPTH']]
     next_dnas = [curr_pop[i]['dna'] for i in range(ga_config['ELITE_SIZE'])]
     
-    for _ in range(ga_config['POP_SIZE'] - ga_config['ELITE_SIZE']):
+    while len(next_dnas) < ga_config['POP_SIZE']:
         boundary = ga_config['DNA_BOUNDS'][1]
         parent1 = random.choice(survivors)['dna']
         parent2 = random.choice(survivors)['dna']
         child_dna=[]
 
+        # Construct child dna
         for i, synapse in enumerate(ACTIVE_SYNAPSES):
 
             gene = random.choice([parent1[i], parent2[i]])
-            
+
+            """Sigma is a square root function, and it might be growing too large (and making too many changes) around gen 500, 
+            so that only a few get propagated.
+            I can either remove the function...
             sigma = ga_config['MUT_SIGMA'] * (gene * (generation / ga_config['NUM_GENERATIONS'])**(1/2))            
+            OR set a uniqueness condition on the dna, such that no dna may be passed along twice, i.e. each dna must be unique
+            """ 
+            period = 100
+            sigma = ga_config['MUT_SIGMA'] * gene * np.sin(generation/period)**2       
             gene = random.normalvariate(gene, sigma) if random.random() < ga_config['MUT_RATE'] else gene
 
             # Introduce jitter to allow zeroed-out genes to potentially become non-zero
@@ -196,7 +206,13 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
             
             child_dna.append(int(gene))
 
-        next_dnas.append(child_dna)
-    
+            # if len(gen_max_scores) > 10:
+            #     if gen_max_scores[-10] == gen_max_scores[-1] and random.random() < .5:
+            #         child_dna = [int(gene + np.random.normal(0, 50)) for gene in child_dna]
+
+        # Only add child_dna if not already passing on
+        if child_dna not in next_dnas:
+            next_dnas.append(child_dna)
+
     assert len(next_dnas) == ga_config['POP_SIZE']
     return next_dnas

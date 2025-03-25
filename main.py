@@ -24,7 +24,7 @@ def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = "K_high_gen_3"
+    ga_set = "J_high_gen4"
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
@@ -54,6 +54,8 @@ def main():
     curr_population = [create_dna(GA_CONFIG[ga_set]['DNA_BOUNDS']) for _ in range(GA_CONFIG[ga_set]['POP_SIZE'])]
 
     save_dict = {}
+    gen_avg_scores = []
+    gen_max_scores = []
 
     for generation in range(GA_CONFIG[ga_set]['NUM_GENERATIONS']):
         print(f"Generation {generation}")
@@ -72,8 +74,16 @@ def main():
 
         # Quick save to temp dict (repository for all dna across all generations)   
         save_dict[f'{generation}'] = population_results
-
-        curr_population = spawn_next_population(population_results, GA_CONFIG[ga_set], generation)
+        gen_avg_score = np.average([dna['dna_score'] for dna in population_results])
+        gen_max_score = np.max([dna['dna_score'] for dna in population_results])
+        gen_avg_scores.append(int(gen_avg_score))
+        gen_max_scores.append(int(gen_max_score))
+        print(gen_avg_scores)
+        print(gen_max_scores)
+        curr_population = spawn_next_population(population_results, 
+                                                GA_CONFIG[ga_set], 
+                                                generation,
+                                                gen_max_scores)
 
     # Pickle run data 
     with open(save_path,'ab') as f:

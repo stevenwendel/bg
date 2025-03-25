@@ -110,51 +110,87 @@ initial_df = flatten_pkl(ga_results)
 cleaned_df = clean_df(initial_df, threshold=728)
 parent_dnas = get_representatives(cleaned_df, max_synapses=20).reset_index(drop=True)
 
-# Begin culling
-fully_reduced_dnas = pd.DataFrame(columns=cleaned_df.columns)
-permissible_score_change = -2
-seen_configurations = set()
-
-while parent_dnas.shape[0]>0:
-    # Reporting
-    print(f"A new day rises and the parents must be culled. The parents who have made it to the safe zone are:")
-    display(fully_reduced_dnas)
-    print("The current parents:")
-    display(parent_dnas)
-    print("seen configurations")
-    print(seen_configurations)
-
-    # Create empty df to collect new dnas
-    children_dnas = pd.DataFrame(columns=cleaned_df.columns)
-
-    for index, row in parent_dnas.iterrows():
-        print(f'Working on row {index}')
-        dna_children=0
-        parent_dna = row['dna']
-        parent_score = row['dna_score']
-
-        dna_tuple = tuple(parent_dna)
-        # Skip if we've seen this configuration before
-        if dna_tuple in seen_configurations:
-            continue
-        seen_configurations.add(dna_tuple)
-
-        for i in range(len(parent_dna)):
-            if parent_dna[i] != 0:
-                child_dna = parent_dna.copy()
-                child_dna[i]=0
-                # new_dna_tuple = tuple(child_dna)
-                # new_score = np.random.normal(row['dna_score'], 5, 1)
-        
-                child_score = get_dna_score(child_dna)
-                if child_score - parent_score > permissible_score_change:
-                    children_dnas.loc[len(children_dnas)] = [row['generation'], child_dna, child_score]
-                    # seen_configurations.add(new_dna_tuple)
-                    dna_children +=1
-                    print(f'New child! | Score Change: {child_score - parent_score} | Num Children: {dna_children=}')
-                
-        
-        if dna_children==0:
-            fully_reduced_dnas.loc[len(fully_reduced_dnas)] = row
+def process_parent(row, seen_configurations, permissible_score_change):
+    """Process a single parent DNA and return its children and status"""
+    children = []
+    parent_dna = row['dna']
+    parent_score = row['dna_score']
+    dna_children = 0
     
-    parent_dnas = children_dnas
+    dna_tuple = tuple(parent_dna)
+    # Skip if we've seen this configuration before
+    if dna_tuple in seen_configurations:
+        return [], False
+    
+    for i in range(len(parent_dna)):
+        if parent_dna[i] != 0:
+            child_dna = parent_dna.copy()
+            child_dna[i] = 0
+            child_score = get_dna_score(child_dna)
+            
+            if child_score - parent_score > permissible_score_change:
+                children.append({
+                    'generation': row['generation'],
+                    'dna': child_dna,
+                    'dna_score': child_score
+                })
+                dna_children += 1
+                print(f'New child! | Score Change: {child_score - parent_score} | Num Children: {dna_children}')
+    
+    return children, dna_children == 0
+
+def main():
+    # Your existing setup code here
+    pkl_file = '/Users/stevenwendel/Documents/GitHub/bg/data/J_high_gen_2025-03-13_04-00-56.pkl'
+
+    with open(pkl_file, 'rb') as f: 
+        ga_results = pickle.load(f)
+
+    initial_df = flatten_pkl(ga_results)
+    cleaned_df = clean_df(initial_df, threshold=728)
+    parent_dnas = get_representatives(cleaned_df, max_synapses=20).reset_index(drop=True)
+
+    # Begin culling with multiprocessing
+    fully_reduced_dnas = pd.DataFrame(columns=cleaned_df.columns)
+    permissible_score_change = -2
+    seen_configurations = set()
+
+    with Pool() as pool:
+        while parent_dnas.shape[0] > 0:
+            print(f"A new day rises and the parents must be culled. The parents who have made it to the safe zone are:")
+            display(fully_reduced_dnas)
+            print("The current parents:")
+            display(parent_dnas)
+            
+            # Process all parents in parallel
+            process_func = partial(process_parent, 
+                                 seen_configurations=seen_configurations.copy(), 
+                                 permissible_score_change=permissible_score_change)
+            results = pool.map(process_func, [row for _, row in parent_dnas.iterrows()])
+            
+            # Collect all children and fully reduced parents
+            all_children = []
+            newly_reduced = []
+            
+            for (children, is_reduced), (_, parent_row) in zip(results, parent_dnas.iterrows()):
+                seen_configurations.add(tuple(parent_row['dna']))
+                all_children.extend(children)
+                if is_reduced:
+                    newly_reduced.append(parent_row)
+            
+            # Create new children DataFrame
+            children_dnas = pd.DataFrame(all_children)
+            
+            # Add newly reduced parents to fully_reduced_dnas
+            if newly_reduced:
+                fully_reduced_dnas = pd.concat([fully_reduced_dnas, pd.DataFrame(newly_reduced)], 
+                                             ignore_index=True)
+            
+            # Update parent_dnas for next iteration
+            parent_dnas = children_dnas if not children_dnas.empty else pd.DataFrame(columns=cleaned_df.columns)
+
+    print("Final reduced configurations:")
+    display(fully_reduced_dnas)
+
+if __name__ == '__main__':
+    main()
