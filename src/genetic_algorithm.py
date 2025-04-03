@@ -179,9 +179,10 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
             sigma = ga_config['MUT_SIGMA'] * (gene * (generation / ga_config['NUM_GENERATIONS'])**(1/2))            
             OR set a uniqueness condition on the dna, such that no dna may be passed along twice, i.e. each dna must be unique
             """ 
-            period = 100
-            sigma = ga_config['MUT_SIGMA'] * gene * np.sin(generation/period)**2       
-            gene = random.normalvariate(gene, sigma) if random.random() < ga_config['MUT_RATE'] else gene
+            period = 50
+            amplitude = .5
+            sigma = amplitude * ga_config['MUT_SIGMA'] * gene * np.sin(generation/period)**2       
+            gene = random.normalvariate(gene, sigma=sigma) if random.random() < ga_config['MUT_RATE'] else gene
 
             # Introduce jitter to allow zeroed-out genes to potentially become non-zero
             unjittered_generations = np.min([ga_config['NUM_GENERATIONS'], 100])

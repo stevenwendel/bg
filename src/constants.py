@@ -373,7 +373,40 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "ELITE_SIZE" : 5,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,500], 
-        "TIME_TAKEN" : None
+        "TIME_TAKEN" : 1000
+    },  
+    "J_high_gen5":   {
+        "NUM_GENERATIONS" : 500,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.35,
+        "MUT_SIGMA" : .5,
+        "RANK_DEPTH" : 300,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,1000], 
+        "TIME_TAKEN" : 500 
+    },  
+        "J_high_gen6":   {
+        "NUM_GENERATIONS" : 500,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.35,
+        "MUT_SIGMA" : .5,
+        "RANK_DEPTH" : 200,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,1000], 
+        "TIME_TAKEN" : 450 # 7.5 hr 
+    },    
+    "J_high_gen7":   {
+        "NUM_GENERATIONS" : 500,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.25,
+        "MUT_SIGMA" : .5,
+        "RANK_DEPTH" : 200,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,1000], 
+        "TIME_TAKEN" : 450 # 7.5 hr 
     },  
      "K_high_gen":   {
         "NUM_GENERATIONS" : 500,

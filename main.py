@@ -24,7 +24,7 @@ def main():
     start_time = time.time()
     print(start_time)   
 
-    ga_set = "J_high_gen4"
+    ga_set = "J_high_gen6"
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
