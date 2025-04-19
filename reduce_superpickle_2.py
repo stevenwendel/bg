@@ -220,7 +220,7 @@ if __name__ == '__main__':
             'fully_reduced_dnas': fully_reduced_dnas,
             'parent_dnas': parent_dnas
         }
-        with open(f'pass_data_{pass_number}.pkl', 'wb') as f:
+        with open(f'pass_data_{pass_number}_with_representatives.pkl', 'wb') as f:
             pickle.dump(save_data, f)
         print(f'{pass_number=}')
         print(f"\nTHE DAY ENDS. THE PARENTS HAVE BEEN CULLED. BUT IT MUST BEGIN... AGAIN!\n")
