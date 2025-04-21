@@ -40,7 +40,7 @@ def process_parent_dna(parent_dict, min_score):
             child_score = sum(dna_score.values())
             
             if child_score >= min_score:
-                print(f'Child #{dna_children} === Gene removed: {i} === New Score: {child_score} === Delta: {child_score-parent_score}')
+                print(f' Found child #{dna_children}! === Gene removed: {i} === New Score: {child_score} === Delta: {child_score-parent_score}')
                 
                 dna_children += 1
                 successful_children.append({
