@@ -56,12 +56,14 @@ def create_neurons() ->list[Izhikevich]:
             neuron_instance = Izhikevich(name = neu, neuron_type="msn")
         else:
             neuron_instance = Izhikevich(name = neu, neuron_type="rs")
-        globals()[neu] = neuron_instance # Makes instances available globally
+
+        if neuron_instance.name in ["SNR1", "SNR2", "SNR3"]:
+            neuron_instance.E = 120.0 
+        if neuron_instance.name == "PPN":
+            neuron_instance.E = 100.0
+
         neurons.append(neuron_instance) # Creates a list of all Iz neurons; note, these are the actual objects, not a list of names!
 
-    SNR1.E = SNR2.E = SNR3.E = 120.0 
-    PPN.E = 100.0 
-    ALMprep.E = 0.0
     return neurons
 
 def prepare_neurons(neurons: list[Izhikevich], cue_wave, go_wave, control):

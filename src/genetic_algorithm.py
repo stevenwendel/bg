@@ -66,7 +66,7 @@ def load_dna(dna: list[float]) -> np.ndarray:
 
 
 # === Running Network and Storing Results ====    
-def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria, curr_dna):
+def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
 
     neuron_data = {}
     scores = {}
@@ -116,8 +116,7 @@ def drone_evaluate_dna(args):
         neurons=all_neurons,
         alpha_array=alpha_array,
         input_waves=input_waves,
-        criteria=criteria_dict,
-        curr_dna=curr_dna
+        criteria=criteria_dict
         )
     
     total_score = sum(dna_scores.values())

@@ -2,6 +2,13 @@ import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 from IPython.display import display
 import matplotlib.pyplot as plt
+from src.constants import *
+from src.neuron import *
+from src.network import *
+from src.validation import *
+from src.genetic_algorithm import *
+from src.utils import *
+from src.genetic_algorithm import *
 import pandas as pd
 import numpy as np
 
@@ -102,3 +109,49 @@ def plot_binned_differences(binned_differences):
         bargap=0
     )
     fig.show()
+
+def run_experiment(curr_dna, diag_list=[0,0,0,0]):
+    dna_matrix = load_dna(curr_dna)
+
+    # === Preparing Network === 
+    all_neurons = create_neurons()
+    splits, input_waves, alpha_array = create_experiment()
+    criteria_dict = define_criteria()
+    max_score = TMAX // BIN_SIZE * len(CRITERIA_NAMES)
+
+    dna_score, neuron_data = evaluate_dna(
+                    dna_matrix=dna_matrix,
+                    neurons=all_neurons,
+                    alpha_array=alpha_array,
+                    input_waves=input_waves,
+                    criteria=criteria_dict
+                    )
+    total_score = sum(dna_score.values())
+
+
+    diagnostic = {
+            'show_dna_matrix' : diag_list[0],
+            'show_neuron_plots' : diag_list[1],
+            'show_difference_histogram' : diag_list[2],
+            'show_dna_scores': diag_list[3]
+        }
+    if diagnostic['show_dna_scores']:
+                    print(f'    === DNA: {curr_dna}') 
+                    print(f'    === Control: {dna_score["control"]}/{max_score}')
+                    print(f'    === Experimental: {dna_score["experimental"]}/{max_score}')
+                    print(f'    === Overall: {total_score}({total_score/(2*max_score):.2%})')
+                    print('\n')
+
+    if diagnostic['show_dna_matrix']:
+                    print("Currently loaded matrix ---")
+                    display_matrix(dna_matrix, NEURON_NAMES)
+
+    if diagnostic['show_dna_scores']:
+                    print(f'{dna_score=}: {curr_dna}')
+                
+    if diagnostic['show_neuron_plots']:
+                    for condition in ['experimental', 'control']:
+                        target_neurons_hist_Vs = np.array([neuron_data[condition][name]['hist_V'] for name in NEURON_NAMES])
+                        plot_neurons_interactive(hist_Vs=target_neurons_hist_Vs, neuron_names=NEURON_NAMES, sq_wave=input_waves[0], go_wave=input_waves[1], show_u=False)
+    return total_score
+                    
