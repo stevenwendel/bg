@@ -13,15 +13,15 @@ def process_parent_dna(parent_dict, min_score, unique_dna_sequences) -> list[dic
     pid = os.getpid()
     print(f"Process {pid} working...")    
 
-    parent_dna, old_parent_score = parent_dict['dna'], parent_dict['dna_score']
+    parent_dna, parent_score = parent_dict['dna'], parent_dict['dna_score']
     dna_children = 0
     successful_children = []
 
-    new_parent_score = run_experiment(parent_dict['dna'],[0,0,0,0])
+    # new_parent_score = run_experiment(parent_dict['dna'],[0,0,0,0])
 
-    if new_parent_score < min_score:
-        print(f'faulty parent ~~ original score: {old_parent_score} ~~ real score: {new_parent_score}')
-        return #[]?
+    # if new_parent_score < min_score:
+    #     print(f'faulty parent ~~ original score: {old_parent_score} ~~ real score: {new_parent_score}')
+    #     return #[]?
 
     for i in range(len(parent_dna)):
         # Produce list of successful children data
@@ -36,7 +36,7 @@ def process_parent_dna(parent_dict, min_score, unique_dna_sequences) -> list[dic
             child_score = run_experiment(child_dna,[0,0,0,0])
             
             if child_score >= min_score:
-                print(f' Found child #{dna_children}! == Gene: {i} == Child Score: {child_score} == Delta: {child_score-new_parent_score}')
+                print(f' Found child #{dna_children}! == Gene: {i} == Child Score: {child_score} == Delta: {child_score-parent_score}')
                 
                 dna_children += 1
                 successful_children.append({
@@ -50,7 +50,7 @@ def process_parent_dna(parent_dict, min_score, unique_dna_sequences) -> list[dic
         print(f'Parent added to fully_reduced: No valid children found')
         successful_children.append({
             'dna': parent_dict['dna'],  
-            'dna_score': new_parent_score,
+            'dna_score': parent_score,
             'is_child': False,
         })
 
