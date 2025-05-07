@@ -173,7 +173,7 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
             - stats_dict: Dictionary containing mutation statistics
     """
     curr_pop.sort(key=lambda x: x['dna_score'], reverse=True)
-    survivors = curr_pop[:ga_config['RANK_DEPTH']]
+    survivors = curr_pop[:(ga_config['POP_SIZE']//2)]
     next_dnas = [curr_pop[i]['dna'] for i in range(ga_config['ELITE_SIZE'])]
     
     # Calculate population diversity

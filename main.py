@@ -115,7 +115,7 @@ def main():
     print(f"Initial memory usage: {get_memory_usage():.2f} MB")
     print(start_time)   
 
-    ga_set = "small"
+    ga_set = "E"
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
@@ -228,7 +228,7 @@ def main():
                 print(f"   === Max Score: {max_score:.2f}")
                 print(f"   === Average Score: {avg_score:.2f}")
                 print(f"   === Population Diversity: {diversity:.3f}")
-                print(f"   === Population Size: {len(population_results)}")
+                # print(f"   === Population Size: {len(population_results)}")
                 print(f"\nMutation Statistics:")
                 # print(f"Mutation Rate: {mutation_stats['mutation_rate']:.3f}")
                 print(f"   === Mutation Sigma: {mutation_stats['mutation_sigma']:.3f}")
