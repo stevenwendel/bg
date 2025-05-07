@@ -123,3 +123,43 @@ def create_dna_string(weights, active_synapses):
             print(f"Connection {source} -> {target} not found in ACTIVE_SYNAPSES.")
    
     return dna
+
+def load_ga_run_to_df(file_path: str) -> pd.DataFrame:
+    """Load a genetic algorithm run pickle file into a sorted DataFrame.
+    
+    Args:
+        file_path (str): Path to the pickle file containing the GA run data
+        
+    Returns:
+        pd.DataFrame: DataFrame with columns:
+            - generation: Generation number
+            - dna: DNA sequence as a tuple
+            - dna_score: Score for the DNA sequence
+        Sorted by dna_score in descending order
+    """
+    # Load the pickle file
+    with open(file_path, 'rb') as f:
+        data = pickle.load(f)
+    
+    # Initialize list to store all rows
+    rows = []
+    
+    # Iterate through each generation
+    for key in data.keys():
+        if key.startswith('gen_'):
+            gen_num = int(key.split('_')[1])
+            population = data[key]['population']
+            
+            # Add each DNA sequence and its score to the rows
+            for dna_dict in population:
+                rows.append({
+                    'generation': gen_num,
+                    'dna': tuple(dna_dict['dna']),  # Convert list to tuple for hashability
+                    'dna_score': dna_dict['dna_score']
+                })
+    
+    # Create DataFrame and sort
+    df = pd.DataFrame(rows)
+    df = df.sort_values('dna_score', ascending=False, ignore_index=True)
+    
+    return df

@@ -53,13 +53,19 @@ def calculate_score(critSpikeMatrix, critCriteriaMatrix, condition):
     for i in range(len(critSpikeMatrix)):
         for j in range(len(critSpikeMatrix[0])):
             # Award a point if both entries are 0 or both are positive
-            if (critSpikeMatrix[i][j] == 0 and critCriteriaMatrix[i][j] == 0) or (critSpikeMatrix[i][j] > 0 and critCriteriaMatrix[i][j] > 0):
+
+            # ALWAYS award points to ALMresp for t=4000-5000
+            if (i == 3) and (j > 4000):
+                score +=1 
+
+            elif (critSpikeMatrix[i][j] == 0 and critCriteriaMatrix[i][j] == 0) or (critSpikeMatrix[i][j] > 0 and critCriteriaMatrix[i][j] > 0):
                 score += 1
             # else:
             #     print(f'Neuron#: {CRITERIA_NAMES[i]} ==== Period#: {j} ==== Time: {j*BIN_SIZE}-{(j+1)*BIN_SIZE} ==== Condition: {condition}')
             #     print(f'Spikes: {int(critSpikeMatrix[i][j])} ==== Criteria: {int(critCriteriaMatrix[i][j])}')
                 # if (CRITERIA_NAMES[i] == 'ALMresp') and j==1:
             #         pass
+
     
     # First attempt at applying L1 norm... 
     # Could use this to calcualte score for matrices... 

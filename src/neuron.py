@@ -18,13 +18,33 @@ class Izhikevich:
         self.spike_times = None
         self.hist_V = None
         self.hist_u = None
+        self._initialized = False
+
+    def initialize_arrays(self, tmax):
+        """Initialize arrays only when needed and with exact size"""
+        if not self._initialized:
+            self.input = np.zeros(tmax, dtype=np.float32)  # Use float32 instead of float64
+            self.spike_times = np.zeros(tmax, dtype=np.int8)  # Use int8 for binary spike data
+            self.hist_V = np.zeros(tmax, dtype=np.float32)
+            self.hist_u = np.zeros(tmax, dtype=np.float32)
+            self._initialized = True
+
+    def cleanup(self):
+        """Clear arrays to free memory"""
+        self.input = None
+        self.spike_times = None
+        self.hist_V = None
+        self.hist_u = None
+        self._initialized = False
 
     def __str__(self):
         return f"Voltage is set to {self.V} and recovery to {self.u}"
 
     def reset(self):
+        """Reset neuron state and clear arrays"""
         self.V = self.vr
         self.u = 0.0
+        self.cleanup()
 
     def update(self, I_ext=0, sigma=0): 
         noise = np.random.normal(0, sigma)
@@ -69,10 +89,7 @@ def create_neurons() ->list[Izhikevich]:
 def prepare_neurons(neurons: list[Izhikevich], cue_wave, go_wave, control):
     for neu in neurons:
         neu.reset() 
-        neu.input = np.zeros(TMAX)
-        neu.spike_times = np.zeros(TMAX)
-        neu.hist_V = np.zeros(TMAX)
-        neu.hist_u = np.zeros(TMAX)
+        neu.initialize_arrays(TMAX)
         neu.hist_V[0] = neu.V
         neu.hist_u[0] = neu.u
 
