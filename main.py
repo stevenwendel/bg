@@ -33,9 +33,9 @@ def main():
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
 
     # Performance monitoring settings
-    PERFORMANCE_THRESHOLD = 0.71  # Minimum score ratio (score/max_possible_score) to consider successful
+    PERFORMANCE_THRESHOLD = 0.70  # Minimum score ratio (score/max_possible_score) to consider successful
     CHECK_GENERATIONS = 200      # Number of generations to check before considering a restart
-    MAX_RESTARTS = 10           # Maximum number of times to restart before giving up
+    MAX_RESTARTS = 20           # Maximum number of times to restart before giving up
 
     # Multiprocessing settings
     NUM_PROCESSES = os.cpu_count() - 1  # Leave one CPU free
