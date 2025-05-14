@@ -27,7 +27,7 @@ def main():
     start_time = time.time()
     print(f"Initial memory usage: {get_memory_usage():.2f} MB")
 
-    ga_set = "E"
+    ga_set = "large"
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'

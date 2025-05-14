@@ -253,6 +253,21 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
             
             child.append(int(gene))
         return child
+    
+    # -------------------------------------------------------------
+    # Rescue clause: inject diversity if search is stagnating
+    # -------------------------------------------------------------
+    STAGNATION_WINDOW   = 20        # generations without progress
+    DIVERSITY_THRESHOLD = 0.10      # 12 % of max pair‑wise distance
+
+    # We pass the generation index in, so this fires every
+    # STAGNATION_WINDOW generations **and** whenever diversity is low
+    if (generation and generation % STAGNATION_WINDOW == 0) \
+            or diversity/max_diversity < DIVERSITY_THRESHOLD:
+        rescue_type = "stagnation" if generation and generation % STAGNATION_WINDOW == 0 else "low diversity"
+        print(f"🆘  Rescue triggered at gen {generation} due to {rescue_type}: "
+              f"diversity={diversity/max_diversity:.3f}")
+        return rescue_population_by_stagnation(curr_pop, ga_config), stats
 
     # Generate new population with early stopping
     max_attempts = ga_config['POP_SIZE'] * 2  # Limit attempts to prevent infinite loop
@@ -478,6 +493,41 @@ def run_genetic_algorithm(ga_config: dict, neurons: List[Izhikevich], ga_set: st
     
     return curr_population
 
+def rescue_population_by_stagnation(curr_pop: list[dict], ga_config: dict) -> list[list[int]]:
+    """
+    Keep top‑10 %, inject 40 % brand‑new, mutate the remainder of
+    the elites until the population is back to POP_SIZE.  All DNAs
+    are guaranteed unique within the new population.
+    """
+    pop_size = ga_config["POP_SIZE"]
+    bounds   = ga_config["DNA_BOUNDS"]
+
+    # Sort and keep the best 10 %
+    curr_pop.sort(key=lambda x: x["dna_score"], reverse=True)
+    elites   = [p["dna"] for p in curr_pop[:max(1, int(pop_size*0.10))]]
+
+    # Inject 40 % completely new individuals
+    inject = []
+    while len(inject) < int(pop_size*0.40):
+        cand = create_dna(bounds)
+        if cand not in elites+inject:          # uniqueness
+            inject.append(cand)
+
+    # Fill the rest with heavy‑mutation copies of elites
+    sigma = ga_config["MUT_SIGMA"] * 40        # stronger shake‑up
+    mutated = []
+    while len(mutated) < pop_size - len(elites) - len(inject):
+        parent = random.choice(elites)
+        child  = [
+            int(np.clip(g + random.normalvariate(0, sigma),  # mutate
+                        -bounds[1], bounds[1]))
+            for g in parent
+        ]
+        if child not in elites+inject+mutated:
+            mutated.append(child)
+
+    return elites + inject + mutated
+
 def calculate_population_diversity(population: list[dict],
                                    bounds: list[float]) -> float:
     """
@@ -534,8 +584,6 @@ def create_unique_dna(bounds: list[float], population: list[dict], max_attempts:
             return new_dna
     # If we couldn't create a unique DNA, return the last attempt
     return new_dna
-
-
 
 # Create a means to LOAD a run
 def load_ga_run(file_path):

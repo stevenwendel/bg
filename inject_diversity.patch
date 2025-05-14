@@ -1,0 +1,73 @@
+diff --git a/genetic_algorithm.py b/genetic_algorithm.py
+@@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int):
+-    # Calculate population diversity
++    # ------------------------------------------------------------------
++    # 1.  Calculate population diversity
++    # ------------------------------------------------------------------
+@@
+-    # Adaptive mutation parameters
++    # ------------------------------------------------------------------
++    # 2.  LOW‑DIVERSITY (or severe stagnation)  →  *inject new DNA*
++    # ------------------------------------------------------------------
++
++    # Normalised diversity ratio ∈ [0,1]
++    diversity_ratio = diversity / max_diversity if max_diversity else 0
++
++    if diversity_ratio < 0.10:            # ←  **inject if <10 % of max**
++        print(
++            f"⚠️  Low diversity detected ({diversity_ratio:.3f}). "
++            "Injecting fresh DNA."
++        )
++
++        # ---- keep a slim elite group ---------------------------------
++        num_elites = max(1, int(ga_config["POP_SIZE"] * 0.20))
++        elites = curr_pop[:num_elites]               # already sorted ↑
++
++        # ---- add entirely new random individuals ---------------------
++        num_random = int(ga_config["POP_SIZE"] * 0.30)
++        random_dnas = [
++            create_dna(ga_config["DNA_BOUNDS"]) for _ in range(num_random)
++        ]
++
++        # ---- aggressively mutated clones of the elites ---------------
++        num_mutated = ga_config["POP_SIZE"] - num_elites - num_random
++        mutated_dnas = []
++        while len(mutated_dnas) < num_mutated:
++            parent = random.choice(elites)["dna"]
++            child  = []
++            for g_idx, gene in enumerate(parent):
++                if random.random() < 0.70:        # 70 % of genes mutate
++                    gene += random.normalvariate(
++                        0, ga_config["MUT_SIGMA"] * 4
++                    )
++                # keep within bounds & correct sign for inhibitory
++                gene = max(min(gene, boundary), -boundary)
++                if ACTIVE_SYNAPSES[g_idx][0] in INHIBITORY_NEURONS:
++                    gene = -abs(gene)
++                else:
++                    gene = abs(gene)
++                child.append(int(gene))
++            # avoid duplicates
++            if child not in mutated_dnas and child not in random_dnas:
++                mutated_dnas.append(child)
++
++        next_dnas = (
++            [e["dna"] for e in elites] + random_dnas + mutated_dnas
++        )
++
++        # stats bookkeeping
++        stats = {
++            "diversity": diversity,
++            "max_diversity": max_diversity,
++            "mutation_rate": None,
++            "mutation_sigma": None,
++            "diversity_ratio": diversity_ratio,
++            "injected_diversity": True,
++        }
++        assert len(next_dnas) == ga_config["POP_SIZE"]
++        return next_dnas, stats
++
++    # ------------------------------------------------------------------
++    # 3.  NORMAL PATH  →  adaptive mutation & crossover
++    # ------------------------------------------------------------------
++    # Adaptive mutation parameters (only if we *didn’t* early‑return above)

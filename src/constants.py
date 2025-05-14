@@ -171,12 +171,12 @@ CRITERIA = {
 
 GA_CONFIG = { # I should store these configurations in the pkl file itself as a metadata field in the dictionary
     "large":   {
-        "NUM_GENERATIONS" : 10,
-        "POP_SIZE" : 400,
-        "MUT_RATE" : 0.25,
-        "MUT_SIGMA" : 0.3,
-        "RANK_DEPTH" : 200,
-        "ELITE_SIZE" : 10,
+        "NUM_GENERATIONS" : 200,
+        "POP_SIZE" : 20,
+        "MUT_RATE" : 0.4,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 10,
+        "ELITE_SIZE" : 1,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,500],
         "TIME_TAKEN" : 4 
@@ -508,26 +508,26 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
 }
 
 
-new_jh_weights = [
-    ("Somat", "ALMprep", 40),
-    ("Somat", "MSN1", 220),
-    ("MSN1", "SNR1", -90),
-    ("SNR1", "VMprep", -10),
-    ("VMprep", "ALMprep", 70),
-    ("ALMprep", "VMprep", 80),
-    ("ALMprep", "MSN2", 320),
-    ("MSN2", "SNR2", -50),
-    ("SNR2", "VMresp", -100),
-    ("PPN", "THALgo", 60),
-    ("THALgo", "ALMinter", 55),
-    ("ALMinter", "ALMprep", -50),
-    ("THALgo", "ALMresp", 30),
-    ("ALMresp", "MSN3", 320),
-    ("MSN3", "SNR3", -90),
-    ("SNR3", "VMresp", -50),
-    ("VMresp", "ALMresp", 85),
-    ("ALMresp", "VMresp", 90)
-]
+# new_jh_weights = [
+#     ("Somat", "ALMprep", 40),
+#     ("Somat", "MSN1", 220),
+#     ("MSN1", "SNR1", -90),
+#     ("SNR1", "VMprep", -10),
+#     ("VMprep", "ALMprep", 70),
+#     ("ALMprep", "VMprep", 80),
+#     ("ALMprep", "MSN2", 320),
+#     ("MSN2", "SNR2", -50),
+#     ("SNR2", "VMresp", -100),
+#     ("PPN", "THALgo", 60),
+#     ("THALgo", "ALMinter", 55),
+#     ("ALMinter", "ALMprep", -50),
+#     ("THALgo", "ALMresp", 30),
+#     ("ALMresp", "MSN3", 320),
+#     ("MSN3", "SNR3", -90),
+#     ("SNR3", "VMresp", -50),
+#     ("VMresp", "ALMresp", 85),
+#     ("ALMresp", "VMresp", 90)
+# ]
 
 # old_jh_weights = [
 #     ("Somat", "ALMprep", 75.),

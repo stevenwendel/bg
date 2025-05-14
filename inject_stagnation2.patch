@@ -1,0 +1,50 @@
+diff --git a/main.py b/main.py
+@@
+     criteria_dict = define_criteria()
+@@
+     restart_count = 0
++
++    # ---------- stagnation tracking --------------------------------------
++    best_score_history = []
++    no_improvement_count = 0
++    PATIENCE = 15           # generations to wait before injecting DNA
++    MIN_IMPROVEMENT = 1e-3  # what counts as “better”
+@@
+             population_results = []
+@@  <-- right after you finish filling population_results
++
++            # -------------------------------------------------------------
++            # 1️⃣  Track best score & stagnation
++            # -------------------------------------------------------------
++            scores = [p["dna_score"] for p in population_results]
++            best_score = max(scores)
++
++            best_score_history.append(best_score)
++            if len(best_score_history) > 5:
++                recent   = best_score_history[-5:]
++                improve  = best_score - min(recent[:-1])
++                if improve < MIN_IMPROVEMENT:
++                    no_improvement_count += 1
++                else:
++                    no_improvement_count  = 0
++            else:
++                no_improvement_count = 0
++
++            # -------------------------------------------------------------
++            # 2️⃣  Inject fresh DNA when stuck
++            # -------------------------------------------------------------
++            if no_improvement_count >= PATIENCE:
++                print(
++                    f"⚠️  No score improvement for {PATIENCE} generations "
++                    "- injecting fresh DNA."
++                )
++                from src.genetic_algorithm import rescue_population_by_stagnation
++                curr_population = [
++                    {"dna": dna, "dna_score": None}
++                    for dna in rescue_population_by_stagnation(
++                        population_results,
++                        GA_CONFIG[ga_set],
++                    )
++                ]
++                no_improvement_count = 0
++                continue   # skip normal spawn & go to next generation
