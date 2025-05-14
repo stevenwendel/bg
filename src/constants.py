@@ -276,12 +276,12 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "TIME_TAKEN" : 180 # 3 hr
     },
      "E":   {
-        "NUM_GENERATIONS" : 500,
-        "POP_SIZE" : 500,
-        "MUT_RATE" : .35,
+        "NUM_GENERATIONS" : 300,
+        "POP_SIZE" : 200,
+        "MUT_RATE" : .5,
         "MUT_SIGMA" : .5,
         "RANK_DEPTH" : None,
-        "ELITE_SIZE" : 10,
+        "ELITE_SIZE" : 5,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,500], 
         "TIME_TAKEN" : None

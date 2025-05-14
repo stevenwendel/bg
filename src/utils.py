@@ -1,5 +1,7 @@
 import numpy as np  
 import pandas as pd
+import psutil
+import sys, os
 from src.constants import *
 from src.neuron import Izhikevich
 import pickle   
@@ -163,3 +165,8 @@ def load_ga_run_to_df(file_path: str) -> pd.DataFrame:
     df = df.sort_values('dna_score', ascending=False, ignore_index=True)
     
     return df
+
+
+def get_memory_usage():
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss / 1024 / 1024  # Convert to MB

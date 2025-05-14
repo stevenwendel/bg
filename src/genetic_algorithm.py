@@ -4,7 +4,10 @@ import pandas as pd
 import copy
 from typing import List, Dict, Any
 import time
-
+import sys, os
+import gc
+import pickle
+import matplotlib.pyplot as plt
 from src.neuron import Izhikevich, prepare_neurons, create_neurons
 from src.utils import *
 from src.constants import * 
@@ -195,8 +198,8 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
     max_diversity = ga_config['DNA_BOUNDS'][1] * len(ACTIVE_SYNAPSES) * 0.5  # Theoretical max diversity
     
     # Calculate actual mutation parameters
-    mutation_rate = base_mutation_rate  # * (diversity/max_diversity)
-    mutation_sigma = base_mutation_sigma * (1.5 - diversity/max_diversity)
+    mutation_rate = base_mutation_rate   * (1 + base_mutation_rate - diversity/max_diversity)
+    mutation_sigma = base_mutation_sigma * (1 + base_mutation_sigma - diversity/max_diversity)
     
     # Store statistics
     stats = {
@@ -233,7 +236,7 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
                 
                 # Add a small bias towards zero
                 # The closer we are to zero, the more likely we stay there
-                if random.random() < zero_attraction * 0.2:  # 20% max chance of moving towards zero
+                if random.random() < zero_attraction * 0.1:  # 20% max chance of moving towards zero
                     gene = gene * (1 - random.random() * 0.4)  # Reduce by up to 40%
                 
                 # Apply the mutation
@@ -292,10 +295,13 @@ def run_genetic_algorithm(ga_config: dict, neurons: List[Izhikevich], ga_set: st
     min_improvement = 0.001  # Minimum improvement threshold
     best_score_history = []
     no_improvement_count = 0
+    same_score_count = 0  # Track how long we've had the same best score
+    REL_TOL = 1e-3
+    last_best_score = float('-inf')
     
     # Convergence tracking
     diversity_history = []
-    convergence_threshold = 0.1  # Population is considered converged when diversity drops below this
+    convergence_threshold = .05  # Population is considered converged when diversity drops below this
     
     # Initialize population
     curr_population = [{'dna': create_dna(ga_config['DNA_BOUNDS']), 'dna_score': None} 
@@ -339,24 +345,117 @@ def run_genetic_algorithm(ga_config: dict, neurons: List[Izhikevich], ga_set: st
         best_score = curr_population[0]['dna_score']
         best_score_history.append(best_score)
         
+        # Check if we're stuck at the same score
+        if abs(best_score - last_best_score) < REL_TOL * max(1, abs(last_best_score)):
+            same_score_count += 1
+        else:
+            same_score_count = 0
+        last_best_score = best_score
+        
         # Calculate population diversity
-        diversity = calculate_population_diversity(curr_population)
+        diversity = calculate_population_diversity(curr_population,ga_config['DNA_BOUNDS'])
         diversity_history.append(diversity)
         
-        # Check for convergence
-        if diversity < convergence_threshold:
-            print(f"Population converged at generation {generation} (diversity: {diversity:.3f})")
-            break
+        # Check for convergence and inject diversity if needed
+        if diversity < convergence_threshold or same_score_count >= 10:  # Added same_score_count check
+            print(f"Population converged or stuck at same score for {same_score_count} generations")
+            print("Injecting diversity into population...")
             
-        # Early stopping check
-        if len(best_score_history) > 1:
-            improvement = best_score - best_score_history[-2]
+            # Keep top 20% of population
+            num_elites = max(1, int(ga_config['POP_SIZE'] * 0.2))
+            elites = curr_population[:num_elites]
+            
+            # Create new random individuals for 30% of population
+            num_new = int(ga_config['POP_SIZE'] * 0.3)
+            new_individuals = []
+            for _ in range(num_new):
+                new_dna = create_unique_dna(ga_config['DNA_BOUNDS'], elites + new_individuals)
+                new_individuals.append({'dna': new_dna, 'dna_score': None})
+            
+            # Create mutated versions of elites for remaining 50%
+            num_mutated = ga_config['POP_SIZE'] - num_elites - num_new
+            mutated = []
+            for elite in elites:
+                # Create multiple mutated versions of each elite
+                for _ in range(num_mutated // num_elites):
+                    # Apply stronger mutation to elite
+                    mutated_dna = []
+                    for gene in elite['dna']:
+                        if random.random() < 0.5:  # 50% chance of mutation
+                            # Stronger mutation when diversity is low
+                            mutation = random.normalvariate(0, ga_config['MUT_SIGMA'] * 3)  # Increased from 2 to 3
+                            gene = gene + mutation
+                            # Ensure gene stays within bounds
+                            gene = max(min(gene, ga_config['DNA_BOUNDS'][1]), -ga_config['DNA_BOUNDS'][1])
+                        mutated_dna.append(int(gene))
+                    
+                    # Only add if unique
+                    if not is_duplicate_dna(mutated_dna, elites + new_individuals + mutated):
+                        mutated.append({'dna': mutated_dna, 'dna_score': None})
+            
+            # Combine all individuals
+            curr_population = elites + new_individuals + mutated
+            print(f"Injected {len(new_individuals)} new random individuals and {len(mutated)} mutated elites")
+            same_score_count = 0  # Reset the counter after injecting diversity
+            continue
+            
+        # Early stopping check - inject diversity if no improvement
+        if len(best_score_history) > 5:
+            # Calculate improvement over last 5 generations
+            recent_scores = best_score_history[-5:]
+            improvement = best_score - min(recent_scores[:-1])  # Compare with worst of previous 4 scores
+            print(f"Best score: {best_score:.3f}")
+            print(f"Worst recent score: {min(recent_scores[:-1]):.3f}")
+            print(f"Improvement over recent window: {improvement:.6f}")
+            print(f"No improvement count: {no_improvement_count}")
+            
             if improvement < min_improvement:
                 no_improvement_count += 1
+                print(f"Increased no_improvement_count to {no_improvement_count}")
+                
                 if no_improvement_count >= patience:
-                    print(f"Early stopping at generation {generation} - No improvement for {patience} generations")
-                    break
+                    print(f"No improvement for {patience} generations - Injecting diversity...")
+                    
+                    # Keep top 10% of population
+                    num_elites = max(1, int(ga_config['POP_SIZE'] * 0.1))
+                    elites = curr_population[:num_elites]
+                    
+                    # Create new random individuals for 40% of population
+                    num_new = int(ga_config['POP_SIZE'] * 0.4)
+                    new_individuals = []
+                    for _ in range(num_new):
+                        new_dna = create_unique_dna(ga_config['DNA_BOUNDS'], elites + new_individuals)
+                        new_individuals.append({'dna': new_dna, 'dna_score': None})
+                    
+                    # Create mutated versions of elites for remaining 50%
+                    num_mutated = ga_config['POP_SIZE'] - num_elites - num_new
+                    mutated = []
+                    for elite in elites:
+                        # Create multiple mutated versions of each elite
+                        for _ in range(num_mutated // num_elites):
+                            # Apply stronger mutation to elite
+                            mutated_dna = []
+                            for gene in elite['dna']:
+                                if random.random() < 0.7:  # 70% chance of mutation
+                                    # Stronger mutation when stuck
+                                    mutation = random.normalvariate(0, ga_config['MUT_SIGMA'] * 4)  # Increased from 3 to 4
+                                    gene = gene + mutation
+                                    # Ensure gene stays within bounds
+                                    gene = max(min(gene, ga_config['DNA_BOUNDS'][1]), -ga_config['DNA_BOUNDS'][1])
+                                mutated_dna.append(int(gene))
+                            
+                            # Only add if unique
+                            if not is_duplicate_dna(mutated_dna, elites + new_individuals + mutated):
+                                mutated.append({'dna': mutated_dna, 'dna_score': None})
+                    
+                    # Combine all individuals
+                    curr_population = elites + new_individuals + mutated
+                    print(f"Injected {len(new_individuals)} new random individuals and {len(mutated)} mutated elites")
+                    no_improvement_count = 0
+                    same_score_count = 0  # Reset the counter after injecting diversity
+                    continue
             else:
+                print("Resetting no_improvement_count to 0 due to improvement")
                 no_improvement_count = 0
         
         # Save generation results
@@ -379,25 +478,144 @@ def run_genetic_algorithm(ga_config: dict, neurons: List[Izhikevich], ga_set: st
     
     return curr_population
 
-def calculate_population_diversity(population: list[dict]) -> float:
-    """Calculate the diversity of the population based on DNA differences.
-    
-    Args:
-        population (list[dict]): Current population
-        
-    Returns:
-        float: Population diversity score between 0 and 1
+def calculate_population_diversity(population: list[dict],
+                                   bounds: list[float]) -> float:
     """
-    if not population:
+    Diversity = mean pair‑wise Manhattan distance,
+    normalised by the maximum possible distance.
+    Returns value in [0, 1].
+    """
+    if len(population) < 2:
         return 0.0
-        
-    # Calculate average pairwise distance between DNA sequences
+
+    # pair‑wise L1 distances
     distances = []
     for i in range(len(population)):
         for j in range(i + 1, len(population)):
-            dist = sum(abs(a - b) for a, b in zip(population[i]['dna'], population[j]['dna']))
-            distances.append(dist)
+            d = sum(abs(a - b) for a, b in
+                    zip(population[i]['dna'], population[j]['dna']))
+            distances.append(d)
+
+    max_dist = len(population[0]['dna']) * (bounds[1] - bounds[0])  # 800 here
+    return np.mean(distances) / max_dist
+
+def is_duplicate_dna(dna: list[float], population: list[dict], tolerance: float = 0.01) -> bool:
+    """Check if a DNA sequence is too similar to any existing DNA in the population.
     
-    # Normalize diversity score
-    max_possible_distance = len(population[0]['dna']) * 2  # Assuming DNA values are between -1 and 1
-    return sum(distances) / (len(distances) * max_possible_distance) if distances else 0.0
+    Args:
+        dna: The DNA sequence to check
+        population: Current population
+        tolerance: Maximum allowed difference to be considered a duplicate
+        
+    Returns:
+        bool: True if DNA is too similar to any existing DNA
+    """
+    for individual in population:
+        # Calculate normalized difference between DNAs
+        diff = sum(abs(a - b) for a, b in zip(dna, individual['dna'])) / len(dna)
+        if diff < tolerance:
+            return True
+    return False
+
+def create_unique_dna(bounds: list[float], population: list[dict], max_attempts: int = 100) -> list[float]:
+    """Create a new unique DNA sequence that's not too similar to existing ones.
+    
+    Args:
+        bounds: DNA value bounds
+        population: Current population
+        max_attempts: Maximum number of attempts to create unique DNA
+        
+    Returns:
+        list[float]: New unique DNA sequence
+    """
+    for _ in range(max_attempts):
+        new_dna = create_dna(bounds)
+        if not is_duplicate_dna(new_dna, population):
+            return new_dna
+    # If we couldn't create a unique DNA, return the last attempt
+    return new_dna
+
+
+
+# Create a means to LOAD a run
+def load_ga_run(file_path):
+    """Load a saved genetic algorithm run and return the data.
+    
+    Args:
+        file_path (str): Path to the pickle file containing the GA run data
+        
+    Returns:
+        dict: The loaded data containing all generations and metadata
+    """
+    try:
+        with open(file_path, 'rb') as f:
+            data = pickle.load(f)
+        return data
+    except Exception as e:
+        print(f"Error loading file {file_path}: {e}")
+        return None
+
+def analyze_ga_run(data):
+    """Analyze a loaded genetic algorithm run.
+    
+    Args:
+        data (dict): The loaded GA run data
+        
+    Returns:
+        dict: Analysis results including statistics for each generation
+    """
+    if not data:
+        return None
+        
+    analysis = {
+        'metadata': data['metadata'],
+        'generations': {}
+    }
+    
+    # Analyze each generation
+    for gen_key in [k for k in data.keys() if k.startswith('gen_')]:
+        gen_num = int(gen_key.split('_')[1])
+        population = data[gen_key]['population']
+        
+        # Extract scores and DNA
+        scores = [p['dna_score'] for p in population]
+        dnas = [p['dna'] for p in population]
+        
+        # Calculate statistics
+        analysis['generations'][gen_num] = {
+            'timestamp': data[gen_key]['timestamp'],
+            'population_size': len(population),
+            'score_stats': {
+                'min': min(scores),
+                'max': max(scores),
+                'mean': sum(scores) / len(scores),
+                'std': np.std(scores) if len(scores) > 1 else 0
+            },
+            'top_5_scores': sorted(scores, reverse=True)[:5],
+            'top_5_dnas': [dnas[i] for i in np.argsort(scores)[-5:][::-1]]
+        }
+    
+    return analysis
+
+def plot_ga_progress(analysis):
+    """Plot the progress of the genetic algorithm run.
+    
+    Args:
+        analysis (dict): The analysis results from analyze_ga_run
+    """
+    if not analysis:
+        return
+        
+    generations = sorted(analysis['generations'].keys())
+    max_scores = [analysis['generations'][g]['score_stats']['max'] for g in generations]
+    mean_scores = [analysis['generations'][g]['score_stats']['mean'] for g in generations]
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(generations, max_scores, 'b-', label='Max Score')
+    plt.plot(generations, mean_scores, 'r--', label='Mean Score')
+    plt.xlabel('Generation')
+    plt.ylabel('Score')
+    plt.title('GA Progress')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
