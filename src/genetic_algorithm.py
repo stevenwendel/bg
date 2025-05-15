@@ -154,7 +154,11 @@ def drone_evaluate_dna(args):
 
     return curr_dna, total_score
 
-def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int) -> tuple[list[list[float]], dict]:
+def spawn_next_population(curr_pop: list[dict],
+                           ga_config: dict, 
+                           generation: int,
+                           stagnation_counter: int
+                           ) -> tuple[list[list[float]], dict]:
     """Generates the next population of DNA sequences through selection and mutation.
 
     Creates a new population by:
@@ -180,34 +184,62 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
     next_dnas = [curr_pop[i]['dna'] for i in range(ga_config['ELITE_SIZE'])]
     
     # Calculate population diversity
-    def calculate_diversity(population):
-        if not population:
-            return 0
-        # Calculate average pairwise distance between DNA sequences
+    def calculate_diversity(population, bounds=None):
+        """Calculate the diversity of a population using pairwise Manhattan distances.
+        
+        Args:
+            population: List of DNA sequences (either direct lists or dicts with 'dna' key)
+            bounds: Optional bounds for normalization. If provided, returns normalized [0,1] value
+            
+        Returns:
+            tuple: (raw_diversity, normalized_diversity) where:
+                - raw_diversity: Average pairwise distance
+                - normalized_diversity: Normalized value in [0,1] if bounds provided, else None
+        """
+        if len(population) < 2:
+            return 0.0, 0.0 if bounds else None
+            
+        # Handle both direct DNA lists and dicts with 'dna' key
+        dna_sequences = [p['dna'] if isinstance(p, dict) else p for p in population]
+        
+        # Calculate pairwise L1 distances
         distances = []
-        for i in range(len(population)):
-            for j in range(i + 1, len(population)):
-                dist = sum(abs(a - b) for a, b in zip(population[i], population[j]))
+        for i in range(len(dna_sequences)):
+            for j in range(i + 1, len(dna_sequences)):
+                dist = sum(abs(a - b) for a, b in zip(dna_sequences[i], dna_sequences[j]))
                 distances.append(dist)
-        return sum(distances) / len(distances) if distances else 0
+                
+        if not distances:
+            return 0.0, 0.0 if bounds else None
+            
+        raw_diversity = np.mean(distances)
+        
+        # Calculate normalized value if bounds provided
+        if bounds:
+            max_dist = len(dna_sequences[0]) * (bounds[1] - bounds[0])
+            normalized_diversity = raw_diversity / max_dist
+            return raw_diversity, normalized_diversity
+            
+        return raw_diversity, None
 
     # Adaptive mutation parameters
     base_mutation_rate = ga_config['MUT_RATE']
     base_mutation_sigma = ga_config['MUT_SIGMA']
-    diversity = calculate_diversity([p['dna'] for p in survivors])
+    raw_diversity, normalized_diversity = calculate_diversity([p['dna'] for p in survivors], ga_config['DNA_BOUNDS'])
     max_diversity = ga_config['DNA_BOUNDS'][1] * len(ACTIVE_SYNAPSES) * 0.5  # Theoretical max diversity
     
     # Calculate actual mutation parameters
-    mutation_rate = base_mutation_rate   * (1 + base_mutation_rate - diversity/max_diversity)
-    mutation_sigma = base_mutation_sigma * (1 + base_mutation_sigma - diversity/max_diversity)
+    mutation_rate = base_mutation_rate   * (1 + base_mutation_rate - normalized_diversity)
+    mutation_sigma = base_mutation_sigma * (1 + base_mutation_sigma - normalized_diversity)
     
     # Store statistics
     stats = {
-        'diversity': diversity,
+        'raw_diversity': raw_diversity,
+        'normalized_diversity': normalized_diversity,
         'max_diversity': max_diversity,
         'mutation_rate': mutation_rate,
         'mutation_sigma': mutation_sigma,
-        'diversity_ratio': diversity/max_diversity
+        'diversity_ratio': normalized_diversity
     }
     
     # Tournament selection
@@ -232,7 +264,7 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
                 # Gentle encouragement towards zero: scale sigma by |gene|/boundary
                 # This means larger values have more room to mutate, but smaller values are more stable
                 zero_attraction = abs(gene) / boundary
-                sigma = gene * mutation_sigma * (1 + zero_attraction) * (1 - diversity/max_diversity)
+                sigma = gene * mutation_sigma * (1 + zero_attraction) * (1 - normalized_diversity)
                 
                 # Add a small bias towards zero
                 # The closer we are to zero, the more likely we stay there
@@ -257,16 +289,39 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
     # -------------------------------------------------------------
     # Rescue clause: inject diversity if search is stagnating
     # -------------------------------------------------------------
-    STAGNATION_WINDOW   = 20        # generations without progress
-    DIVERSITY_THRESHOLD = 0.10      # 12 % of max pair‑wise distance
+    STAGNATION_WINDOW   = 50        # generations without improvement
+    DIVERSITY_THRESHOLD = 0.05      # 10% of max pair-wise distance
 
-    # We pass the generation index in, so this fires every
-    # STAGNATION_WINDOW generations **and** whenever diversity is low
-    if (generation and generation % STAGNATION_WINDOW == 0) \
-            or diversity/max_diversity < DIVERSITY_THRESHOLD:
-        rescue_type = "stagnation" if generation and generation % STAGNATION_WINDOW == 0 else "low diversity"
-        print(f"🆘  Rescue triggered at gen {generation} due to {rescue_type}: "
-              f"diversity={diversity/max_diversity:.3f}")
+    # Get the best score from current population
+    best_score = max(p['dna_score'] for p in curr_pop)
+    
+    # Initialize or get stagnation counter from ga_config
+    if 'stagnation_counter' not in ga_config:
+        ga_config['stagnation_counter'] = 0
+        ga_config['best_score_so_far'] = best_score
+    
+    # Only increment stagnation counter if there's no improvement
+    if best_score <= ga_config['best_score_so_far']:
+        ga_config['stagnation_counter'] += 1
+    else:
+        ga_config['best_score_so_far'] = best_score
+        ga_config['stagnation_counter'] = 0
+
+    # Fire when either the best score has been flat ≥ STAGNATION_WINDOW gens
+    # or diversity collapses
+    if (ga_config['stagnation_counter'] >= STAGNATION_WINDOW) or \
+       (normalized_diversity < DIVERSITY_THRESHOLD):
+        rescue_type = ("stagnation"
+                       if ga_config['stagnation_counter'] >= STAGNATION_WINDOW
+                       else "low diversity")
+        print(f"🆘  Rescue triggered at @ G# {generation} <{rescue_type}> "
+              f"diversity={normalized_diversity:.3f}({raw_diversity:.1f}), best_score={best_score:.2f}, "
+              f"stagnation_counter={ga_config['stagnation_counter']}")
+        
+        # Reset stagnation counter if rescue was due to stagnation
+        if rescue_type == "stagnation":
+            ga_config['stagnation_counter'] = 0
+            
         return rescue_population_by_stagnation(curr_pop, ga_config), stats
 
     # Generate new population with early stopping
@@ -294,205 +349,6 @@ def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int
     assert len(next_dnas) == ga_config['POP_SIZE']
     return next_dnas, stats
 
-def run_genetic_algorithm(ga_config: dict, neurons: List[Izhikevich], ga_set: str) -> List[Dict[str, Any]]:
-    """Runs the genetic algorithm to evolve neural network weights.
-
-    Args:
-        ga_config (dict): Configuration parameters for the GA
-        neurons (List[Izhikevich]): List of neurons to evaluate
-        ga_set (str): Name of the GA run
-
-    Returns:
-        List[Dict[str, Any]]: Final population with their scores
-    """
-    # Early stopping parameters
-    patience = 20  # Number of generations to wait for improvement
-    min_improvement = 0.001  # Minimum improvement threshold
-    best_score_history = []
-    no_improvement_count = 0
-    same_score_count = 0  # Track how long we've had the same best score
-    REL_TOL = 1e-3
-    last_best_score = float('-inf')
-    
-    # Convergence tracking
-    diversity_history = []
-    convergence_threshold = .05  # Population is considered converged when diversity drops below this
-    
-    # Initialize population
-    curr_population = [{'dna': create_dna(ga_config['DNA_BOUNDS']), 'dna_score': None} 
-                      for _ in range(ga_config['POP_SIZE'])]
-    
-    save_dict = {
-        'metadata': {
-            'ga_set': ga_set,
-            'config': ga_config,
-            'start_time': time.time(),
-            'generation': 0
-        },
-        'generations': []
-    }
-    
-    for generation in range(ga_config['NUM_GENERATIONS']):
-        print(f"\nGeneration {generation}")
-        
-        # Evaluate current population
-        population_results = []
-        for dna_dict in curr_population:
-            dna_matrix = load_dna(dna_dict['dna'])
-            scores, _ = evaluate_dna(
-                dna_matrix=dna_matrix,
-                neurons=neurons,
-                alpha_array=alpha_array,
-                input_waves=input_waves,
-                criteria=criteria_dict
-            )
-            total_score = sum(scores.values())
-            population_results.append({
-                'dna': dna_dict['dna'],
-                'dna_score': total_score
-            })
-        
-        # Sort by score
-        population_results.sort(key=lambda x: x['dna_score'], reverse=True)
-        curr_population = population_results
-        
-        # Track best score
-        best_score = curr_population[0]['dna_score']
-        best_score_history.append(best_score)
-        
-        # Check if we're stuck at the same score
-        if abs(best_score - last_best_score) < REL_TOL * max(1, abs(last_best_score)):
-            same_score_count += 1
-        else:
-            same_score_count = 0
-        last_best_score = best_score
-        
-        # Calculate population diversity
-        diversity = calculate_population_diversity(curr_population,ga_config['DNA_BOUNDS'])
-        diversity_history.append(diversity)
-        
-        # Check for convergence and inject diversity if needed
-        if diversity < convergence_threshold or same_score_count >= 10:  # Added same_score_count check
-            print(f"Population converged or stuck at same score for {same_score_count} generations")
-            print("Injecting diversity into population...")
-            
-            # Keep top 20% of population
-            num_elites = max(1, int(ga_config['POP_SIZE'] * 0.2))
-            elites = curr_population[:num_elites]
-            
-            # Create new random individuals for 30% of population
-            num_new = int(ga_config['POP_SIZE'] * 0.3)
-            new_individuals = []
-            for _ in range(num_new):
-                new_dna = create_unique_dna(ga_config['DNA_BOUNDS'], elites + new_individuals)
-                new_individuals.append({'dna': new_dna, 'dna_score': None})
-            
-            # Create mutated versions of elites for remaining 50%
-            num_mutated = ga_config['POP_SIZE'] - num_elites - num_new
-            mutated = []
-            for elite in elites:
-                # Create multiple mutated versions of each elite
-                for _ in range(num_mutated // num_elites):
-                    # Apply stronger mutation to elite
-                    mutated_dna = []
-                    for gene in elite['dna']:
-                        if random.random() < 0.5:  # 50% chance of mutation
-                            # Stronger mutation when diversity is low
-                            mutation = random.normalvariate(0, ga_config['MUT_SIGMA'] * 3)  # Increased from 2 to 3
-                            gene = gene + mutation
-                            # Ensure gene stays within bounds
-                            gene = max(min(gene, ga_config['DNA_BOUNDS'][1]), -ga_config['DNA_BOUNDS'][1])
-                        mutated_dna.append(int(gene))
-                    
-                    # Only add if unique
-                    if not is_duplicate_dna(mutated_dna, elites + new_individuals + mutated):
-                        mutated.append({'dna': mutated_dna, 'dna_score': None})
-            
-            # Combine all individuals
-            curr_population = elites + new_individuals + mutated
-            print(f"Injected {len(new_individuals)} new random individuals and {len(mutated)} mutated elites")
-            same_score_count = 0  # Reset the counter after injecting diversity
-            continue
-            
-        # Early stopping check - inject diversity if no improvement
-        if len(best_score_history) > 5:
-            # Calculate improvement over last 5 generations
-            recent_scores = best_score_history[-5:]
-            improvement = best_score - min(recent_scores[:-1])  # Compare with worst of previous 4 scores
-            print(f"Best score: {best_score:.3f}")
-            print(f"Worst recent score: {min(recent_scores[:-1]):.3f}")
-            print(f"Improvement over recent window: {improvement:.6f}")
-            print(f"No improvement count: {no_improvement_count}")
-            
-            if improvement < min_improvement:
-                no_improvement_count += 1
-                print(f"Increased no_improvement_count to {no_improvement_count}")
-                
-                if no_improvement_count >= patience:
-                    print(f"No improvement for {patience} generations - Injecting diversity...")
-                    
-                    # Keep top 10% of population
-                    num_elites = max(1, int(ga_config['POP_SIZE'] * 0.1))
-                    elites = curr_population[:num_elites]
-                    
-                    # Create new random individuals for 40% of population
-                    num_new = int(ga_config['POP_SIZE'] * 0.4)
-                    new_individuals = []
-                    for _ in range(num_new):
-                        new_dna = create_unique_dna(ga_config['DNA_BOUNDS'], elites + new_individuals)
-                        new_individuals.append({'dna': new_dna, 'dna_score': None})
-                    
-                    # Create mutated versions of elites for remaining 50%
-                    num_mutated = ga_config['POP_SIZE'] - num_elites - num_new
-                    mutated = []
-                    for elite in elites:
-                        # Create multiple mutated versions of each elite
-                        for _ in range(num_mutated // num_elites):
-                            # Apply stronger mutation to elite
-                            mutated_dna = []
-                            for gene in elite['dna']:
-                                if random.random() < 0.7:  # 70% chance of mutation
-                                    # Stronger mutation when stuck
-                                    mutation = random.normalvariate(0, ga_config['MUT_SIGMA'] * 4)  # Increased from 3 to 4
-                                    gene = gene + mutation
-                                    # Ensure gene stays within bounds
-                                    gene = max(min(gene, ga_config['DNA_BOUNDS'][1]), -ga_config['DNA_BOUNDS'][1])
-                                mutated_dna.append(int(gene))
-                            
-                            # Only add if unique
-                            if not is_duplicate_dna(mutated_dna, elites + new_individuals + mutated):
-                                mutated.append({'dna': mutated_dna, 'dna_score': None})
-                    
-                    # Combine all individuals
-                    curr_population = elites + new_individuals + mutated
-                    print(f"Injected {len(new_individuals)} new random individuals and {len(mutated)} mutated elites")
-                    no_improvement_count = 0
-                    same_score_count = 0  # Reset the counter after injecting diversity
-                    continue
-            else:
-                print("Resetting no_improvement_count to 0 due to improvement")
-                no_improvement_count = 0
-        
-        # Save generation results
-        save_dict['generations'].append({
-            'generation': generation,
-            'best_score': best_score,
-            'avg_score': sum(p['dna_score'] for p in curr_population) / len(curr_population),
-            'diversity': diversity,
-            'population': curr_population
-        })
-        
-        # Print progress
-        print(f"Best score: {best_score:.3f}")
-        print(f"Average score: {sum(p['dna_score'] for p in curr_population) / len(curr_population):.3f}")
-        print(f"Population diversity: {diversity:.3f}")
-        
-        # Generate next population
-        next_dnas, stats = spawn_next_population(curr_population, ga_config, generation)
-        curr_population = [{'dna': dna, 'dna_score': None} for dna in next_dnas]
-    
-    return curr_population
-
 def rescue_population_by_stagnation(curr_pop: list[dict], ga_config: dict) -> list[list[int]]:
     """
     Keep top‑10 %, inject 40 % brand‑new, mutate the remainder of
@@ -504,22 +360,24 @@ def rescue_population_by_stagnation(curr_pop: list[dict], ga_config: dict) -> li
 
     # Sort and keep the best 10 %
     curr_pop.sort(key=lambda x: x["dna_score"], reverse=True)
-    elites   = [p["dna"] for p in curr_pop[:max(1, int(pop_size*0.10))]]
+    elites   = [p["dna"] for p in curr_pop[:max(1, int(pop_size*0.5))]]
 
     # Inject 40 % completely new individuals
     inject = []
-    while len(inject) < int(pop_size*0.40):
+    while len(inject) < int(pop_size*0.70):
         cand = create_dna(bounds)
         if cand not in elites+inject:          # uniqueness
             inject.append(cand)
 
+
     # Fill the rest with heavy‑mutation copies of elites
-    sigma = ga_config["MUT_SIGMA"] * 40        # stronger shake‑up
+    SHAKE_STRENGTH = 60
+    sigma = ga_config["MUT_SIGMA"] * SHAKE_STRENGTH        # stronger shake‑up
     mutated = []
     while len(mutated) < pop_size - len(elites) - len(inject):
         parent = random.choice(elites)
         child  = [
-            int(np.clip(g + random.normalvariate(0, sigma),  # mutate
+            int(np.clip(g + random.normalvariate(SHAKE_STRENGTH, sigma),  # mutate
                         -bounds[1], bounds[1]))
             for g in parent
         ]
@@ -527,27 +385,6 @@ def rescue_population_by_stagnation(curr_pop: list[dict], ga_config: dict) -> li
             mutated.append(child)
 
     return elites + inject + mutated
-
-def calculate_population_diversity(population: list[dict],
-                                   bounds: list[float]) -> float:
-    """
-    Diversity = mean pair‑wise Manhattan distance,
-    normalised by the maximum possible distance.
-    Returns value in [0, 1].
-    """
-    if len(population) < 2:
-        return 0.0
-
-    # pair‑wise L1 distances
-    distances = []
-    for i in range(len(population)):
-        for j in range(i + 1, len(population)):
-            d = sum(abs(a - b) for a, b in
-                    zip(population[i]['dna'], population[j]['dna']))
-            distances.append(d)
-
-    max_dist = len(population[0]['dna']) * (bounds[1] - bounds[0])  # 800 here
-    return np.mean(distances) / max_dist
 
 def is_duplicate_dna(dna: list[float], population: list[dict], tolerance: float = 0.01) -> bool:
     """Check if a DNA sequence is too similar to any existing DNA in the population.

@@ -1,0 +1,33 @@
+--- a/src/genetic_algorithm.py
++++ b/src/genetic_algorithm.py
+@@
+-def spawn_next_population(curr_pop: list[dict], ga_config: dict, generation: int) -> tuple[list[list[float]], dict]:
++def spawn_next_population(curr_pop: list[dict],
++                          ga_config: dict,
++                          generation: int,
++                          stagnation_counter: int     # ← NEW
++                          ) -> tuple[list[list[float]], dict]:
+@@
+-    # Rescue clause: inject diversity if search is stagnating
++    # -------------------------------------------------------------
++    # Rescue clause: inject diversity if search is stagnating
+     # -------------------------------------------------------------
+-    STAGNATION_WINDOW   = 20        # generations without progress
++    STAGNATION_WINDOW   = 20        # unchanged
+     DIVERSITY_THRESHOLD = 0.10
+-
+-    # We pass the generation index in, so this fires every
+-    # STAGNATION_WINDOW generations **and** whenever diversity is low
+-    if (generation and generation % STAGNATION_WINDOW == 0) \
+-            or diversity/max_diversity < DIVERSITY_THRESHOLD:
+-        rescue_type = "stagnation" if generation and generation % STAGNATION_WINDOW == 0 else "low diversity"
++    # Fire when either the best score has been flat ≥ STAGNATION_WINDOW gens
++    # or diversity collapses.
++    if (stagnation_counter >= STAGNATION_WINDOW) or \
++       (diversity / max_diversity < DIVERSITY_THRESHOLD):
++        rescue_type = ("stagnation"
++                       if stagnation_counter >= STAGNATION_WINDOW
++                       else "low diversity")
+         print(f"🆘  Rescue triggered at gen {generation} due to {rescue_type}: "
+               f"diversity={diversity/max_diversity:.3f}")
+         return rescue_population_by_stagnation(curr_pop, ga_config), stats

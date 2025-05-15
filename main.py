@@ -27,15 +27,15 @@ def main():
     start_time = time.time()
     print(f"Initial memory usage: {get_memory_usage():.2f} MB")
 
-    ga_set = "large"
+    ga_set = "E"
     ### Settings ###
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
 
     # Performance monitoring settings
     PERFORMANCE_THRESHOLD = 0.70  # Minimum score ratio (score/max_possible_score) to consider successful
-    CHECK_GENERATIONS = 200      # Number of generations to check before considering a restart
-    MAX_RESTARTS = 20           # Maximum number of times to restart before giving up
+    CHECK_GENERATIONS = 55      # Number of generations to check before considering a restart
+    MAX_RESTARTS = 30           # Maximum number of times to restart before giving up
 
     # Multiprocessing settings
     NUM_PROCESSES = os.cpu_count() - 1  # Leave one CPU free
@@ -79,9 +79,10 @@ def main():
 
         # === Evaluating DNA ===
         curr_population = [create_dna(GA_CONFIG[ga_set]['DNA_BOUNDS']) for _ in range(GA_CONFIG[ga_set]['POP_SIZE'])]
+        best_score_so_far   = float('-inf')
+        stagnation_counter  = 0
 
         for generation in range(GA_CONFIG[ga_set]['NUM_GENERATIONS']):
-            print(f"=== Generation {generation} ===")
             population_results = []
             
             # Create a process pool with proper error handling
@@ -119,8 +120,12 @@ def main():
                 'timestamp': datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             }
 
-            curr_population, mutation_stats = spawn_next_population(population_results, GA_CONFIG[ga_set], generation)
-
+            curr_population, mutation_stats = spawn_next_population(
+                population_results,
+                GA_CONFIG[ga_set],
+                generation,
+                GA_CONFIG[ga_set].get('stagnation_counter', 0)  # Get stagnation counter from GA_CONFIG
+            )
             # Check if we've reached the threshold
             if generation == CHECK_GENERATIONS:
                 if save_dict['best_score'] >= threshold_score:
@@ -143,9 +148,7 @@ def main():
                 scores = [p['dna_score'] for p in population_results]
                 max_score = max(scores)
                 avg_score = sum(scores) / len(scores)
-                diversity = calculate_population_diversity(population_results, GA_CONFIG[ga_set]['DNA_BOUNDS'])
-                
-                print(f"  Max Score (Avg): {max_score:.2f} ({avg_score:.2f}) === Population Diversity: {diversity:.3f} === Sigma:{mutation_stats['mutation_sigma']:.3f}")
+                print(f"G{generation} ~~~~ MaxScore (Avg): {max_score:.2f} ({avg_score:.2f}) ~~~~ NormDiversity (raw): {mutation_stats['normalized_diversity']:.3f} ({mutation_stats['raw_diversity']:.1f}) ~~~~ σ: {mutation_stats['mutation_sigma']:.3f}")
                 
                 # Force garbage collection
                 gc.collect()

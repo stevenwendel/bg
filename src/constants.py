@@ -277,7 +277,7 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
     },
      "E":   {
         "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 200,
+        "POP_SIZE" : 500,
         "MUT_RATE" : .5,
         "MUT_SIGMA" : .5,
         "RANK_DEPTH" : None,
@@ -289,13 +289,13 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
 
      "F":   {
         "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 3000,
+        "POP_SIZE" : 100,
         "MUT_RATE" : 0.5,
         "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 1000,
-        "ELITE_SIZE" : 10,
+        "RANK_DEPTH" : 50,
+        "ELITE_SIZE" : 5,
         "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
+        "DNA_BOUNDS" : [0,500], 
         "TIME_TAKEN" : 620# 10.5 hr
     },
      "G":   {
