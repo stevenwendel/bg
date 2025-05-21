@@ -34,8 +34,8 @@ def main():
 
     # Performance monitoring settings
     PERFORMANCE_THRESHOLD = 0.70  # Minimum score ratio (score/max_possible_score) to consider successful
-    CHECK_GENERATIONS = 55      # Number of generations to check before considering a restart
-    MAX_RESTARTS = 30           # Maximum number of times to restart before giving up
+    CHECK_GENERATIONS = 60      # Number of generations to check before considering a restart
+    MAX_RESTARTS = 100          # Maximum number of times to restart before giving up
 
     # Multiprocessing settings
     NUM_PROCESSES = os.cpu_count() - 1  # Leave one CPU free
@@ -181,7 +181,7 @@ def main():
     
     end_time = time.time()
     print(f"Time taken: {end_time - start_time} seconds")
-
+    print(f"Saved to: {save_path}")
     # test_dna=create_dna() # --> use simulated annealing
 
 

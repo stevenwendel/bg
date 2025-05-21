@@ -277,7 +277,7 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
     },
      "E":   {
         "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 500,
+        "POP_SIZE" : 100,
         "MUT_RATE" : .5,
         "MUT_SIGMA" : .5,
         "RANK_DEPTH" : None,

@@ -299,7 +299,9 @@ def spawn_next_population(curr_pop: list[dict],
     if 'stagnation_counter' not in ga_config:
         ga_config['stagnation_counter'] = 0
         ga_config['best_score_so_far'] = best_score
-    
+    if generation == 0:
+        ga_config['stagnation_counter'] = 0
+
     # Only increment stagnation counter if there's no improvement
     if best_score <= ga_config['best_score_so_far']:
         ga_config['stagnation_counter'] += 1
@@ -360,18 +362,18 @@ def rescue_population_by_stagnation(curr_pop: list[dict], ga_config: dict) -> li
 
     # Sort and keep the best 10 %
     curr_pop.sort(key=lambda x: x["dna_score"], reverse=True)
-    elites   = [p["dna"] for p in curr_pop[:max(1, int(pop_size*0.5))]]
+    elites   = [p["dna"] for p in curr_pop[:max(1, int(pop_size*0.10))]]
 
-    # Inject 40 % completely new individuals
+    # Inject 10% (40 % previously) completely new individuals
     inject = []
-    while len(inject) < int(pop_size*0.70):
+    while len(inject) < int(pop_size*0.10):
         cand = create_dna(bounds)
         if cand not in elites+inject:          # uniqueness
             inject.append(cand)
 
 
     # Fill the rest with heavy‑mutation copies of elites
-    SHAKE_STRENGTH = 60
+    SHAKE_STRENGTH = 50
     sigma = ga_config["MUT_SIGMA"] * SHAKE_STRENGTH        # stronger shake‑up
     mutated = []
     while len(mutated) < pop_size - len(elites) - len(inject):
