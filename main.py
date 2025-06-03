@@ -25,7 +25,7 @@ from multiprocessing import Pool
 
 def main():
     start_time = time.time()
-    print(f"Initial memory usage: {get_memory_usage():.2f} MB")
+    # print(f"Initial memory usage: {get_memory_usage():.2f} MB")
 
     ### Settings ###
     ga_set = "E"
@@ -45,7 +45,7 @@ def main():
     criteria_dict = define_criteria()
     max_score = TMAX // BIN_SIZE * len(CRITERIA_NAMES) * 2
     threshold_score = max_score * PERFORMANCE_THRESHOLD
-    print(f'{max_score=} {threshold_score=}')
+    # print(f'{max_score=} {threshold_score=}')
 
     # === Start run ===
     restart_count = 0

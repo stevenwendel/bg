@@ -5,6 +5,7 @@ import os
 import pickle
 import sys
 import random
+import time
 from skopt import gp_minimize
 from skopt.space import Real, Integer, Categorical
 from multiprocessing import freeze_support
@@ -18,13 +19,6 @@ from main import main
 def run_single_optimization(params, results_dir):
     """Run a single optimization with given parameters and save results."""
     try:
-        # Print current GA parameters
-        print("\nCurrent GA Parameters:")
-        print("=====================")
-        for key, value in params.items():
-            print(f"{key}: {value}")
-        print("=====================\n")
-        
         # Update GA_CONFIG with new parameters
         GA_CONFIG['E'].update(params)
         
@@ -40,9 +34,7 @@ def run_single_optimization(params, results_dir):
         
         result = {
             'parameters': params,
-            'best_score': run_data['best_score'],
-            'generations_to_threshold': run_data['metadata']['generation'],
-            'time_taken': run_data.get('metadata', {}).get('time_taken', None)
+            'best_score': run_data['best_score']
         }
         
         # Save intermediate results
@@ -104,8 +96,8 @@ def bayesian_optimization(n_calls=20):
     # Create directory for results
     results_dir = f'./data/bayesian_opt_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}'
     os.makedirs(results_dir, exist_ok=True)
-    max_simulations = 3000
-    
+    max_simulations = 5000
+
     def objective(params):
         mut_rate, mut_sigma, elite_size, dna_bound_upper, pop_size = params
         num_generations = max_simulations//pop_size
@@ -114,23 +106,31 @@ def bayesian_optimization(n_calls=20):
             'MUT_RATE': mut_rate,
             'MUT_SIGMA': mut_sigma,
             'ELITE_SIZE': elite_size,
-            'DNA_BOUNDS': dna_bound_upper,
+            'DNA_BOUNDS': [0, dna_bound_upper],
             'POP_SIZE': pop_size,
             'NUM_GENERATIONS': num_generations
         }
         
+        # Print current GA parameters
+        print("\nCurrent GA Parameters:")
+        print("=====================")
+        for key, value in config.items():
+            print(f"{key}: {value}")
+        print("=====================\n")
+        
         result = run_single_optimization(config, results_dir)
+
         if result:
             return -result['best_score']  # Negative because skopt minimizes
         return 1e6  # Large penalty for failed runs
 
     # Define search space
     search_space = [
-        Real(0.2, 0.8, name='mut_rate'),
-        Real(0.2, 0.8, name='mut_sigma'),
+        Real(0.1, 0.8, name='mut_rate'),
+        Real(0.1, 0.8, name='mut_sigma'),
         Integer(0, 20, name='elite_size'),
-        Integer(300, 600, name='dna_bound_upper'),  # 0:[0,250], 1:[0,500], 2:[0,1000]
-        Integer(50, 300, name='pop_size')     # 0:50x600, 1:100x300, etc.
+        Integer(300, 600, name='dna_bound_upper'),
+        Integer(50, 500, name='pop_size')
     ]
 
     # Run optimization
@@ -153,7 +153,7 @@ def bayesian_optimization(n_calls=20):
                 'MUT_RATE': mut_rate,
                 'MUT_SIGMA': mut_sigma,
                 'ELITE_SIZE': elite_size,
-                'DNA_BOUNDS': dna_bound_upper,
+                'DNA_BOUNDS': [0, dna_bound_upper],
                 'POP_SIZE': pop_size,
                 'NUM_GENERATIONS': num_generations
             },
@@ -171,7 +171,7 @@ def analyze_results(results, results_dir):
     
     # Basic statistics
     print("\nTop 10 Best Performing Combinations:")
-    print(df.nlargest(10, 'best_score')[['parameters', 'best_score', 'generations_to_threshold']])
+    print(df.nlargest(10, 'best_score')[['parameters', 'best_score']])
     
     # Save detailed analysis
     with open(os.path.join(results_dir, 'analysis.txt'), 'w') as f:
@@ -185,11 +185,14 @@ def analyze_results(results, results_dir):
         f.write("Parameter Impact Analysis:\n")
         for param in ['MUT_RATE', 'MUT_SIGMA', 'ELITE_SIZE', 'POP_SIZE']:
             f.write(f"\n{param} Analysis:\n")
-            param_stats = df.groupby(f'parameters.{param}')['best_score'].agg(['mean', 'std', 'max'])
+            # Extract parameter values from the nested dictionary
+            param_values = df['parameters'].apply(lambda x: x[param])
+            param_stats = df.groupby(param_values)['best_score'].agg(['mean', 'std', 'max'])
             f.write(param_stats.to_string())
             f.write("\n")
 
 if __name__ == "__main__":
+    optimizer_start_time = time.time()
     freeze_support()  # Required for multiprocessing on Windows/macOS
     
     # Choose which optimization method to run
@@ -200,4 +203,8 @@ if __name__ == "__main__":
         results = random_search(num_samples=20)
     else:
         print("Running Bayesian optimization...")
-        results = bayesian_optimization(n_calls=2) 
+        results = bayesian_optimization(n_calls=50) 
+        
+    optimizer_end_time = time.time()
+    optimizer_duration = (optimizer_end_time - optimizer_start_time)//60
+    print(f"Optimizer algorithm took {optimizer_duration} minutes.")
