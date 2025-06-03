@@ -27,38 +27,27 @@ def main():
     start_time = time.time()
     print(f"Initial memory usage: {get_memory_usage():.2f} MB")
 
-    ga_set = "E"
     ### Settings ###
+    ga_set = "E"
     os.makedirs('./data', exist_ok=True)
     save_path = f'./data/{ga_set}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pkl'
 
     # Performance monitoring settings
     PERFORMANCE_THRESHOLD = 0.70  # Minimum score ratio (score/max_possible_score) to consider successful
-    CHECK_GENERATIONS = 60      # Number of generations to check before considering a restart
-    MAX_RESTARTS = 100          # Maximum number of times to restart before giving up
-
-    # Multiprocessing settings
+    CHECK_GENERATIONS = 100      # Number of generations to check before considering a restart
+    MAX_RESTARTS = 1          # Maximum number of times to restart before giving up
     NUM_PROCESSES = os.cpu_count() - 1  # Leave one CPU free
     CHUNK_SIZE = 1  # Process one DNA at a time for better load balancing
-
-    diagnostic = {
-        'show_dna_matrix' : False,
-        'show_neuron_plots' : False,
-        'show_difference_histogram' : False,
-        'show_dna_scores': False
-    }
         
-    # === Creating Izhikevich neurons ===
+    # === Experiment set up ===
     all_neurons = create_neurons()
-    
-    # === Preparing Network === 
     splits, input_waves, alpha_array = create_experiment()
-
-    # === Defining Criteria === 
     criteria_dict = define_criteria()
     max_score = TMAX // BIN_SIZE * len(CRITERIA_NAMES) * 2
     threshold_score = max_score * PERFORMANCE_THRESHOLD
     print(f'{max_score=} {threshold_score=}')
+
+    # === Start run ===
     restart_count = 0
     while restart_count < MAX_RESTARTS:
         print(f"\nStarting run {restart_count + 1} of {MAX_RESTARTS}")
@@ -148,7 +137,7 @@ def main():
                 scores = [p['dna_score'] for p in population_results]
                 max_score = max(scores)
                 avg_score = sum(scores) / len(scores)
-                print(f"G{generation} ~~~~ MaxScore (Avg): {max_score:.2f} ({avg_score:.2f}) ~~~~ NormDiversity (raw): {mutation_stats['normalized_diversity']:.3f} ({mutation_stats['raw_diversity']:.1f}) ~~~~ σ: {mutation_stats['mutation_sigma']:.3f}")
+                print(f"G{generation} ~~~~ MaxScore (Avg): {max_score:.2f} ({avg_score:.2f}) ~~~~ NormDiversity (raw): {mutation_stats['normalized_diversity']:.3f} ({mutation_stats['raw_diversity']:.1f}) ~~~~ σ: {mutation_stats['mutation_sigma']:.3f} ~~~~ Mut. Rate: {mutation_stats['mutation_rate']:.3f}")
                 
                 # Force garbage collection
                 gc.collect()

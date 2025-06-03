@@ -13,12 +13,12 @@ TONICALLY_ACTIVE_NEURONS = ["SNR1", "SNR2", "SNR3", "PPN", "THALgo"]
 INHIBITORY_NEURONS = ["SNR1","SNR2", "SNR3", "MSN1", "MSN2", "MSN3", "ALMinter"]
 ACTIVE_SYNAPSES = [
     # Connections from Somat to ALM (1x3)
-    ["Somat", "ALMprep"], ["Somat", "ALMinter"], ["Somat", "ALMresp"], 
+    ["Somat", "ALMprep"], # ["Somat", "ALMinter"], ["Somat", "ALMresp"], 
 
     # Connections from ALM to Somat (3x1)
-    ["ALMprep", "Somat"], 
-    ["ALMinter", "Somat"], 
-    ["ALMresp", "Somat"],  
+    # ["ALMprep", "Somat"], 
+    # ["ALMinter", "Somat"], 
+    # ["ALMresp", "Somat"],  
 
     # Connections from Somat to MSN 
     ["Somat", "MSN1"], ["Somat", "MSN2"], ["Somat", "MSN3"], 
@@ -191,95 +191,11 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,1000]
     },
-    "xlarge":   {
-        "NUM_GENERATIONS" : 30,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.3,
-        "MUT_SIGMA" : 0.4,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,400]
-    },
-    "highMutation_10 min":   { 
-        "NUM_GENERATIONS" : 100,
-        "POP_SIZE" : 2000,
-        "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 1000,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000]
-    },
-    "highMutation_240min":   {
-        "NUM_GENERATIONS" : 150,
-        "POP_SIZE" : 2000,
-        "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 20,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000]
-    },
-    "highMutation_480min":   {
-        "NUM_GENERATIONS" : 150,
-        "POP_SIZE" : 4000,
-        "MUT_RATE" : 0.4,
-        "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 1000,
-        "ELITE_SIZE" : 20,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000] 
-    },
-    "highMutation_A":   {
-        "NUM_GENERATIONS" : 150,
-        "POP_SIZE" : 4000,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : 0.7,
-        "RANK_DEPTH" : 2000,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 410
-    },
-     "highMutation_B":   {
-        "NUM_GENERATIONS" : 250,
-        "POP_SIZE" : 8000,
-        "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 4000,
-        "ELITE_SIZE" : 20,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 1500 # 25 hr
-    },
-     "highMutation_C":   {
-        "NUM_GENERATIONS" : 200,
-        "POP_SIZE" : 8000,
-        "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : 1,
-        "RANK_DEPTH" : 4000,
-        "ELITE_SIZE" : 20,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,2000], 
-        "TIME_TAKEN" : 1200 # 20 hr
-    },
-     "highMutation_D":   {
-        "NUM_GENERATIONS" : 100,
-        "POP_SIZE" : 2000,
-        "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : 1,
-        "RANK_DEPTH" : 4000,
-        "ELITE_SIZE" : 20,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,2000], 
-        "TIME_TAKEN" : 180 # 3 hr
-    },
      "E":   {
         "NUM_GENERATIONS" : 300,
         "POP_SIZE" : 100,
-        "MUT_RATE" : .5,
-        "MUT_SIGMA" : .5,
+        "MUT_RATE" : .35,
+        "MUT_SIGMA" : .35,
         "RANK_DEPTH" : None,
         "ELITE_SIZE" : 5,
         "CROSSOVER_POINT" : None,
@@ -298,213 +214,7 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "DNA_BOUNDS" : [0,500], 
         "TIME_TAKEN" : 620# 10.5 hr
     },
-     "G":   {
-        "NUM_GENERATIONS" : 200,
-        "POP_SIZE" : 3000,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 1500,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 437# 7 hr
-    },
-     "H":   {
-        "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 250 # 4 hr
-    },
-     "I":   {
-        "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 2000,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 475 # 8 hr
-    },
-     "J":   {
-        "NUM_GENERATIONS" : 250,
-        "POP_SIZE" : 3000,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 1000,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 715 # 12 hr
-    },  
-     "K":   {
-        "NUM_GENERATIONS" : 500,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.4,
-        "MUT_SIGMA" : .4,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000],
-        "TIME_TAKEN" : 600 # 10 hr
-    },
-    "explore_A":   {
-        "NUM_GENERATIONS" : 3,
-        "POP_SIZE" : 10,
-        "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 10,
-        "ELITE_SIZE" : 0,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000]
-    },
-    "explore_B":   {
-        "NUM_GENERATIONS" : 100,
-        "POP_SIZE" : 2000,
-        "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000]
-    },
-         "J_high_pop":   {
-        "NUM_GENERATIONS" : 500,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 400 # 7 hr
-    },
-     "J_high_gen":   {
-        "NUM_GENERATIONS" : 1000,
-        "POP_SIZE" : 500,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 250,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 400 #6.6 hr
-    },  
-         "J_high_gen2":   {
-        "NUM_GENERATIONS" : 1000,
-        "POP_SIZE" : 500,
-        "MUT_RATE" : 0.3,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 200,
-        "ELITE_SIZE" : 5,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,500], 
-        "TIME_TAKEN" : None
-    },  
-         "J_high_gen3":   {
-        "NUM_GENERATIONS" : 1000,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : .6,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : None
-    },  
-             "J_high_gen4":   {
-        "NUM_GENERATIONS" : 1000,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 5,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,500], 
-        "TIME_TAKEN" : 1000
-    },  
-    "J_high_gen5":   {
-        "NUM_GENERATIONS" : 500,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 300,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 500 
-    },  
-        "J_high_gen6":   {
-        "NUM_GENERATIONS" : 500,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.35,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 200,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 450 # 7.5 hr 
-    },    
-    "J_high_gen7":   {
-        "NUM_GENERATIONS" : 500,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.25,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 200,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000], 
-        "TIME_TAKEN" : 450 # 7.5 hr 
-    },  
-     "K_high_gen":   {
-        "NUM_GENERATIONS" : 500,
-        "POP_SIZE" : 2000,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 1000,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000],
-        "TIME_TAKEN" : 691 # 11.5 hr?
-    },
-    "K_high_gen_2":   {
-        "NUM_GENERATIONS" : 1000,
-        "POP_SIZE" : 2000,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 1000,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000],
-        "TIME_TAKEN" : 1500 # 25
-    },
-    "K_high_gen_3":   {
-        "NUM_GENERATIONS" : 1000,
-        "POP_SIZE" : 1000,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 500,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000],
-        "TIME_TAKEN" : 822 # 14 hr
-    },
-    "K_high_gen_4":   {
-        "NUM_GENERATIONS" : 1200,
-        "POP_SIZE" : 1200,
-        "MUT_RATE" : 0.5,
-        "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 750,
-        "ELITE_SIZE" : 10,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,1000],
-        "TIME_TAKEN" : 1000 # 16.7 hr
-    }
+
 }
 
 

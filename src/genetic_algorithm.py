@@ -97,6 +97,7 @@ def evaluate_dna(dna_matrix, neurons, alpha_array, input_waves, criteria):
         for n in neurons:
             condition_data[n.name] = {
                 'hist_V': n.hist_V.copy(),
+                'hist_u': n.hist_u.copy(),
                 'spike_times': n.spike_times.copy()
             }
         neuron_data[condition] = condition_data
@@ -179,10 +180,7 @@ def spawn_next_population(curr_pop: list[dict],
             - next_dnas: New population of DNA sequences
             - stats_dict: Dictionary containing mutation statistics
     """
-    curr_pop.sort(key=lambda x: x['dna_score'], reverse=True)
-    survivors = curr_pop[:(ga_config['POP_SIZE']//2)]
-    next_dnas = [curr_pop[i]['dna'] for i in range(ga_config['ELITE_SIZE'])]
-    
+
     # Calculate population diversity
     def calculate_diversity(population, bounds=None):
         """Calculate the diversity of a population using pairwise Manhattan distances.
@@ -222,26 +220,6 @@ def spawn_next_population(curr_pop: list[dict],
             
         return raw_diversity, None
 
-    # Adaptive mutation parameters
-    base_mutation_rate = ga_config['MUT_RATE']
-    base_mutation_sigma = ga_config['MUT_SIGMA']
-    raw_diversity, normalized_diversity = calculate_diversity([p['dna'] for p in survivors], ga_config['DNA_BOUNDS'])
-    max_diversity = ga_config['DNA_BOUNDS'][1] * len(ACTIVE_SYNAPSES) * 0.5  # Theoretical max diversity
-    
-    # Calculate actual mutation parameters
-    mutation_rate = base_mutation_rate   * (1 + base_mutation_rate - normalized_diversity)
-    mutation_sigma = base_mutation_sigma * (1 + base_mutation_sigma - normalized_diversity)
-    
-    # Store statistics
-    stats = {
-        'raw_diversity': raw_diversity,
-        'normalized_diversity': normalized_diversity,
-        'max_diversity': max_diversity,
-        'mutation_rate': mutation_rate,
-        'mutation_sigma': mutation_sigma,
-        'diversity_ratio': normalized_diversity
-    }
-    
     # Tournament selection
     def tournament_select(population, tournament_size=3):
         tournament = random.sample(population, tournament_size)
@@ -264,11 +242,11 @@ def spawn_next_population(curr_pop: list[dict],
                 # Gentle encouragement towards zero: scale sigma by |gene|/boundary
                 # This means larger values have more room to mutate, but smaller values are more stable
                 zero_attraction = abs(gene) / boundary
-                sigma = gene * mutation_sigma * (1 + zero_attraction) * (1 - normalized_diversity)
+                sigma = gene * mutation_sigma * (1-zero_attraction) + 10
                 
                 # Add a small bias towards zero
                 # The closer we are to zero, the more likely we stay there
-                if random.random() < zero_attraction * 0.1:  # 20% max chance of moving towards zero
+                if random.random() < zero_attraction * 0.20:  # 20% max chance of moving towards zero
                     gene = gene * (1 - random.random() * 0.4)  # Reduce by up to 40%
                 
                 # Apply the mutation
@@ -286,10 +264,35 @@ def spawn_next_population(curr_pop: list[dict],
             child.append(int(gene))
         return child
     
-    # -------------------------------------------------------------
-    # Rescue clause: inject diversity if search is stagnating
-    # -------------------------------------------------------------
-    STAGNATION_WINDOW   = 50        # generations without improvement
+
+    curr_pop.sort(key=lambda x: x['dna_score'], reverse=True)
+    survivors = curr_pop[:(ga_config['POP_SIZE']//2)]
+    next_dnas = [curr_pop[i]['dna'] for i in range(ga_config['ELITE_SIZE'])]
+    
+    # print(survivors[0]['dna'][0:10])
+    # print(ACTIVE_SYNAPSES[0:10])
+
+    # Adaptive mutation parameters
+    base_mutation_rate = ga_config['MUT_RATE']
+    base_mutation_sigma = ga_config['MUT_SIGMA']
+    raw_diversity, normalized_diversity = calculate_diversity([p['dna'] for p in survivors], ga_config['DNA_BOUNDS'])
+    max_diversity = ga_config['DNA_BOUNDS'][1] * len(ACTIVE_SYNAPSES) * 0.5  # Theoretical max diversity
+    
+    # Calculate actual mutation parameters
+    mutation_rate = base_mutation_rate   * (1 + base_mutation_rate - normalized_diversity)
+    mutation_sigma = base_mutation_sigma * (1 + base_mutation_sigma - normalized_diversity)
+    
+    # Store statistics
+    stats = {
+        'raw_diversity': raw_diversity,
+        'normalized_diversity': normalized_diversity,
+        'max_diversity': max_diversity,
+        'mutation_rate': mutation_rate,
+        'mutation_sigma': mutation_sigma,
+        'diversity_ratio': normalized_diversity
+    }
+    
+    STAGNATION_WINDOW   = 40        # generations without improvement
     DIVERSITY_THRESHOLD = 0.05      # 10% of max pair-wise distance
 
     # Get the best score from current population
@@ -301,6 +304,7 @@ def spawn_next_population(curr_pop: list[dict],
         ga_config['best_score_so_far'] = best_score
     if generation == 0:
         ga_config['stagnation_counter'] = 0
+        ga_config['best_score_so_far'] = 0
 
     # Only increment stagnation counter if there's no improvement
     if best_score <= ga_config['best_score_so_far']:
@@ -366,7 +370,7 @@ def rescue_population_by_stagnation(curr_pop: list[dict], ga_config: dict) -> li
 
     # Inject 10% (40 % previously) completely new individuals
     inject = []
-    while len(inject) < int(pop_size*0.10):
+    while len(inject) < int(pop_size*0.40):
         cand = create_dna(bounds)
         if cand not in elites+inject:          # uniqueness
             inject.append(cand)
@@ -385,7 +389,10 @@ def rescue_population_by_stagnation(curr_pop: list[dict], ga_config: dict) -> li
         ]
         if child not in elites+inject+mutated:
             mutated.append(child)
-
+    print("sample of elites, injected, and mutated populations")
+    print(elites[0:5])
+    print(inject[0:5])
+    print(mutated[0:5])
     return elites + inject + mutated
 
 def is_duplicate_dna(dna: list[float], population: list[dict], tolerance: float = 0.01) -> bool:

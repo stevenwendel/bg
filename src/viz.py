@@ -14,26 +14,27 @@ import numpy as np
 
 from src.constants import *
 
-def plot_neurons(neurons, sq_wave, go_wave):
-    fig, axs = plt.subplots(len(neurons), 1, figsize=(6, 3 * len(neurons)))
-    for i, neu in enumerate(neurons):
-        axs[i].plot(range(TMAX), neu.hist_V, label="V")
-        axs[i].plot(range(TMAX), sq_wave, label="SqWave", alpha=0.8, color="red", linestyle="dotted")
-        axs[i].plot(range(TMAX), go_wave / 5, label="GoWave", alpha=0.8, color="red", linestyle="dotted")
-        axs[i].set_title(f"{neu.name} dynamics")
-        axs[i].set_xlabel("ms")
-        axs[i].set_ylabel("mV")
-        axs[i].grid(True)
-        axs[i].legend(loc='upper right')
-    plt.tight_layout()
-    plt.show()
+# def plot_neurons(neurons, sq_wave, go_wave):
+#     fig, axs = plt.subplots(len(neurons), 1, figsize=(6, 3 * len(neurons)))
+#     for i, neu in enumerate(neurons):
+#         axs[i].plot(range(TMAX), neu.hist_V, label="V")
+#         axs[i].plot(range(TMAX), neu.hist_u, label="u")
+#         axs[i].plot(range(TMAX), sq_wave, label="SqWave", alpha=0.8, color="red", linestyle="dotted")
+#         axs[i].plot(range(TMAX), go_wave / 5, label="GoWave", alpha=0.8, color="red", linestyle="dotted")
+#         axs[i].set_title(f"{neu.name} dynamics")
+#         axs[i].set_xlabel("ms")
+#         axs[i].set_ylabel("mV")
+#         axs[i].grid(True)
+#         axs[i].legend(loc='upper right')
+#     plt.tight_layout()
+#     plt.show()
 
 def display_matrix(matrix, nodes):
     assert matrix.shape == (len(nodes), len(nodes)), "Weight Matrix must be the same rank as the neuron name vector"
     df = pd.DataFrame(matrix, columns=nodes, index=nodes)
     display(df) 
     
-def plot_neurons_interactive(hist_Vs, neuron_names, sq_wave, go_wave, show_u=False, title=None):
+def plot_neurons_interactive(hist_Vs, hist_us, neuron_names, sq_wave, go_wave, show_u=False, title=None):
     # print(f'{hist_Vs=}')
     # print(f'{neuron_names=}')
     assert len(hist_Vs) == len(neuron_names), "Must have the same number of neurons as the number of hist_Vs"
@@ -45,12 +46,17 @@ def plot_neurons_interactive(hist_Vs, neuron_names, sq_wave, go_wave, show_u=Fal
 
     hover_template = 'Time: %{x} ms<br>Value: %{y} mV'
     v_color = 'blue'  # Define a consistent color for hist_V
+    u_color = 'orange'
 
-    for i, hist_V in enumerate(hist_Vs):
+    for i in range(len(hist_Vs)):
         row = i + 1  # Adjust row index for single column
         col = 1
-        fig.add_trace(go.Scatter(x=list(range(TMAX)), y=hist_V, mode='lines', name='V',
+        fig.add_trace(go.Scatter(x=list(range(TMAX)), y=hist_Vs[i], mode='lines', name='V',
                                  line=dict(color=v_color),  # Use the consistent color
+                                 hovertemplate=hover_template), row=row, col=col)
+        fig.add_trace(go.Scatter(x=list(range(TMAX)), y=hist_us[i], mode='lines', name='u',
+                                 line=dict(color=u_color),  # Use the consistent color
+                                 opacity=0.5,  # Set opacity at trace level
                                  hovertemplate=hover_template), row=row, col=col)
         # if show_u:
         #     fig.add_trace(go.Scatter(x=list(range(TMAX)), y=neu.hist_u, mode='lines', name='u',
@@ -152,6 +158,8 @@ def run_experiment(curr_dna, diag_list=[0,0,0,0]):
     if diagnostic['show_neuron_plots']:
                     for condition in ['experimental', 'control']:
                         target_neurons_hist_Vs = np.array([neuron_data[condition][name]['hist_V'] for name in NEURON_NAMES])
-                        plot_neurons_interactive(hist_Vs=target_neurons_hist_Vs, neuron_names=NEURON_NAMES, sq_wave=input_waves[0], go_wave=input_waves[1], show_u=False)
+                        target_neurons_hist_us = np.array([neuron_data[condition][name]['hist_u'] for name in NEURON_NAMES])
+                        
+                        plot_neurons_interactive(hist_Vs=target_neurons_hist_Vs, hist_us=target_neurons_hist_us, neuron_names=NEURON_NAMES, sq_wave=input_waves[0], go_wave=input_waves[1], show_u=False)
     return total_score
                     
