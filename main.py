@@ -35,10 +35,10 @@ def main():
     # Performance monitoring settings
     PERFORMANCE_THRESHOLD = 0.70  # Minimum score ratio (score/max_possible_score) to consider successful
     CHECK_GENERATIONS = 100      # Number of generations to check before considering a restart
-    MAX_RESTARTS = 1          # Maximum number of times to restart before giving up
-    NUM_PROCESSES = os.cpu_count() - 1  # Leave one CPU free
+    MAX_RESTARTS = 30          # Maximum number of times to restart before giving up
+    NUM_PROCESSES = os.cpu_count()  # Leave one CPU free
     CHUNK_SIZE = 1  # Process one DNA at a time for better load balancing
-        
+
     # === Experiment set up ===
     all_neurons = create_neurons()
     splits, input_waves, alpha_array = create_experiment()

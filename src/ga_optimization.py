@@ -96,17 +96,17 @@ def bayesian_optimization(n_calls=20):
     # Create directory for results
     results_dir = f'./data/bayesian_opt_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}'
     os.makedirs(results_dir, exist_ok=True)
-    max_simulations = 5000
+    max_simulations = 20000
 
     def objective(params):
-        mut_rate, mut_sigma, elite_size, dna_bound_upper, pop_size = params
+        mut_rate, mut_sigma, pop_size = params
         num_generations = max_simulations//pop_size
         
         config = {
             'MUT_RATE': mut_rate,
             'MUT_SIGMA': mut_sigma,
-            'ELITE_SIZE': elite_size,
-            'DNA_BOUNDS': [0, dna_bound_upper],
+            'ELITE_SIZE': 10,
+            'DNA_BOUNDS': [0, 500],
             'POP_SIZE': pop_size,
             'NUM_GENERATIONS': num_generations
         }
@@ -126,11 +126,9 @@ def bayesian_optimization(n_calls=20):
 
     # Define search space
     search_space = [
-        Real(0.1, 0.8, name='mut_rate'),
-        Real(0.1, 0.8, name='mut_sigma'),
-        Integer(0, 20, name='elite_size'),
-        Integer(300, 600, name='dna_bound_upper'),
-        Integer(50, 500, name='pop_size')
+        Real(0.4, 0.8, name='mut_rate'),
+        Real(0.4, 2.0, name='mut_sigma'),
+        Integer(100, 300, name='pop_size')
     ]
 
     # Run optimization
@@ -138,22 +136,22 @@ def bayesian_optimization(n_calls=20):
         objective, 
         search_space, 
         n_calls=n_calls, 
-        random_state=41,
+        random_state=None,
         verbose=True
     )
     
     # Convert results to our format
     results = []
     for i, (params, score) in enumerate(zip(result.x_iters, -result.func_vals)):
-        mut_rate, mut_sigma, elite_size, dna_bound_upper, pop_size = params
+        mut_rate, mut_sigma, pop_size = params
         num_generations = max_simulations//pop_size
         
         results.append({
             'parameters': {
                 'MUT_RATE': mut_rate,
                 'MUT_SIGMA': mut_sigma,
-                'ELITE_SIZE': elite_size,
-                'DNA_BOUNDS': [0, dna_bound_upper],
+                'ELITE_SIZE': 10,
+                'DNA_BOUNDS': [0, 500],
                 'POP_SIZE': pop_size,
                 'NUM_GENERATIONS': num_generations
             },
@@ -203,7 +201,7 @@ if __name__ == "__main__":
         results = random_search(num_samples=20)
     else:
         print("Running Bayesian optimization...")
-        results = bayesian_optimization(n_calls=50) 
+        results = bayesian_optimization(n_calls=20) 
         
     optimizer_end_time = time.time()
     optimizer_duration = (optimizer_end_time - optimizer_start_time)//60
