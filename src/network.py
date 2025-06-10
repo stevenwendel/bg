@@ -1,49 +1,76 @@
+"""Network utilities – experiment builder and fast simulation loop.
+
+The `run_network` function now fetches `_INPUT`, `_VHIST`, `_vpeak` from
+`src.neuron` **at call‑time**, not at import‑time.  This prevents the
+`NoneType` crash in multiprocessing workers where the neuron arrays are
+allocated *after* the module is imported.
+"""
+from __future__ import annotations
+
 import numpy as np
+from numba import njit, prange
 
-from src.constants import *
-from src.neuron import *
-from src.utils import *
+from src.constants import TMAX, BIN_SIZE, NEURON_NAMES
+from src.neuron import vectorised_step
 
-""" Where is my weight matrix and default neurons? I should create a scratch and use that."""
+# --------------------------------------------------------------------
+# Alpha‑function PSP adder (Numba)
+# --------------------------------------------------------------------
+
+@njit(parallel=True, fastmath=True, cache=True)
+def _add_psp(input_buf: np.ndarray, post_I: np.ndarray, alpha: np.ndarray,
+             start: int, lend: int):
+    """In‑place add of alpha‑shaped current starting at `start+1`."""
+    n = post_I.size
+    for j in prange(n):
+        if post_I[j] == 0.0:
+            continue
+        base = start + 1
+        for k in range(lend):
+            input_buf[j, base + k] += post_I[j] * alpha[k]
+
+# --------------------------------------------------------------------
+# Public helpers (create_experiment unchanged)
+# --------------------------------------------------------------------
+
 def create_experiment():
-
     n_bins = TMAX / BIN_SIZE + 1
     periods = np.linspace(0, TMAX, int(n_bins))
 
-    # Creating wave inputs
-    sqWave = np.zeros(TMAX)
-    goWave = np.zeros(TMAX)
-    sqWave[EPOCHS['sample'][0]:EPOCHS['sample'][1]] = CUE_STRENGTH
-    goWave[EPOCHS['response'][0]:EPOCHS['response'][0] + GO_DURATION] = GO_STRENGTH
-    input_waves = [sqWave, goWave]
+    from src.constants import EPOCHS, CUE_STRENGTH, GO_STRENGTH
+    sq = np.zeros(TMAX, np.float32)
+    go = np.zeros_like(sq)
+    sq[EPOCHS['sample'][0]:EPOCHS['sample'][1]] = CUE_STRENGTH
+    go[EPOCHS['response'][0]:EPOCHS['response'][0] + 200] = GO_STRENGTH
+    input_waves = [sq, go]
 
-    # Create fixed alpha array of length 250
-    alphaArray = create_alpha_array(250, L=30)
+    from src.utils import create_alpha_array
+    alpha = create_alpha_array(250, L=30)
+    return periods, input_waves, alpha
 
-    return periods, input_waves, alphaArray
+# --------------------------------------------------------------------
+# Fast runner – arrays fetched at call‑time
+# --------------------------------------------------------------------
 
+def run_network(neurons, weight_matrix: np.ndarray, alpha_kernel: np.ndarray):
+    import src.neuron as n  # ensure we reference *current* arrays
 
-# This should be correct. alpha array with t-1 starts at .08, which is the smallest, first value of alpha. 
-# This is supposed to be the first input to the neuron at each time step, which drives V.
-# Because we manually "spike" the neuron at t-1, t is the first time step that has an non-zeroalpha input.
-def run_network(neurons, weight_matrix, alpha_array): 
-    spikers = np.zeros(len(neurons))  # Initialize with zeros for all neurons
-        
-    # Running the network
+    N = len(neurons)
+    L = alpha_kernel.size
+    spikers = np.zeros(N, np.uint8)
+
     for t in range(TMAX):
-        # Distributing alphas
-        if np.any(spikers):
-            alpha = alpha_fit(alpha_array, t, TMAX)
-            for i, post in enumerate(neurons):
-                post.input += alpha * np.dot(spikers, weight_matrix)[i]
+        # inside run_network (before the Euler step)
+        if spikers.any():
+            post_I = spikers.astype(np.float32) @ weight_matrix        # (N,)
+            lend   = min(L, TMAX - t - 1)
+            n._INPUT[:, t+1:t+1+lend] += post_I[:, None] * alpha_kernel[:lend]
 
-        # Collecting spikes from all neurons from previous time step
-        spikers = np.zeros(len(neurons))  # Initialize with zeros for all neurons
 
-        for i, neu in enumerate(neurons):
-            neu.hist_V[t], neu.hist_u[t], neu.spike_times[t] = neu.update(I_ext=neu.input[t], sigma=0)
-            spikers[i] = 1.0 if neu.spiked else 0.0  # Use 1.0 for spikes instead of True
-            if neu.spiked:
-                neu.hist_V[t - 1] = neu.vpeak
-        
-        
+        spikers = vectorised_step(n._INPUT[:, t])
+
+        if t:
+            peaked = spikers.astype(bool)
+            n._VHIST[peaked, t - 1] = n._vpeak[peaked]
+
+    return spikers

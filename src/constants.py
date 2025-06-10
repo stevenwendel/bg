@@ -169,18 +169,7 @@ CRITERIA = {
         }
     }
 
-GA_CONFIG = { # I should store these configurations in the pkl file itself as a metadata field in the dictionary
-    "large":   {
-        "NUM_GENERATIONS" : 200,
-        "POP_SIZE" : 20,
-        "MUT_RATE" : 0.4,
-        "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 10,
-        "ELITE_SIZE" : 1,
-        "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,500],
-        "TIME_TAKEN" : 4 
-    },
+GA_CONFIG = { 
     "small": {
         "NUM_GENERATIONS" : 5,
         "POP_SIZE" : 50,
@@ -191,16 +180,37 @@ GA_CONFIG = { # I should store these configurations in the pkl file itself as a 
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,1000]
     },
+        "medium": {
+        "NUM_GENERATIONS" : 5,
+        "POP_SIZE" : 50,
+        "MUT_RATE" : 0.3,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 25,
+        "ELITE_SIZE" : 5,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,1000]
+    },
+    "large":   {
+        "NUM_GENERATIONS" : 20,
+        "POP_SIZE" : 50,
+        "MUT_RATE" : 0.4,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 10,
+        "ELITE_SIZE" : 1,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,500],
+        "TIME_TAKEN" : 4 
+    },
      "E":   {
         "NUM_GENERATIONS" : 300,
         "POP_SIZE" : 300,
         "MUT_RATE" : .63,
         "MUT_SIGMA" : 1.125,
-        "RANK_DEPTH" : None,
+        "RANK_DEPTH" : 150,
         "ELITE_SIZE" : 8,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,500], 
-        "TIME_TAKEN" : None
+        "TIME_TAKEN" : 303
     },
 
      "F":   {

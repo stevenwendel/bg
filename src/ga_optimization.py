@@ -14,16 +14,17 @@ src_path = os.path.join(os.path.dirname(__file__), '..')
 sys.path.append(src_path)
 
 from src.constants import GA_CONFIG
-from main import main
+from ga_runner import run_ga
 
 def run_single_optimization(params, results_dir):
     """Run a single optimization with given parameters and save results."""
     try:
+        preset = 'large'
         # Update GA_CONFIG with new parameters
-        GA_CONFIG['E'].update(params)
+        GA_CONFIG[preset].update(params)
         
         # Run the GA
-        main()
+        run_ga(preset=preset)
         
         # Load the results from the latest run
         latest_file = max([f for f in os.listdir('./data') if f.startswith('E_')], 
@@ -53,43 +54,6 @@ def run_single_optimization(params, results_dir):
     except Exception as e:
         print(f"Error in optimization: {e}")
         return None
-
-def random_search(num_samples=20):
-    """Perform random search optimization."""
-    # Create directory for results
-    results_dir = f'./data/random_search_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}'
-    os.makedirs(results_dir, exist_ok=True)
-    
-    # Define parameter ranges
-    mut_rates = [0.2, 0.35, 0.5, 0.65]
-    mut_sigmas = [0.2, 0.35, 0.5, 0.65]
-    elite_sizes = [1, 5, 10, 20]
-    dna_bounds = [[0, 250], [0, 500], [0, 1000]]
-    pop_gen_combinations = [
-        (50, 600), (100, 300), (200, 150), (300, 100)
-    ]
-    
-    results = []
-    for i in range(num_samples):
-        params = {
-            'MUT_RATE': random.choice(mut_rates),
-            'MUT_SIGMA': random.choice(mut_sigmas),
-            'ELITE_SIZE': random.choice(elite_sizes),
-            'DNA_BOUNDS': random.choice(dna_bounds),
-            'POP_SIZE': None,
-            'NUM_GENERATIONS': None
-        }
-        pop_size, num_generations = random.choice(pop_gen_combinations)
-        params['POP_SIZE'] = pop_size
-        params['NUM_GENERATIONS'] = num_generations
-
-        print(f"\nRandom search {i+1}/{num_samples}: {params}")
-        result = run_single_optimization(params, results_dir)
-        if result:
-            results.append(result)
-    
-    analyze_results(results, results_dir)
-    return results
 
 def bayesian_optimization(n_calls=20):
     """Perform Bayesian optimization using scikit-optimize."""
@@ -193,15 +157,8 @@ if __name__ == "__main__":
     optimizer_start_time = time.time()
     freeze_support()  # Required for multiprocessing on Windows/macOS
     
-    # Choose which optimization method to run
-    method = "bayesian"  # or "random"
-    
-    if method == "random":
-        print("Running random search optimization...")
-        results = random_search(num_samples=20)
-    else:
-        print("Running Bayesian optimization...")
-        results = bayesian_optimization(n_calls=20) 
+    print("Running Bayesian optimization...")
+    results = bayesian_optimization(n_calls=20) 
         
     optimizer_end_time = time.time()
     optimizer_duration = (optimizer_end_time - optimizer_start_time)//60

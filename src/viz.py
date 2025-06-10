@@ -72,49 +72,49 @@ def plot_neurons_interactive(hist_Vs, hist_us, neuron_names, sq_wave, go_wave, s
     fig.show()
 
 
-def plot_binned_differences(binned_differences):
-    tMax = int(len(binned_differences[0]) * BIN_SIZE)
-    time_intervals = np.arange(0, TMAX, BIN_SIZE)  # Create time intervals for the x-axis
+# def plot_binned_differences(binned_differences):
+#     tMax = int(len(binned_differences[0]) * BIN_SIZE)
+#     time_intervals = np.arange(0, TMAX, BIN_SIZE)  # Create time intervals for the x-axis
 
-    n_neurons = int(len(binned_differences))
-    n_cols = 1  # Set to 1 for a single column layout
-    n_rows = n_neurons  # Each neuron gets its own row
+#     n_neurons = int(len(binned_differences))
+#     n_cols = 1  # Set to 1 for a single column layout
+#     n_rows = n_neurons  # Each neuron gets its own row
 
-    fig = make_subplots(rows=n_rows, cols=n_cols, subplot_titles=[name for name in NEURON_NAMES])
+#     fig = make_subplots(rows=n_rows, cols=n_cols, subplot_titles=[name for name in NEURON_NAMES])
 
-    hover_template = 'Time: %{x} ms<br>Value: %{y} spikes'
-    v_color = 'orange'  # Define a consistent color for spike times
+#     hover_template = 'Time: %{x} ms<br>Value: %{y} spikes'
+#     v_color = 'orange'  # Define a consistent color for spike times
 
-    # it would be nice to have 3 columns to show the experimental, control, and difference
+#     # it would be nice to have 3 columns to show the experimental, control, and difference
 
-    for i, neu in enumerate(binned_differences):
-        row = i + 1  
-        col = 1
-        fig.add_trace(go.Bar(
-            x=time_intervals, 
-            y=neu, 
-            name=f'Neuron {i+1}',
-            marker=dict(color=v_color),  
-            hovertemplate=hover_template), 
-            row=row, 
-            col=col
-            )
+#     for i, neu in enumerate(binned_differences):
+#         row = i + 1  
+#         col = 1
+#         fig.add_trace(go.Bar(
+#             x=time_intervals, 
+#             y=neu, 
+#             name=f'Neuron {i+1}',
+#             marker=dict(color=v_color),  
+#             hovertemplate=hover_template), 
+#             row=row, 
+#             col=col
+#             )
 
 
-        # Calculate the maximum absolute value for symmetric y-axis for each neuron
-        max_abs_value = max(abs(neu.min()), abs(neu.max()))
+#         # Calculate the maximum absolute value for symmetric y-axis for each neuron
+#         max_abs_value = max(abs(neu.min()), abs(neu.max()))
 
-        # Update y-axis range for each subplot
-        fig.update_yaxes(range=[-max_abs_value, max_abs_value], row=row, col=col)
+#         # Update y-axis range for each subplot
+#         fig.update_yaxes(range=[-max_abs_value, max_abs_value], row=row, col=col)
 
-    fig.update_layout(
-        height=300 * n_rows, 
-        width=900, 
-        title_text="Binned spikes: Experimental - Control", 
-        showlegend=False, 
-        bargap=0
-    )
-    fig.show()
+#     fig.update_layout(
+#         height=300 * n_rows, 
+#         width=900, 
+#         title_text="Binned spikes: Experimental - Control", 
+#         showlegend=False, 
+#         bargap=0
+#     )
+#     fig.show()
 
 def run_experiment(curr_dna, diag_list=[0,0,0,0]):
     dna_matrix = load_dna(curr_dna)
