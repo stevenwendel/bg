@@ -1,165 +1,139 @@
-import itertools
-import numpy as np
-from datetime import datetime
+"""Bayesian optimisation wrapper around `ga_runner.run_ga`.
+
+* Creates a throw‑away GA preset named ``"bayes"`` in ``GA_CONFIG`` each call.
+* Uses scikit‑optimize (skopt) `gp_minimize` to search over
+  – mutation rate,  
+  – mutation sigma,  
+  – population size (integer).
+* Objective = **negative best score** (because skopt minimises).
+* Results are pickled + human‑readable summary stored in a timestamped folder
+  under `results/bayes_*`.
+
+Note: This script automatically sets NUMBA_NUM_THREADS=1 to ensure reproducible results
+and proper resource management.
+
+Run:
+    NUMBA_NUM_THREADS=1 python bayes_opt.py --calls 20
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+# Add the project root directory to Python path
+project_root = str(Path(__file__).parent.parent)
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+import argparse
+import copy
 import os
 import pickle
-import sys
-import random
 import time
-from skopt import gp_minimize
-from skopt.space import Real, Integer, Categorical
-from multiprocessing import freeze_support
+from datetime import datetime
 
-src_path = os.path.join(os.path.dirname(__file__), '..')
-sys.path.append(src_path)
+import numpy as np
+from skopt import gp_minimize
+from skopt.space import Real, Integer
 
 from src.constants import GA_CONFIG
 from ga_runner import run_ga
 
-def run_single_optimization(params, results_dir):
-    """Run a single optimization with given parameters and save results."""
-    try:
-        preset = 'large'
-        # Update GA_CONFIG with new parameters
-        GA_CONFIG[preset].update(params)
-        
-        # Run the GA
-        run_ga(preset=preset)
-        
-        # Load the results from the latest run
-        latest_file = max([f for f in os.listdir('./data') if f.startswith('E_')], 
-                        key=lambda x: os.path.getctime(os.path.join('./data', x)))
-        
-        with open(os.path.join('./data', latest_file), 'rb') as f:
-            run_data = pickle.load(f)
-        
-        result = {
-            'parameters': params,
-            'best_score': run_data['best_score']
+# ------------------------------------------------------------------
+# 1.  Evaluate a single GA configuration
+# ------------------------------------------------------------------
+
+def _run_single(cfg: dict, work_dir: Path) -> int:
+    start_single = time.time()
+    preset = "bayes_tmp"
+    GA_CONFIG[preset] = copy.deepcopy(cfg)
+    # redirect GA results into the working dir ------------------------
+    os.environ["RESULTS_DIR"] = str(work_dir / "results")
+
+    best_score = run_ga(preset, results_dir=os.environ["RESULTS_DIR"])
+
+    # grab last line of elites.txt for the DNA ------------------------
+    dna_path = Path(os.environ["RESULTS_DIR"]) / "elites.txt"
+    best_dna = None
+    if dna_path.exists():
+        with dna_path.open() as fh:
+            for ln in fh:
+                pass
+            best_dna = [float(x) for x in ln.strip().split(",")]
+
+    del GA_CONFIG[preset]   # avoid clutter
+    return best_score, best_dna
+
+
+# ------------------------------------------------------------------
+# 2.  Bayesian optimisation loop
+# ------------------------------------------------------------------
+
+def bayes_opt(n_calls: int):
+    out_dir = Path("results") / f"bayes_{datetime.now():%Y%m%d_%H%M%S}"
+    (out_dir / "results").mkdir(parents=True, exist_ok=True)
+
+    max_sims = 10_000
+
+    trial_results = []
+
+    def objective(x):
+        mut_rate, mut_sigma, pop_size = x
+        pop_size = int(pop_size)
+        num_gen  = max_sims // pop_size
+
+        cfg = {
+            "POP_SIZE"      : pop_size,
+            "NUM_GENERATIONS": num_gen,
+            "MUT_RATE"      : mut_rate,
+            "MUT_SIGMA"     : mut_sigma,
+            "ELITE_SIZE"    : 10,
+            "DNA_BOUNDS"    : [0, 500],
+            "RANK_DEPTH"    : pop_size // 2,
         }
-        
-        # Save intermediate results
-        results_file = os.path.join(results_dir, 'optimization_results.pkl')
-        if os.path.exists(results_file):
-            with open(results_file, 'rb') as f:
-                results = pickle.load(f)
-        else:
-            results = []
-        results.append(result)
-        with open(results_file, 'wb') as f:
-            pickle.dump(results, f)
-            
-        return result
-        
-    except Exception as e:
-        print(f"Error in optimization: {e}")
-        return None
+        print("\n=== Evaluating", cfg)
+        score, dna = _run_single(cfg, out_dir)
+        print("→ best", score)
+        print("→ dna", dna)
+        trial_results.append({"cfg": cfg, "score": score, "dna": dna})
+        return -score  # skopt minimises
 
-def bayesian_optimization(n_calls=20):
-    """Perform Bayesian optimization using scikit-optimize."""
-    # Create directory for results
-    results_dir = f'./data/bayesian_opt_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}'
-    os.makedirs(results_dir, exist_ok=True)
-    max_simulations = 20000
-
-    def objective(params):
-        mut_rate, mut_sigma, pop_size = params
-        num_generations = max_simulations//pop_size
-        
-        config = {
-            'MUT_RATE': mut_rate,
-            'MUT_SIGMA': mut_sigma,
-            'ELITE_SIZE': 10,
-            'DNA_BOUNDS': [0, 500],
-            'POP_SIZE': pop_size,
-            'NUM_GENERATIONS': num_generations
-        }
-        
-        # Print current GA parameters
-        print("\nCurrent GA Parameters:")
-        print("=====================")
-        for key, value in config.items():
-            print(f"{key}: {value}")
-        print("=====================\n")
-        
-        result = run_single_optimization(config, results_dir)
-
-        if result:
-            return -result['best_score']  # Negative because skopt minimizes
-        return 1e6  # Large penalty for failed runs
-
-    # Define search space
-    search_space = [
-        Real(0.4, 0.8, name='mut_rate'),
-        Real(0.4, 2.0, name='mut_sigma'),
-        Integer(100, 300, name='pop_size')
+    space = [
+        Real(0.3, 0.8,    name="mut_rate"),
+        Real(0.2, 2.0,    name="mut_sigma"),
+        Integer(50, 400, name="pop_size"),
     ]
 
-    # Run optimization
-    result = gp_minimize(
-        objective, 
-        search_space, 
-        n_calls=n_calls, 
-        random_state=None,
-        verbose=True
-    )
-    
-    # Convert results to our format
-    results = []
-    for i, (params, score) in enumerate(zip(result.x_iters, -result.func_vals)):
-        mut_rate, mut_sigma, pop_size = params
-        num_generations = max_simulations//pop_size
-        
-        results.append({
-            'parameters': {
-                'MUT_RATE': mut_rate,
-                'MUT_SIGMA': mut_sigma,
-                'ELITE_SIZE': 10,
-                'DNA_BOUNDS': [0, 500],
-                'POP_SIZE': pop_size,
-                'NUM_GENERATIONS': num_generations
-            },
-            'best_score': score
-        })
-    
-    analyze_results(results, results_dir)
-    return results
+    result = gp_minimize(objective, space, n_calls=n_calls, random_state=None, verbose=True)
+    sk_dump(result, out_dir / "skopt_result.pkl")            # safe dump
+    with (out_dir / "trial_results.pkl").open("wb") as fh:   # our custom list
+        pickle.dump(trial_results, fh)
 
-def analyze_results(results, results_dir):
-    """Analyze and save optimization results."""
-    import pandas as pd
+    best_idx   = int((-result.fun) == max(t["score"] for t in trial_results))
+    best_trial = max(trial_results, key=lambda d: d["score"])
+
+    print("\n=== optimisation finished ===")
+    print("Best params :", best_trial["params"])
+    print("Best score  :", best_trial["score"])
+    print("Best DNA    :", best_trial["dna"])
+
+# ------------------------------------------------------------------
+# 3.  CLI glue
+# ------------------------------------------------------------------
+
+def main():
+    # Set NUMBA_NUM_THREADS=1 for reproducible results
+    os.environ["NUMBA_NUM_THREADS"] = "1"
     
-    df = pd.DataFrame(results)
-    
-    # Basic statistics
-    print("\nTop 10 Best Performing Combinations:")
-    print(df.nlargest(10, 'best_score')[['parameters', 'best_score']])
-    
-    # Save detailed analysis
-    with open(os.path.join(results_dir, 'analysis.txt'), 'w') as f:
-        f.write("Genetic Algorithm Optimization Results\n")
-        f.write("===================================\n\n")
-        
-        f.write("Top 10 Best Performing Combinations:\n")
-        f.write(df.nlargest(10, 'best_score').to_string())
-        f.write("\n\n")
-        
-        f.write("Parameter Impact Analysis:\n")
-        for param in ['MUT_RATE', 'MUT_SIGMA', 'ELITE_SIZE', 'POP_SIZE']:
-            f.write(f"\n{param} Analysis:\n")
-            # Extract parameter values from the nested dictionary
-            param_values = df['parameters'].apply(lambda x: x[param])
-            param_stats = df.groupby(param_values)['best_score'].agg(['mean', 'std', 'max'])
-            f.write(param_stats.to_string())
-            f.write("\n")
+    ap = argparse.ArgumentParser(description="Bayesian optimisation for GA hyper‑params")
+    ap.add_argument("--calls", type=int, default=10, help="number of skopt evaluations")
+    args = ap.parse_args()
+    t0 = time.time()
+    bayes_opt(args.calls)
+    print(f"\nWall‑time: {(time.time() - t0)/60:.1f} min")
 
 if __name__ == "__main__":
-    optimizer_start_time = time.time()
-    freeze_support()  # Required for multiprocessing on Windows/macOS
-    
-    print("Running Bayesian optimization...")
-    results = bayesian_optimization(n_calls=20) 
-        
-    optimizer_end_time = time.time()
-    optimizer_duration = (optimizer_end_time - optimizer_start_time)//60
-    print(f"Optimizer algorithm took {optimizer_duration} minutes.")
+    start=time.time()
+    main()
+    end=time.time()
+    print(f"Time taken: {end-start} seconds")

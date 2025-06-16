@@ -18,7 +18,8 @@ import numpy as np
 import src.neuron as neuron  # one module handle to keep globals consistent
 from src.constants import NEURON_NAMES, TMAX
 from src.network import create_experiment
-from src.validation import evaluate_conditions
+
+from src.validation import evaluate_conditions, diagnose_conditions
 
 # --------------------------------------------------------------------
 # Hand‑crafted weights -------------------------------------------------
@@ -44,6 +45,9 @@ new_jh_weights = [
     ("ALMresp", "VMresp", 90),
 ]
 
+# --------------------------------------------------------------------
+# Build weight matrix -------------------------------------------------
+# --------------------------------------------------------------------
 N = len(NEURON_NAMES)
 W = np.zeros((N, N), dtype=np.float32)
 for pre, post, w in new_jh_weights:
@@ -65,8 +69,8 @@ neuron.prepare_neurons(neurons, cue_wave, go_wave, control=False)
 
 for t in range(TMAX - 1):
     ext_I = neuron._INPUT[:, t]
-    spikes = neuron.vectorised_step(ext_I)
     # simple delta‑current synapse
+    spikes = neuron.vectorised_step(ext_I)
     # alpha‑shaped PSP (NEW)
     if spikes.any():
         post_current = spikes.astype(np.float32) @ W     # shape (N,)
@@ -83,13 +87,26 @@ neuron.vectorised_step(neuron._INPUT[:, TMAX - 1])
 # --------------------------------------------------------------------
 # Report spike counts -------------------------------------------------
 # --------------------------------------------------------------------
+# # Reshape spikes into 100ms bins
+# binned_spikes = neuron._SPIKES.reshape(len(NEURON_NAMES), -1, 1000).sum(axis=2)
+
+# print("\nSpike counts per 100ms bin:\n")
+# for i, name in enumerate(NEURON_NAMES):
+#     print(f"\n{name}:")
+#     for j, count in enumerate(binned_spikes[i]):
+#         print(f"  {j*1000:4d}-{(j+1)*1000:4d}ms: {int(count)}")
+
+# Original total counts
 counts = neuron._SPIKES.sum(axis=1)
-print("\nSpike counts with manual weights:\n")
+print("\nTotal spike counts:")
 for name, c in zip(NEURON_NAMES, counts):
     print(f"{name:8s}: {int(c)}")
 
 scores = evaluate_conditions(neuron._SPIKES)   # returns dict
 total  = scores['experimental'] + scores['control']
+
+diagnose_conditions(neuron._SPIKES, "experimental", 30)
+diagnose_conditions(neuron._SPIKES, "control", 30)
 
 print(f"\nExperimental score: {scores['experimental']}")
 print(f"Control score:      {scores['control']}")

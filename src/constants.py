@@ -170,6 +170,16 @@ CRITERIA = {
     }
 
 GA_CONFIG = { 
+    "single": {
+        "NUM_GENERATIONS" : 1,
+        "POP_SIZE" : 1,
+        "MUT_RATE" : 0.3,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 1,
+        "ELITE_SIZE" : 1,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,1000]
+    },
     "small": {
         "NUM_GENERATIONS" : 5,
         "POP_SIZE" : 50,
@@ -204,13 +214,13 @@ GA_CONFIG = {
      "E":   {
         "NUM_GENERATIONS" : 300,
         "POP_SIZE" : 300,
-        "MUT_RATE" : .63,
-        "MUT_SIGMA" : 1.125,
+        "MUT_RATE" : .45,
+        "MUT_SIGMA" : .5,
         "RANK_DEPTH" : 150,
         "ELITE_SIZE" : 8,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,500], 
-        "TIME_TAKEN" : 303
+        "TIME_TAKEN" : [303, 200,]
     },
 
      "F":   {

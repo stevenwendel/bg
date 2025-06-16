@@ -63,7 +63,7 @@ def uniform_crossover(p1: np.ndarray, p2: np.ndarray, swap_p: float = 0.5) -> np
 
 def mutate_gauss(dna: np.ndarray, sigma: float, bounds: Tuple[int, int]) -> np.ndarray:
     """Gaussian mutation with automatic rounding and sign fix."""
-    dna = dna.astype(np.float32) + np.random.normal(0, sigma, size=dna.size)
+    dna = dna.astype(np.float32) + np.dot(np.random.normal(0, sigma, size=dna.size), dna.astype(np.float32))
     low, high = bounds
     dna = np.clip(np.round(dna), -high, high)
     dna[_INHIB_MASK] = -np.abs(dna[_INHIB_MASK])

@@ -43,7 +43,7 @@ def create_alpha_array(length: int, L: int = 30, dtype=np.float32) -> np.ndarray
     dtype : np.dtype, default float32
         Output dtype (float32 recommended to match simulator arrays).
     """
-    td = np.arange(0, length , dtype=dtype)  # 1 … length
+    td = np.arange(1, length , dtype=dtype)  # 1 … length
     alpha = (td / L) * np.exp((L - td) / L)
     # Keep four decimal places (matches original code, ~0.1 % error)
     return np.round(alpha, 4, out=alpha)  # reuse `alpha` buffer
