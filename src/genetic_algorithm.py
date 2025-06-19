@@ -90,19 +90,21 @@ def spawn_next_population(pop_records: List[dict], cfg: dict, generation: int) -
     elite_n    = cfg["ELITE_SIZE"]
     rank_depth = cfg["RANK_DEPTH"]
     sigma      = cfg["MUT_SIGMA"]
+    mut_rate   = cfg["MUT_RATE"]
 
     pop_records.sort(key=lambda r: r["dna_score"], reverse=True)
     elites = [r["dna"] for r in pop_records[:elite_n]]
     next_pop = elites.copy()
 
     # keep‑distance niching threshold (5 % of chromosome length)
-    niche_thresh = 0.05 * _ORIGIN_IDX.size
+    niche_thresh = 0.01 * _ORIGIN_IDX.size
 
     while len(next_pop) < pop_size:
         p1 = _tournament(pop_records[:rank_depth], 3)
         p2 = _tournament(pop_records[:rank_depth], 3)
         child = uniform_crossover(p1, p2, swap_p=0.5)
-        child = mutate_gauss(child, sigma, bounds)
+        if np.random.rand() < mut_rate:
+            child = mutate_gauss(child, sigma, bounds)
 
         if all(_hamming(child, dna) > niche_thresh for dna in next_pop):
             next_pop.append(child)

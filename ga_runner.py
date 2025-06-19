@@ -18,6 +18,7 @@ from functools import partial
 from pathlib import Path
 from typing import List
 import time
+import os
 import numba
 
 from src.constants import GA_CONFIG
@@ -26,7 +27,7 @@ from src.network import create_experiment, run_network
 from src.neuron import create_neurons, prepare_neurons, _SPIKES
 from src.validation import evaluate_conditions
 
-numba.set_num_threads(1)
+# numba.set_num_threads(1)
 
 _template = None
 
@@ -90,12 +91,18 @@ def run_ga(preset: str, *, results_dir: str | None = None) -> int:
 
 
 if __name__ == "__main__":
-    start = time.time()
+    os.environ["NUMBA_NUM_THREADS"] = "1"
+    os.environ["NUMBA_DISABLE_JIT"] = "1"
+    start0 = time.time()
+    for i in range(5):
+        print(f"Run {i}")
+        start = time.time()
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--preset", choices=GA_CONFIG.keys(), default="large")
+        args = parser.parse_args()
+        run_ga(args.preset)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--preset", choices=GA_CONFIG.keys(), default="large")
-    args = parser.parse_args()
-    run_ga(args.preset)
+        end = time.time()
+        print((end-start))
 
-    end = time.time()
-    print((end-start))
+    print(f"Total time: {time.time() - start0}")

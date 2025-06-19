@@ -201,11 +201,11 @@ GA_CONFIG = {
         "DNA_BOUNDS" : [0,1000]
     },
     "large":   {
-        "NUM_GENERATIONS" : 20,
-        "POP_SIZE" : 50,
+        "NUM_GENERATIONS" : 5,
+        "POP_SIZE" : 400,
         "MUT_RATE" : 0.4,
         "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 10,
+        "RANK_DEPTH" : 20,
         "ELITE_SIZE" : 1,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,500],
