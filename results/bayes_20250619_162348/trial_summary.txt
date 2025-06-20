@@ -6,3 +6,422 @@ Max Simulations: 30000
 Output Directory: results/bayes_20250619_162348
 ================================================================================
 
+
+============================================================
+Trial 1
+Timestamp: 2025-06-19 16:38:01.953496
+Parameters:
+  POP_SIZE: 171
+  NUM_GENERATIONS: 175
+  MUT_RATE: 0.4765459586294247
+  MUT_SIGMA: 2.0519396433997104
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 85
+Best Score: 664
+Best DNA: None
+============================================================
+
+============================================================
+Trial 2
+Timestamp: 2025-06-19 16:51:34.783265
+Parameters:
+  POP_SIZE: 876
+  NUM_GENERATIONS: 34
+  MUT_RATE: 0.31102565912167496
+  MUT_SIGMA: 0.6045742996124055
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 438
+Best Score: 671
+Best DNA: None
+============================================================
+
+============================================================
+Trial 3
+Timestamp: 2025-06-19 17:05:22.749383
+Parameters:
+  POP_SIZE: 897
+  NUM_GENERATIONS: 33
+  MUT_RATE: 0.5225133823860058
+  MUT_SIGMA: 2.5275058885177892
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 448
+Best Score: 675
+Best DNA: None
+============================================================
+
+============================================================
+Trial 4
+Timestamp: 2025-06-19 17:19:08.938118
+Parameters:
+  POP_SIZE: 1499
+  NUM_GENERATIONS: 20
+  MUT_RATE: 0.3899950446324221
+  MUT_SIGMA: 1.460974221377332
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 749
+Best Score: 666
+Best DNA: None
+============================================================
+
+============================================================
+Trial 5
+Timestamp: 2025-06-19 17:32:24.367856
+Parameters:
+  POP_SIZE: 1395
+  NUM_GENERATIONS: 21
+  MUT_RATE: 0.4228487927655401
+  MUT_SIGMA: 2.0545996333404735
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 697
+Best Score: 667
+Best DNA: None
+============================================================
+
+============================================================
+Trial 6
+Timestamp: 2025-06-19 17:46:11.937405
+Parameters:
+  POP_SIZE: 908
+  NUM_GENERATIONS: 33
+  MUT_RATE: 0.6041357371121602
+  MUT_SIGMA: 2.9975544282720628
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 454
+Best Score: 668
+Best DNA: None
+============================================================
+
+============================================================
+Trial 7
+Timestamp: 2025-06-19 18:00:09.292498
+Parameters:
+  POP_SIZE: 1463
+  NUM_GENERATIONS: 20
+  MUT_RATE: 0.7646667615371272
+  MUT_SIGMA: 2.514414276657039
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 731
+Best Score: 665
+Best DNA: None
+============================================================
+
+============================================================
+Trial 8
+Timestamp: 2025-06-19 18:14:21.132021
+Parameters:
+  POP_SIZE: 1043
+  NUM_GENERATIONS: 28
+  MUT_RATE: 0.7230683754750062
+  MUT_SIGMA: 1.4195727339566953
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 521
+Best Score: 665
+Best DNA: None
+============================================================
+
+============================================================
+Trial 9
+Timestamp: 2025-06-19 18:28:34.133683
+Parameters:
+  POP_SIZE: 1189
+  NUM_GENERATIONS: 25
+  MUT_RATE: 0.7725602228646611
+  MUT_SIGMA: 2.6115128067806324
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 594
+Best Score: 666
+Best DNA: None
+============================================================
+
+============================================================
+Trial 10
+Timestamp: 2025-06-19 18:42:26.954188
+Parameters:
+  POP_SIZE: 1054
+  NUM_GENERATIONS: 28
+  MUT_RATE: 0.4978511834653005
+  MUT_SIGMA: 1.1142347108785071
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 527
+Best Score: 666
+Best DNA: None
+============================================================
+
+============================================================
+Trial 11
+Timestamp: 2025-06-19 18:55:48.296828
+Parameters:
+  POP_SIZE: 859
+  NUM_GENERATIONS: 34
+  MUT_RATE: 0.4835138087101484
+  MUT_SIGMA: 2.811751964279564
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 429
+Best Score: 670
+Best DNA: None
+============================================================
+
+============================================================
+Trial 12
+Timestamp: 2025-06-19 19:09:36.510457
+Parameters:
+  POP_SIZE: 838
+  NUM_GENERATIONS: 35
+  MUT_RATE: 0.3721357748094475
+  MUT_SIGMA: 0.3762217382678842
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 419
+Best Score: 670
+Best DNA: None
+============================================================
+
+============================================================
+Trial 13
+Timestamp: 2025-06-19 19:23:38.697052
+Parameters:
+  POP_SIZE: 784
+  NUM_GENERATIONS: 38
+  MUT_RATE: 0.6972274848492486
+  MUT_SIGMA: 2.755764674309422
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 392
+Best Score: 676
+Best DNA: None
+============================================================
+
+============================================================
+Trial 14
+Timestamp: 2025-06-19 19:36:50.332601
+Parameters:
+  POP_SIZE: 670
+  NUM_GENERATIONS: 44
+  MUT_RATE: 0.532909458477225
+  MUT_SIGMA: 2.7479750396019416
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 335
+Best Score: 665
+Best DNA: None
+============================================================
+
+============================================================
+Trial 15
+Timestamp: 2025-06-19 19:50:58.892215
+Parameters:
+  POP_SIZE: 785
+  NUM_GENERATIONS: 38
+  MUT_RATE: 0.7900341795055537
+  MUT_SIGMA: 2.410493305853485
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 392
+Best Score: 669
+Best DNA: None
+============================================================
+
+============================================================
+Trial 16
+Timestamp: 2025-06-19 20:06:04.324312
+Parameters:
+  POP_SIZE: 808
+  NUM_GENERATIONS: 37
+  MUT_RATE: 0.7680664316596421
+  MUT_SIGMA: 0.47855964082386
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 404
+Best Score: 670
+Best DNA: None
+============================================================
+
+============================================================
+Trial 17
+Timestamp: 2025-06-19 20:19:28.588441
+Parameters:
+  POP_SIZE: 814
+  NUM_GENERATIONS: 36
+  MUT_RATE: 0.5118440227362402
+  MUT_SIGMA: 2.7792941575991597
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 407
+Best Score: 667
+Best DNA: None
+============================================================
+
+============================================================
+Trial 18
+Timestamp: 2025-06-19 20:33:21.770495
+Parameters:
+  POP_SIZE: 880
+  NUM_GENERATIONS: 34
+  MUT_RATE: 0.7343495841717603
+  MUT_SIGMA: 2.8298796211144537
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 440
+Best Score: 672
+Best DNA: None
+============================================================
+
+============================================================
+Trial 19
+Timestamp: 2025-06-19 20:48:01.867747
+Parameters:
+  POP_SIZE: 895
+  NUM_GENERATIONS: 33
+  MUT_RATE: 0.739350025521822
+  MUT_SIGMA: 0.8857067969027368
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 447
+Best Score: 665
+Best DNA: None
+============================================================
+
+============================================================
+Trial 20
+Timestamp: 2025-06-19 21:02:01.488358
+Parameters:
+  POP_SIZE: 791
+  NUM_GENERATIONS: 37
+  MUT_RATE: 0.7645143486459374
+  MUT_SIGMA: 2.8307157048959404
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 395
+Best Score: 666
+Best DNA: None
+============================================================
+
+================================================================================
+OPTIMIZATION COMPLETE
+Total Trials: 20
+Best Trial: 2
+Best Score: 676
+Best Parameters:
+  POP_SIZE: 784
+  NUM_GENERATIONS: 38
+  MUT_RATE: 0.6972274848492486
+  MUT_SIGMA: 2.755764674309422
+  ELITE_SIZE: 10
+  DNA_BOUNDS: [0, 500]
+  RANK_DEPTH: 392
+Best DNA: None
+================================================================================
+
+ALL TRIALS RANKED BY SCORE (BEST TO WORST):
+================================================================================
+
+Rank 1 (Score: 676):
+  Parameters: {'POP_SIZE': 784, 'NUM_GENERATIONS': 38, 'MUT_RATE': 0.6972274848492486, 'MUT_SIGMA': 2.755764674309422, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 392}
+  DNA: None
+  ----------------------------------------
+
+Rank 2 (Score: 675):
+  Parameters: {'POP_SIZE': 897, 'NUM_GENERATIONS': 33, 'MUT_RATE': 0.5225133823860058, 'MUT_SIGMA': 2.5275058885177892, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 448}
+  DNA: None
+  ----------------------------------------
+
+Rank 3 (Score: 672):
+  Parameters: {'POP_SIZE': 880, 'NUM_GENERATIONS': 34, 'MUT_RATE': 0.7343495841717603, 'MUT_SIGMA': 2.8298796211144537, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 440}
+  DNA: None
+  ----------------------------------------
+
+Rank 4 (Score: 671):
+  Parameters: {'POP_SIZE': 876, 'NUM_GENERATIONS': 34, 'MUT_RATE': 0.31102565912167496, 'MUT_SIGMA': 0.6045742996124055, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 438}
+  DNA: None
+  ----------------------------------------
+
+Rank 5 (Score: 670):
+  Parameters: {'POP_SIZE': 859, 'NUM_GENERATIONS': 34, 'MUT_RATE': 0.4835138087101484, 'MUT_SIGMA': 2.811751964279564, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 429}
+  DNA: None
+  ----------------------------------------
+
+Rank 6 (Score: 670):
+  Parameters: {'POP_SIZE': 838, 'NUM_GENERATIONS': 35, 'MUT_RATE': 0.3721357748094475, 'MUT_SIGMA': 0.3762217382678842, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 419}
+  DNA: None
+  ----------------------------------------
+
+Rank 7 (Score: 670):
+  Parameters: {'POP_SIZE': 808, 'NUM_GENERATIONS': 37, 'MUT_RATE': 0.7680664316596421, 'MUT_SIGMA': 0.47855964082386, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 404}
+  DNA: None
+  ----------------------------------------
+
+Rank 8 (Score: 669):
+  Parameters: {'POP_SIZE': 785, 'NUM_GENERATIONS': 38, 'MUT_RATE': 0.7900341795055537, 'MUT_SIGMA': 2.410493305853485, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 392}
+  DNA: None
+  ----------------------------------------
+
+Rank 9 (Score: 668):
+  Parameters: {'POP_SIZE': 908, 'NUM_GENERATIONS': 33, 'MUT_RATE': 0.6041357371121602, 'MUT_SIGMA': 2.9975544282720628, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 454}
+  DNA: None
+  ----------------------------------------
+
+Rank 10 (Score: 667):
+  Parameters: {'POP_SIZE': 1395, 'NUM_GENERATIONS': 21, 'MUT_RATE': 0.4228487927655401, 'MUT_SIGMA': 2.0545996333404735, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 697}
+  DNA: None
+  ----------------------------------------
+
+Rank 11 (Score: 667):
+  Parameters: {'POP_SIZE': 814, 'NUM_GENERATIONS': 36, 'MUT_RATE': 0.5118440227362402, 'MUT_SIGMA': 2.7792941575991597, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 407}
+  DNA: None
+  ----------------------------------------
+
+Rank 12 (Score: 666):
+  Parameters: {'POP_SIZE': 1499, 'NUM_GENERATIONS': 20, 'MUT_RATE': 0.3899950446324221, 'MUT_SIGMA': 1.460974221377332, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 749}
+  DNA: None
+  ----------------------------------------
+
+Rank 13 (Score: 666):
+  Parameters: {'POP_SIZE': 1189, 'NUM_GENERATIONS': 25, 'MUT_RATE': 0.7725602228646611, 'MUT_SIGMA': 2.6115128067806324, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 594}
+  DNA: None
+  ----------------------------------------
+
+Rank 14 (Score: 666):
+  Parameters: {'POP_SIZE': 1054, 'NUM_GENERATIONS': 28, 'MUT_RATE': 0.4978511834653005, 'MUT_SIGMA': 1.1142347108785071, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 527}
+  DNA: None
+  ----------------------------------------
+
+Rank 15 (Score: 666):
+  Parameters: {'POP_SIZE': 791, 'NUM_GENERATIONS': 37, 'MUT_RATE': 0.7645143486459374, 'MUT_SIGMA': 2.8307157048959404, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 395}
+  DNA: None
+  ----------------------------------------
+
+Rank 16 (Score: 665):
+  Parameters: {'POP_SIZE': 1463, 'NUM_GENERATIONS': 20, 'MUT_RATE': 0.7646667615371272, 'MUT_SIGMA': 2.514414276657039, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 731}
+  DNA: None
+  ----------------------------------------
+
+Rank 17 (Score: 665):
+  Parameters: {'POP_SIZE': 1043, 'NUM_GENERATIONS': 28, 'MUT_RATE': 0.7230683754750062, 'MUT_SIGMA': 1.4195727339566953, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 521}
+  DNA: None
+  ----------------------------------------
+
+Rank 18 (Score: 665):
+  Parameters: {'POP_SIZE': 670, 'NUM_GENERATIONS': 44, 'MUT_RATE': 0.532909458477225, 'MUT_SIGMA': 2.7479750396019416, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 335}
+  DNA: None
+  ----------------------------------------
+
+Rank 19 (Score: 665):
+  Parameters: {'POP_SIZE': 895, 'NUM_GENERATIONS': 33, 'MUT_RATE': 0.739350025521822, 'MUT_SIGMA': 0.8857067969027368, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 447}
+  DNA: None
+  ----------------------------------------
+
+Rank 20 (Score: 664):
+  Parameters: {'POP_SIZE': 171, 'NUM_GENERATIONS': 175, 'MUT_RATE': 0.4765459586294247, 'MUT_SIGMA': 2.0519396433997104, 'ELITE_SIZE': 10, 'DNA_BOUNDS': [0, 500], 'RANK_DEPTH': 85}
+  DNA: None
+  ----------------------------------------
