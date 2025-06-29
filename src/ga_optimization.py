@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import Tuple, List
 
 # Add the project root directory to Python path
 project_root = str(Path(__file__).parent.parent)
@@ -44,23 +45,15 @@ from ga_runner import run_ga
 # 1.  Evaluate a single GA configuration
 # ------------------------------------------------------------------
 
-def _run_single(cfg: dict, work_dir: Path) -> int:
+def _run_single(cfg: dict, work_dir: Path) -> Tuple[int, List[float]]:
     start_single = time.time()
     preset = "bayes_tmp"
     GA_CONFIG[preset] = copy.deepcopy(cfg)
     # redirect GA results into the working dir ------------------------
     os.environ["RESULTS_DIR"] = str(work_dir / "results")
 
-    best_score = run_ga(preset, results_dir=os.environ["RESULTS_DIR"])
-
-    # grab last line of elites.txt for the DNA ------------------------
-    dna_path = Path(os.environ["RESULTS_DIR"]) / "elites.txt"
-    best_dna = None
-    if dna_path.exists():
-        with dna_path.open() as fh:
-            for ln in fh:
-                pass
-            best_dna = [float(x) for x in ln.strip().split(",")]
+    # Now run_ga returns both best_score and best_dna
+    best_score, best_dna = run_ga(preset, results_dir=os.environ["RESULTS_DIR"])
 
     del GA_CONFIG[preset]   # avoid clutter
     return best_score, best_dna
@@ -112,7 +105,7 @@ def bayes_opt(n_calls: int):
     out_dir = Path("results") / f"bayes_{datetime.now():%Y%m%d_%H%M%S}"
     (out_dir / "results").mkdir(parents=True, exist_ok=True)
 
-    max_sims = 30_000
+    max_sims = 100_000
     trial_results = []
 
     # Initialize the summary text file
@@ -129,9 +122,9 @@ def bayes_opt(n_calls: int):
     objective = create_objective(max_sims, out_dir, trial_results)
 
     space = [
-        Real(0.3, 0.8,    name="mut_rate"),
-        Real(0.2, 3.0,    name="mut_sigma"),
-        Integer(150, 1500, name="pop_size"),
+        Real(0.2, 0.8,    name="mut_rate"),
+        Real(0.2, 20.0,    name="mut_sigma"),
+        Integer(500, 1000, name="pop_size"),
     ]
 
     result = gp_minimize(objective, space, n_calls=n_calls, random_state=None, verbose=True)

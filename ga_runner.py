@@ -16,7 +16,7 @@ import multiprocessing as mp
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 import time
 import os
 import numba
@@ -56,7 +56,13 @@ def _score_one(dna_vec, input_waves, alpha_kernel):
     return total
 
 
-def run_ga(preset: str, *, results_dir: str | None = None) -> int:
+def run_ga(preset: str, *, results_dir: str | None = None) -> Tuple[int, List[float]]:
+    """
+    Run genetic algorithm and return best score and best DNA.
+    
+    Returns:
+        Tuple[int, List[float]]: (best_score, best_dna)
+    """
     cfg = GA_CONFIG[preset]
     pop_size    = cfg["POP_SIZE"]
     bounds      = tuple(cfg["DNA_BOUNDS"])
@@ -69,13 +75,20 @@ def run_ga(preset: str, *, results_dir: str | None = None) -> int:
     population: List = [create_dna(bounds) for _ in range(pop_size)]
 
     best_overall = 0
+    best_dna_overall = None  # Track the best DNA across all generations
+    
     with mp.Pool(mp.cpu_count(), initializer=_init_worker) as pool:
         for gen in range(generations):
             fitness = pool.map(partial(_score_one, input_waves=input_waves, alpha_kernel=alpha_kernel), population)
             best_score = max(fitness)
-            best_overall = max(best_overall, best_score)
             best_idx = fitness.index(best_score)
             best_dna = population[best_idx]
+            
+            # Update best overall if we have a new best score
+            if best_score > best_overall:
+                best_overall = best_score
+                best_dna_overall = best_dna.copy()  # Make a copy to preserve it
+            
             print(f"Gen {gen:03d} | best {best_score:4d} | avg {sum(fitness)/pop_size:.1f} \n>>>best DNA: {best_dna.tolist()}")
 
             # write elites
@@ -87,7 +100,9 @@ def run_ga(preset: str, *, results_dir: str | None = None) -> int:
 
             pop_records = [{"dna": d, "dna_score": s} for d, s in zip(population, fitness)]
             population  = spawn_next_population(pop_records, cfg, gen)
-    return best_overall
+    
+    # Return both the best score and the best DNA
+    return best_overall, best_dna_overall.tolist()
 
 
 if __name__ == "__main__":
@@ -100,7 +115,9 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser()
         parser.add_argument("--preset", choices=GA_CONFIG.keys(), default="large")
         args = parser.parse_args()
-        run_ga(args.preset)
+        best_score, best_dna = run_ga(args.preset)
+        print(f"Best score: {best_score}")
+        print(f"Best DNA: {best_dna}")
 
         end = time.time()
         print((end-start))

@@ -62,13 +62,36 @@ def uniform_crossover(p1: np.ndarray, p2: np.ndarray, swap_p: float = 0.5) -> np
 
 
 def mutate_gauss(dna: np.ndarray, sigma: float, bounds: Tuple[int, int]) -> np.ndarray:
-    """Gaussian mutation with automatic rounding and sign fix."""
-    dna = dna.astype(np.float32) + np.dot(np.random.normal(0, sigma, size=dna.size), dna.astype(np.float32))
+    """
+    Gaussian mutation: each element is added to the product of itself and a random number 
+    from a Gaussian distribution (mean=0, standard deviation=sigma).
+    
+    Args:
+        dna: DNA vector to mutate
+        sigma: Standard deviation for Gaussian noise
+        bounds: (low, high) bounds for clipping
+    
+    Returns:
+        Mutated DNA vector
+    """
+    # Convert to float32 for calculations
+    dna_float = dna.astype(np.float32)
+    
+    # Generate random Gaussian noise for each element
+    noise = np.random.normal(0, sigma, size=dna.size)
+    
+    # Apply mutation: dna_element + (dna_element * gaussian_noise)
+    mutated = dna_float + (dna_float * noise)
+    
+    # Clip to bounds and round
     low, high = bounds
-    dna = np.clip(np.round(dna), -high, high)
-    dna[_INHIB_MASK] = -np.abs(dna[_INHIB_MASK])
-    dna[~_INHIB_MASK] =  np.abs(dna[~_INHIB_MASK])
-    return dna.astype(np.int32)
+    mutated = np.clip(np.round(mutated), -high, high)
+    
+    # Fix signs based on neuron type
+    mutated[_INHIB_MASK] = -np.abs(mutated[_INHIB_MASK])  # Inhibitory neurons: negative
+    mutated[~_INHIB_MASK] = np.abs(mutated[~_INHIB_MASK])  # Excitatory neurons: positive
+    
+    return mutated.astype(np.int32)
 
 # ------------------------------------------------------------------
 # 3.  Population spawning
@@ -96,7 +119,7 @@ def spawn_next_population(pop_records: List[dict], cfg: dict, generation: int) -
     elites = [r["dna"] for r in pop_records[:elite_n]]
     next_pop = elites.copy()
 
-    # keep‑distance niching threshold (5 % of chromosome length)
+    # keep‑distance niching threshold (5 % of chromosome length)
     niche_thresh = 0.01 * _ORIGIN_IDX.size
 
     while len(next_pop) < pop_size:
