@@ -8,52 +8,33 @@
 from __future__ import annotations
 
 import numpy as np
-import src.neuron as neuron  # live module handle (allocates global arrays)
-from src.constants import NEURON_NAMES
-from src.genetic_algorithm import create_dna, decode_dna_to_matrix
-from src.network import create_experiment, run_network
-from src.validation import evaluate_conditions
-
+from src.constants import *
+from src.workbench import step_kernel, simulate
 # ---------------------------------------------------------------------
 # implementation wrapped in a function to prevent accidental re‑runs
 # ---------------------------------------------------------------------
 
 def _run_once():
-    new_jh_weights = [
-    ("Somat", "ALMprep", 40),
-    ("Somat", "MSN1", 220),
-    ("MSN1", "SNR1", -90),
-    ("SNR1", "VMprep", -10),
-    ("VMprep", "ALMprep", 70),
-    ("ALMprep", "VMprep", 80),
-    ("ALMprep", "MSN2", 320),
-    ("MSN2", "SNR2", -50),
-    ("SNR2", "VMresp", -100),
-    ("PPN", "THALgo", 60),
-    ("THALgo", "ALMinter", 55),
-    ("ALMinter", "ALMprep", -50),
-    ("THALgo", "ALMresp", 30),
-    ("ALMresp", "MSN3", 320),
-    ("MSN3", "SNR3", -90),
-    ("SNR3", "VMresp", -50),
-    ("VMresp", "ALMresp", 85),
-    ("ALMresp", "VMresp", 90),
-    ]
 
+# ==== Create W from JH weights ====
     N = len(NEURON_NAMES)
     W = np.zeros((N, N), dtype=np.float32)
     for pre, post, w in new_jh_weights:
         i = NEURON_NAMES.index(pre)
         j = NEURON_NAMES.index(post)
         W[i, j] += w
-        
-    
+# ==================================
+
+# ==== Create neuron parameter arrays ====
+    a,b,k,vr,vt,vpeak,vreset,d,C = (
+        np.where(TYPE_IDX, PARAM_MSN[i], PARAM_RS[i]).astype(np.float32)
+        for i in range(9)
+    )
+# ========================================
     # 1. random chromosome → weight matrix ---------------------------
     # W = decode_dna_to_matrix(create_dna((0, 400)))
 
-    # 2. build experiment artefacts ----------------------------------
-    _, input_waves, alpha_kernel = create_experiment()
-    cue_wave, go_wave = input_waves
+
 
     # 3. run experimental & control ---------------------------------
     neurons = neuron.create_neurons()

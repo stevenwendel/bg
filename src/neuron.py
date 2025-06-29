@@ -92,10 +92,10 @@ def vectorised_step(I_ext: np.ndarray) -> np.ndarray:
     spikes = _izh_step_numba(_V, _U, I_ext.astype(np.float32),
                              _a, _b, _vreset, _d, _k, _vr, _vt, _vpeak, _C, _E)
 
-    # bookkeeping — comment out if histories are not needed
-    _VHIST[:, t_pointer]  = _V
-    _UHIST[:, t_pointer]  = _U
-    _SPIKES[:, t_pointer] = spikes
+    # # bookkeeping — comment out if histories are not needed
+    # _VHIST[:, t_pointer]  = _V
+    # _UHIST[:, t_pointer]  = _U
+    # _SPIKES[:, t_pointer] = spikes
 
     t_pointer += 1
     return spikes

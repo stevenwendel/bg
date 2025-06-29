@@ -1,19 +1,10 @@
-"""Genetic‑algorithm driver (updated): now returns best score and lets caller
-specify a custom **results_dir**.
-
-Signature
----------
-    best = run_ga(preset:str, results_dir: str|None = None)
-
-* If *results_dir* is given, elites are written there; otherwise to ./results.
-* Returns the best TOTAL score across all generations so Bayesian optimiser
-  can consume it directly.
+"""
+Fixed version of ga_runner.py with proper multiprocessing handling.
 """
 from __future__ import annotations
 
 import argparse
 import multiprocessing as mp
-from copy import deepcopy
 from functools import partial
 from pathlib import Path
 from typing import List
@@ -29,21 +20,20 @@ from src.validation import evaluate_conditions
 
 # numba.set_num_threads(1)
 
-_template = None
-
 def _init_worker():
-    global _template
-    _template = create_neurons()
-
+    """Initialize worker process - create neurons once per process."""
+    # This ensures each process has its own neuron state
+    create_neurons()
+    print(f"Worker process {os.getpid()} initialized with neurons")
 
 def _score_one(dna_vec, input_waves, alpha_kernel):
+    """Score one DNA sequence - simplified and correct."""
     import src.neuron as n
-    global _template
-    if _template is None or n._INPUT is None:
-        _template = create_neurons()
-
-    neurons = deepcopy(_template)
-    W       = decode_dna_to_matrix(dna_vec)
+    
+    # Each worker already has neurons created in _init_worker()
+    # No need to copy or check - just use the global state in this process
+    neurons = [n.Izhikevich(i, name) for i, name in enumerate(n.NEURON_NAMES)]
+    W = decode_dna_to_matrix(dna_vec)
     cue_wave, go_wave = input_waves
 
     total = 0
@@ -54,7 +44,6 @@ def _score_one(dna_vec, input_waves, alpha_kernel):
         key = "control" if ctl else "experimental"
         total += evaluate_conditions(n._SPIKES)[key]
     return total
-
 
 def run_ga(preset: str, *, results_dir: str | None = None) -> int:
     cfg = GA_CONFIG[preset]
@@ -69,6 +58,8 @@ def run_ga(preset: str, *, results_dir: str | None = None) -> int:
     population: List = [create_dna(bounds) for _ in range(pop_size)]
 
     best_overall = 0
+    
+    # Use initializer to set up each worker process
     with mp.Pool(mp.cpu_count(), initializer=_init_worker) as pool:
         for gen in range(generations):
             fitness = pool.map(partial(_score_one, input_waves=input_waves, alpha_kernel=alpha_kernel), population)
@@ -89,7 +80,6 @@ def run_ga(preset: str, *, results_dir: str | None = None) -> int:
             population  = spawn_next_population(pop_records, cfg, gen)
     return best_overall
 
-
 if __name__ == "__main__":
     os.environ["NUMBA_NUM_THREADS"] = "1"
     os.environ["NUMBA_DISABLE_JIT"] = "1"
@@ -98,11 +88,11 @@ if __name__ == "__main__":
         print(f"Run {i}")
         start = time.time()
         parser = argparse.ArgumentParser()
-        parser.add_argument("--preset", choices=GA_CONFIG.keys(), default="small")
+        parser.add_argument("--preset", choices=GA_CONFIG.keys(), default="large")
         args = parser.parse_args()
         run_ga(args.preset)
 
         end = time.time()
         print((end-start))
 
-    print(f"Total time: {time.time() - start0}")
+    print(f"Total time: {time.time() - start0}") 

@@ -1,6 +1,20 @@
+import numpy as np
+
 # Time Config
 TMAX = 5000
 BIN_SIZE = 100
+NBINS = TMAX // BIN_SIZE  # Number of time bins for criterion evaluation
+
+a = np.array((0.03, 0.01, 0.03, 0.03, 0.03, 0.01, 0.03, 0.03, 0.03, 0.03, 0.01, 0.03, 0.03, 0.03), dtype=np.float32)
+b = np.array((-2.0, -20.0, -2.0, -2.0, -2.0, -20.0, -2.0, -2.0, -2.0, -2.0, -20.0, -2.0, -2.0, -2.0), dtype=np.float32)
+vreset = np.array((-50.0, -55.0, -50.0, -50.0, -50.0, -55.0, -50.0, -50.0, -50.0, -50.0, -55.0, -50.0, -50.0, -50.0), dtype=np.float32)
+d = np.array((100.0, 150.0, 100.0, 100.0, 100.0, 150.0, 100.0, 100.0, 100.0, 100.0, 150.0, 100.0, 100.0, 100.0), dtype=np.float32)
+k = np.array((0.7, 1.0, 0.7, 0.7, 0.7, 1.0, 0.7, 0.7, 0.7, 0.7, 1.0, 0.7, 0.7, 0.7), dtype=np.float32)
+vr = np.array((-60.0, -80.0, -60.0, -60.0, -60.0, -80.0, -60.0, -60.0, -60.0, -60.0, -80.0, -60.0, -60.0, -60.0), dtype=np.float32)
+vt = np.array((-40.0, -25.0, -40.0, -40.0, -40.0, -25.0, -40.0, -40.0, -40.0, -40.0, -25.0, -40.0, -40.0, -40.0), dtype=np.float32)
+vpeak = np.array((35.0, 40.0, 35.0, 35.0, 35.0, 40.0, 35.0, 35.0, 35.0, 35.0, 40.0, 35.0, 35.0, 35.0), dtype=np.float32)
+E = np.array((0.0, 70.0, 120.0, 0.0, 0.0, 70.0, 120.0, 100.0, 0.0, 0.0, 70.0, 120.0, 0.0, 0.0), dtype=np.float32)
+C = np.array((100.0, 50.0, 100.0, 100.0, 100.0, 50.0, 100.0, 100.0, 100.0, 100.0, 50.0, 100.0, 100.0, 100.0), dtype=np.float32)
 
 # Setup Config
 GO_DURATION = 100 # From the Wang paper directly
@@ -238,26 +252,26 @@ GA_CONFIG = {
 }
 
 
-# new_jh_weights = [
-#     ("Somat", "ALMprep", 40),
-#     ("Somat", "MSN1", 220),
-#     ("MSN1", "SNR1", -90),
-#     ("SNR1", "VMprep", -10),
-#     ("VMprep", "ALMprep", 70),
-#     ("ALMprep", "VMprep", 80),
-#     ("ALMprep", "MSN2", 320),
-#     ("MSN2", "SNR2", -50),
-#     ("SNR2", "VMresp", -100),
-#     ("PPN", "THALgo", 60),
-#     ("THALgo", "ALMinter", 55),
-#     ("ALMinter", "ALMprep", -50),
-#     ("THALgo", "ALMresp", 30),
-#     ("ALMresp", "MSN3", 320),
-#     ("MSN3", "SNR3", -90),
-#     ("SNR3", "VMresp", -50),
-#     ("VMresp", "ALMresp", 85),
-#     ("ALMresp", "VMresp", 90)
-# ]
+new_jh_weights = [
+    ("Somat", "ALMprep", 40),
+    ("Somat", "MSN1", 220),
+    ("MSN1", "SNR1", -90),
+    ("SNR1", "VMprep", -10),
+    ("VMprep", "ALMprep", 70),
+    ("ALMprep", "VMprep", 80),
+    ("ALMprep", "MSN2", 320),
+    ("MSN2", "SNR2", -50),
+    ("SNR2", "VMresp", -100),
+    ("PPN", "THALgo", 60),
+    ("THALgo", "ALMinter", 55),
+    ("ALMinter", "ALMprep", -50),
+    ("THALgo", "ALMresp", 30),
+    ("ALMresp", "MSN3", 320),
+    ("MSN3", "SNR3", -90),
+    ("SNR3", "VMresp", -50),
+    ("VMresp", "ALMresp", 85),
+    ("ALMresp", "VMresp", 90)
+]
 
 # old_jh_weights = [
 #     ("Somat", "ALMprep", 75.),
