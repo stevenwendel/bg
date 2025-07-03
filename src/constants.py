@@ -192,7 +192,7 @@ GA_CONFIG = {
         "RANK_DEPTH" : 1,
         "ELITE_SIZE" : 1,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,1000]
+        "DNA_BOUNDS" : [0,500]
     },
     "small": {
         "NUM_GENERATIONS" : 5,
@@ -202,7 +202,7 @@ GA_CONFIG = {
         "RANK_DEPTH" : 25,
         "ELITE_SIZE" : 5,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,1000]
+        "DNA_BOUNDS" : [0,500]
     },
         "medium": {
         "NUM_GENERATIONS" : 5,
@@ -212,7 +212,7 @@ GA_CONFIG = {
         "RANK_DEPTH" : 25,
         "ELITE_SIZE" : 5,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,1000]
+        "DNA_BOUNDS" : [0,500]
     },
     "large":   {
         "NUM_GENERATIONS" : 5,
