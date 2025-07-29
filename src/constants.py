@@ -195,18 +195,18 @@ GA_CONFIG = {
         "DNA_BOUNDS" : [0,500]
     },
     "small": {
-        "NUM_GENERATIONS" : 5,
-        "POP_SIZE" : 50,
+        "NUM_GENERATIONS" : 10,
+        "POP_SIZE" : 100,
         "MUT_RATE" : 0.3,
         "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 25,
+        "RANK_DEPTH" : 50,
         "ELITE_SIZE" : 5,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,500]
     },
         "medium": {
-        "NUM_GENERATIONS" : 5,
-        "POP_SIZE" : 50,
+        "NUM_GENERATIONS" : 20,
+        "POP_SIZE" : 100,
         "MUT_RATE" : 0.3,
         "MUT_SIGMA" : 0.5,
         "RANK_DEPTH" : 25,
@@ -215,15 +215,15 @@ GA_CONFIG = {
         "DNA_BOUNDS" : [0,500]
     },
     "large":   {
-        "NUM_GENERATIONS" : 5,
-        "POP_SIZE" : 400,
+        "NUM_GENERATIONS" : 100,
+        "POP_SIZE" : 500,
         "MUT_RATE" : 0.4,
         "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 20,
-        "ELITE_SIZE" : 1,
+        "RANK_DEPTH" : 250,
+        "ELITE_SIZE" : 3,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,500],
-        "TIME_TAKEN" : 4 
+        "TIME_TAKEN" : None
     },
      "E":   {
         "NUM_GENERATIONS" : 300,
@@ -238,12 +238,12 @@ GA_CONFIG = {
     },
 
      "F":   {
-        "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 100,
+        "NUM_GENERATIONS" : 120,
+        "POP_SIZE" : 150,
         "MUT_RATE" : 0.5,
         "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 50,
-        "ELITE_SIZE" : 5,
+        "RANK_DEPTH" : 70,
+        "ELITE_SIZE" : 3,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,500], 
         "TIME_TAKEN" : 620# 10.5 hr
