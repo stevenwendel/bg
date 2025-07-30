@@ -113,7 +113,7 @@ if __name__ == "__main__":
         print(f"Run {i}")
         start = time.time()
         parser = argparse.ArgumentParser()
-        parser.add_argument("--preset", choices=GA_CONFIG.keys(), default="large")
+        parser.add_argument("--preset", choices=GA_CONFIG.keys(), default="small")
         args = parser.parse_args()
         best_score, best_dna = run_ga(args.preset)
         print(f"Best score: {best_score}")

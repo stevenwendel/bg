@@ -1,6 +1,20 @@
+import numpy as np
+
 # Time Config
 TMAX = 5000
 BIN_SIZE = 100
+NBINS = TMAX // BIN_SIZE  # Number of time bins for criterion evaluation
+
+a = np.array((0.03, 0.01, 0.03, 0.03, 0.03, 0.01, 0.03, 0.03, 0.03, 0.03, 0.01, 0.03, 0.03, 0.03), dtype=np.float32)
+b = np.array((-2.0, -20.0, -2.0, -2.0, -2.0, -20.0, -2.0, -2.0, -2.0, -2.0, -20.0, -2.0, -2.0, -2.0), dtype=np.float32)
+vreset = np.array((-50.0, -55.0, -50.0, -50.0, -50.0, -55.0, -50.0, -50.0, -50.0, -50.0, -55.0, -50.0, -50.0, -50.0), dtype=np.float32)
+d = np.array((100.0, 150.0, 100.0, 100.0, 100.0, 150.0, 100.0, 100.0, 100.0, 100.0, 150.0, 100.0, 100.0, 100.0), dtype=np.float32)
+k = np.array((0.7, 1.0, 0.7, 0.7, 0.7, 1.0, 0.7, 0.7, 0.7, 0.7, 1.0, 0.7, 0.7, 0.7), dtype=np.float32)
+vr = np.array((-60.0, -80.0, -60.0, -60.0, -60.0, -80.0, -60.0, -60.0, -60.0, -60.0, -80.0, -60.0, -60.0, -60.0), dtype=np.float32)
+vt = np.array((-40.0, -25.0, -40.0, -40.0, -40.0, -25.0, -40.0, -40.0, -40.0, -40.0, -25.0, -40.0, -40.0, -40.0), dtype=np.float32)
+vpeak = np.array((35.0, 40.0, 35.0, 35.0, 35.0, 40.0, 35.0, 35.0, 35.0, 35.0, 40.0, 35.0, 35.0, 35.0), dtype=np.float32)
+E = np.array((0.0, 70.0, 120.0, 0.0, 0.0, 70.0, 120.0, 100.0, 0.0, 0.0, 70.0, 120.0, 0.0, 0.0), dtype=np.float32)
+C = np.array((100.0, 50.0, 100.0, 100.0, 100.0, 50.0, 100.0, 100.0, 100.0, 100.0, 50.0, 100.0, 100.0, 100.0), dtype=np.float32)
 
 # Setup Config
 GO_DURATION = 100 # From the Wang paper directly
@@ -178,38 +192,38 @@ GA_CONFIG = {
         "RANK_DEPTH" : 1,
         "ELITE_SIZE" : 1,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,1000]
+        "DNA_BOUNDS" : [0,500]
     },
     "small": {
-        "NUM_GENERATIONS" : 5,
-        "POP_SIZE" : 50,
+        "NUM_GENERATIONS" : 10,
+        "POP_SIZE" : 100,
         "MUT_RATE" : 0.3,
         "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 25,
+        "RANK_DEPTH" : 50,
         "ELITE_SIZE" : 5,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,1000]
+        "DNA_BOUNDS" : [0,500]
     },
         "medium": {
-        "NUM_GENERATIONS" : 5,
-        "POP_SIZE" : 50,
+        "NUM_GENERATIONS" : 20,
+        "POP_SIZE" : 100,
         "MUT_RATE" : 0.3,
         "MUT_SIGMA" : 0.5,
         "RANK_DEPTH" : 25,
         "ELITE_SIZE" : 5,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,1000]
+        "DNA_BOUNDS" : [0,500]
     },
     "large":   {
-        "NUM_GENERATIONS" : 5,
-        "POP_SIZE" : 400,
+        "NUM_GENERATIONS" : 100,
+        "POP_SIZE" : 500,
         "MUT_RATE" : 0.4,
         "MUT_SIGMA" : 0.5,
-        "RANK_DEPTH" : 20,
-        "ELITE_SIZE" : 1,
+        "RANK_DEPTH" : 250,
+        "ELITE_SIZE" : 3,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,500],
-        "TIME_TAKEN" : 4 
+        "TIME_TAKEN" : None
     },
      "E":   {
         "NUM_GENERATIONS" : 300,
@@ -224,12 +238,12 @@ GA_CONFIG = {
     },
 
      "F":   {
-        "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 100,
+        "NUM_GENERATIONS" : 120,
+        "POP_SIZE" : 150,
         "MUT_RATE" : 0.5,
         "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : 50,
-        "ELITE_SIZE" : 5,
+        "RANK_DEPTH" : 70,
+        "ELITE_SIZE" : 3,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,500], 
         "TIME_TAKEN" : 620# 10.5 hr
@@ -238,26 +252,26 @@ GA_CONFIG = {
 }
 
 
-# new_jh_weights = [
-#     ("Somat", "ALMprep", 40),
-#     ("Somat", "MSN1", 220),
-#     ("MSN1", "SNR1", -90),
-#     ("SNR1", "VMprep", -10),
-#     ("VMprep", "ALMprep", 70),
-#     ("ALMprep", "VMprep", 80),
-#     ("ALMprep", "MSN2", 320),
-#     ("MSN2", "SNR2", -50),
-#     ("SNR2", "VMresp", -100),
-#     ("PPN", "THALgo", 60),
-#     ("THALgo", "ALMinter", 55),
-#     ("ALMinter", "ALMprep", -50),
-#     ("THALgo", "ALMresp", 30),
-#     ("ALMresp", "MSN3", 320),
-#     ("MSN3", "SNR3", -90),
-#     ("SNR3", "VMresp", -50),
-#     ("VMresp", "ALMresp", 85),
-#     ("ALMresp", "VMresp", 90)
-# ]
+new_jh_weights = [
+    ("Somat", "ALMprep", 40),
+    ("Somat", "MSN1", 220),
+    ("MSN1", "SNR1", -90),
+    ("SNR1", "VMprep", -10),
+    ("VMprep", "ALMprep", 70),
+    ("ALMprep", "VMprep", 80),
+    ("ALMprep", "MSN2", 320),
+    ("MSN2", "SNR2", -50),
+    ("SNR2", "VMresp", -100),
+    ("PPN", "THALgo", 60),
+    ("THALgo", "ALMinter", 55),
+    ("ALMinter", "ALMprep", -50),
+    ("THALgo", "ALMresp", 30),
+    ("ALMresp", "MSN3", 320),
+    ("MSN3", "SNR3", -90),
+    ("SNR3", "VMresp", -50),
+    ("VMresp", "ALMresp", 85),
+    ("ALMresp", "VMresp", 90)
+]
 
 # old_jh_weights = [
 #     ("Somat", "ALMprep", 75.),
