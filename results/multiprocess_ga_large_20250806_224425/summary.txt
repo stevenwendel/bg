@@ -1,0 +1,16 @@
+
+MULTIPROCESSING GENETIC ALGORITHM RESULTS
+==========================================
+
+Configuration: large
+Total Runtime: 3491.05 seconds (0.97 hours)
+Processes: 9 (successful: 9)
+Generations per process: 100
+Total individuals tested: 450,000
+Performance: 128.9 individuals/second
+
+Best overall score: 981
+Results saved to: results/multiprocess_ga_large_20250806_224425
+
+Individual Process Performance:
+  Process 0: 50,000 individuals, best score 950, 18.1 ind/sec\n  Process 1: 50,000 individuals, best score 981, 16.2 ind/sec\n  Process 2: 50,000 individuals, best score 977, 15.7 ind/sec\n  Process 3: 50,000 individuals, best score 978, 17.2 ind/sec\n  Process 4: 50,000 individuals, best score 977, 16.8 ind/sec\n  Process 5: 50,000 individuals, best score 978, 14.7 ind/sec\n  Process 6: 50,000 individuals, best score 977, 16.6 ind/sec\n  Process 7: 50,000 individuals, best score 974, 14.3 ind/sec\n  Process 8: 50,000 individuals, best score 978, 16.5 ind/sec\n

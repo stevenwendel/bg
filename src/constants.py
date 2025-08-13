@@ -76,9 +76,9 @@ ACTIVE_SYNAPSES = [
 ]
 
 EPOCHS = {
-    'sample'   : [1000, 2000], #should there be a [0,1000] epoch?
+    'sample'   : [1000, 2000], 
     'delay'    : [2000, 3000],
-    'response' : [3000, 4000] #should this be up to 5000?
+    'response' : [3000, 4000] 
     }
 
 CRITERIA_NAMES = [
@@ -88,7 +88,7 @@ CRITERIA_NAMES = [
         "ALMresp",
         "SNR1",
         "SNR2",
-        "SNR3", #added this 1/16/2025
+        "SNR3",
         "VMprep",
         "VMresp",
         "PPN"
@@ -212,7 +212,8 @@ GA_CONFIG = {
         "RANK_DEPTH" : 25,
         "ELITE_SIZE" : 5,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
-        "DNA_BOUNDS" : [0,500]
+        "DNA_BOUNDS" : [0,500],
+        "TIME_TAKEN": [3, 4, .3]
     },
     "large":   {
         "NUM_GENERATIONS" : 100,
@@ -223,7 +224,7 @@ GA_CONFIG = {
         "ELITE_SIZE" : 3,
         "CROSSOVER_POINT" : None, # Randomly selecting all genes
         "DNA_BOUNDS" : [0,500],
-        "TIME_TAKEN" : None
+        "TIME_TAKEN" : [60, 73, 5]
     },
      "E":   {
         "NUM_GENERATIONS" : 300,
@@ -247,6 +248,39 @@ GA_CONFIG = {
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,500], 
         "TIME_TAKEN" : 620# 10.5 hr
+    },
+         "G":   {
+        "NUM_GENERATIONS" : 250,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.4,
+        "MUT_SIGMA" : .5,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 3,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500], 
+        "TIME_TAKEN" : []
+    },
+             "H":   {
+        "NUM_GENERATIONS" : 300,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.25,
+        "MUT_SIGMA" : .30,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 3,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500], 
+        "TIME_TAKEN" : [.34]
+    },
+                 "J":   {
+        "NUM_GENERATIONS" : 400,
+        "POP_SIZE" : 4000,
+        "MUT_RATE" : 0.25,
+        "MUT_SIGMA" : .30,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 3,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500], 
+        "TIME_TAKEN" : 360
     },
 
 }
