@@ -4,7 +4,7 @@ import pickle
 import numpy as np
 
 # Load the aggregated results
-results_path = "/Users/stevenwendel/Documents/GitHub/bg/results/fully_optimized_ga_large_progressive_opt4_20250810_220234/aggregated_results.pkl"
+results_path = "/Users/stevenwendel/Documents/GitHub/bg/results/multiple_runs_H_opt4_20250815_180350/run_001/aggregated_results.pkl"
 
 with open(results_path, 'rb') as f:
     results = pickle.load(f)

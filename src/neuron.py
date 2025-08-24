@@ -49,7 +49,7 @@ t_pointer: int = 0  # global timestep pointer (advanced by `vectorised_step`)
 # PARAMETER BANK
 # --------------------------------------------------------------------
 PARAMS = {
-    # [a,      b,     vreset, d,    k,   vr,   vt,  vpeak, E,  V0,   U0,  C]
+        #  [a,      b,  vreset, d,    k,   vr,   vt,  vpeak, E,  V0,   U0,  C]
     "rs" : [0.03,  -2.0,  -50., 100., 0.7, -60., -40.,  35.,  0., -60., 0., 100.],
     "msn": [0.01, -20.0,  -55., 150., 1.0, -80., -25.,  40., 70., -60., 0.,  50.],
 }

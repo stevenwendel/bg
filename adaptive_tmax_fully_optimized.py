@@ -238,7 +238,7 @@ def score_bin_optimized(curr_bin_results, crit_matrix, crit_indices, bin_idx, pa
         idx = crit_indices[i]
         if curr_bin_results[idx] == crit_matrix[i, bin_idx]:
             score += 1
-        elif (bin_idx * BIN_SIZE > 4000) and (idx in pass_ids):
+        elif (bin_idx * BIN_SIZE > 4500) and (idx in pass_ids):
             score += 1
     
     return score
@@ -787,6 +787,8 @@ if __name__ == "__main__":
                        default="progressive", help="TMAX adaptation strategy")
     parser.add_argument("--opt-level", type=int, choices=[1,2,3,4], default=4,
                        help="Optimization level: 1=basic, 2=+early_term, 3=+reduced_prec, 4=all")
+    parser.add_argument("--clear-cache", action="store_true",
+                       help="Clear array pools and force garbage collection at end")
     
     args = parser.parse_args()
     
@@ -799,3 +801,22 @@ if __name__ == "__main__":
         tmax_strategy=args.strategy,
         optimization_level=args.opt_level
     )
+    
+    # Clear memory pools and force garbage collection if requested
+    if args.clear_cache:
+        import gc
+        print("\n🧹 Clearing memory cache...")
+        
+        # Clear array pools
+        _array_pools.clear()
+        
+        # Force garbage collection
+        for generation in range(3):
+            collected = gc.collect()
+            if collected > 0:
+                print(f"  Garbage collection generation {generation}: {collected} objects freed")
+        
+        print("  Memory cache cleared!")
+    
+    print(f"\n✅ GA run completed with best score: {results['summary']['best_overall_score']}")
+    print(f"📁 Results saved to: {results['summary']['results_directory']}")
