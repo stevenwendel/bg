@@ -16,7 +16,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-from src.constants import ACTIVE_SYNAPSES, INHIBITORY_NEURONS, NEURON_NAMES
+from src.constants import ACTIVE_SYNAPSES, INHIBITORY_NEURONS, NEURON_NAMES, CRITICAL_CONNECTIONS
 
 # ------------------------------------------------------------------
 # Pre‑computed index maps
@@ -26,9 +26,24 @@ _TARGET_IDX = np.array([NEURON_NAMES.index(t) for _, t in ACTIVE_SYNAPSES], dtyp
 _N_NEURON   = len(NEURON_NAMES)
 _INHIB_MASK  = np.isin(_ORIGIN_IDX, [NEURON_NAMES.index(n) for n in INHIBITORY_NEURONS])
 
+# Pre-compute critical connection indices for fast constraint enforcement
+_CRITICAL_INDICES = {}
+for (origin, target), constraint in CRITICAL_CONNECTIONS.items():
+    try:
+        origin_idx = NEURON_NAMES.index(origin)
+        target_idx = NEURON_NAMES.index(target)
+        # Find the DNA index for this connection
+        for i, (o, t) in enumerate(ACTIVE_SYNAPSES):
+            if o == origin and t == target:
+                _CRITICAL_INDICES[i] = constraint
+                break
+    except (ValueError, IndexError):
+        print(f"Warning: Critical connection {origin}->{target} not found in ACTIVE_SYNAPSES")
+
 __all__ = [
     "create_dna",
-    "decode_dna_to_matrix",
+    "decode_dna_to_matrix", 
+    "enforce_critical_constraints",
     "uniform_crossover",
     "mutate_gauss",
     "spawn_next_population",
@@ -42,6 +57,10 @@ def create_dna(bounds: Tuple[int, int]) -> np.ndarray:
     low, high = bounds
     dna = np.random.randint(low, high + 1, size=_ORIGIN_IDX.size, dtype=np.int32)
     dna[_INHIB_MASK] *= -1
+    
+    # Enforce critical connection constraints for initial population
+    dna = enforce_critical_constraints(dna, bounds)
+    
     return dna
 
 
@@ -50,15 +69,52 @@ def decode_dna_to_matrix(dna: np.ndarray) -> np.ndarray:
     np.add.at(W, (_ORIGIN_IDX, _TARGET_IDX), dna.astype(np.float32))
     return W
 
+
+def enforce_critical_constraints(dna: np.ndarray, bounds: Tuple[int, int]) -> np.ndarray:
+    """
+    Enforce minimum absolute weight thresholds on critical connections.
+    
+    Args:
+        dna: DNA vector to constrain
+        bounds: (low, high) bounds for DNA values
+        
+    Returns:
+        DNA vector with critical connections above minimum thresholds
+    """
+    constrained_dna = dna.copy()
+    low, high = bounds
+    
+    for dna_idx, constraint in _CRITICAL_INDICES.items():
+        min_abs = constraint["min_abs"]
+        current_val = constrained_dna[dna_idx]
+        
+        if abs(current_val) < min_abs:
+            # Determine sign - use negative for inhibitory connections
+            is_inhibitory = _INHIB_MASK[dna_idx] if dna_idx < len(_INHIB_MASK) else False
+            
+            if is_inhibitory:
+                # For inhibitory connections, ensure negative and above min_abs magnitude
+                constrained_dna[dna_idx] = max(-high, -min_abs)
+            else:
+                # For excitatory connections, ensure positive and above min_abs magnitude  
+                constrained_dna[dna_idx] = min(high, min_abs)
+    
+    return constrained_dna
+
 # ------------------------------------------------------------------
 # 2.  Operators
 # ------------------------------------------------------------------
 
-def uniform_crossover(p1: np.ndarray, p2: np.ndarray, swap_p: float = 0.5) -> np.ndarray:
-    """Per‑gene uniform crossover."""
+def uniform_crossover(p1: np.ndarray, p2: np.ndarray, swap_p: float = 0.5, bounds: Tuple[int, int] = (0, 500)) -> np.ndarray:
+    """Per‑gene uniform crossover with critical connection constraints."""
     mask = np.random.rand(p1.size) < swap_p
     child = np.where(mask, p1, p2)
-    return child.astype(np.int32)
+    child = child.astype(np.int32)
+    
+    # Enforce critical connection constraints after crossover
+    child = enforce_critical_constraints(child, bounds)
+    
+    return child
 
 
 def mutate_gauss(dna: np.ndarray, sigma: float, bounds: Tuple[int, int]) -> np.ndarray:
@@ -91,7 +147,13 @@ def mutate_gauss(dna: np.ndarray, sigma: float, bounds: Tuple[int, int]) -> np.n
     mutated[_INHIB_MASK] = -np.abs(mutated[_INHIB_MASK])  # Inhibitory neurons: negative
     mutated[~_INHIB_MASK] = np.abs(mutated[~_INHIB_MASK])  # Excitatory neurons: positive
     
-    return mutated.astype(np.int32)
+    # Convert to int32 before applying constraints
+    mutated = mutated.astype(np.int32)
+    
+    # Enforce critical connection constraints after mutation
+    mutated = enforce_critical_constraints(mutated, bounds)
+    
+    return mutated
 
 # ------------------------------------------------------------------
 # 3.  Population spawning
