@@ -7,6 +7,19 @@ GO_DURATION = 100 # From the Wang paper directly
 GO_STRENGTH = 850.
 CUE_STRENGTH = 150.
 
+# Neuron model parameters (Izhikevich)
+import numpy as np
+a = np.array((0.03, 0.01, 0.03, 0.03, 0.03, 0.01, 0.03, 0.03, 0.03, 0.03, 0.01, 0.03, 0.03, 0.03), dtype=np.float32)
+b = np.array((-2.0, -20.0, -2.0, -2.0, -2.0, -20.0, -2.0, -2.0, -2.0, -2.0, -20.0, -2.0, -2.0, -2.0), dtype=np.float32)
+vreset = np.array((-50.0, -55.0, -50.0, -50.0, -50.0, -55.0, -50.0, -50.0, -50.0, -50.0, -55.0, -50.0, -50.0, -50.0), dtype=np.float32)
+d = np.array((100.0, 150.0, 100.0, 100.0, 100.0, 150.0, 100.0, 100.0, 100.0, 100.0, 150.0, 100.0, 100.0, 100.0), dtype=np.float32)
+k = np.array((0.7, 1.0, 0.7, 0.7, 0.7, 1.0, 0.7, 0.7, 0.7, 0.7, 1.0, 0.7, 0.7, 0.7), dtype=np.float32)
+vr = np.array((-60.0, -80.0, -60.0, -60.0, -60.0, -80.0, -60.0, -60.0, -60.0, -60.0, -80.0, -60.0, -60.0, -60.0), dtype=np.float32)
+vt = np.array((-40.0, -25.0, -40.0, -40.0, -40.0, -25.0, -40.0, -40.0, -40.0, -40.0, -25.0, -40.0, -40.0, -40.0), dtype=np.float32)
+vpeak = np.array((35.0, 40.0, 35.0, 35.0, 35.0, 40.0, 35.0, 35.0, 35.0, 35.0, 40.0, 35.0, 35.0, 35.0), dtype=np.float32)
+E = np.array((0.0, 70.0, 120.0, 0.0, 0.0, 70.0, 120.0, 100.0, 0.0, 0.0, 70.0, 120.0, 0.0, 0.0), dtype=np.float32)
+C = np.array((100.0, 50.0, 100.0, 100.0, 100.0, 50.0, 100.0, 100.0, 100.0, 100.0, 50.0, 100.0, 100.0, 100.0), dtype=np.float32)
+
 
 NEURON_NAMES = ["Somat", "MSN1", "SNR1", "VMprep", "ALMprep", "MSN2", "SNR2", "PPN", "THALgo", "ALMinter", "MSN3", "SNR3", "ALMresp",  "VMresp"]
 TONICALLY_ACTIVE_NEURONS = ["SNR1", "SNR2", "SNR3", "PPN", "THALgo"]
@@ -79,6 +92,39 @@ CRITERIA_NAMES = [
         "VMresp",
         "PPN"
     ]
+
+# Critical connections that should never be zero - prevents GA from bypassing criteria neurons
+CRITICAL_CONNECTIONS = {
+    # Somat input pathway - needed for stimulus detection
+    ("Somat", "MSN1"): {"min_abs": 10, "reason": "Somat->MSN1 needed for stimulus response"},
+    ("Somat", "MSN2"): {"min_abs": 10, "reason": "Somat->MSN2 needed for stimulus response"}, 
+    ("Somat", "MSN3"): {"min_abs": 10, "reason": "Somat->MSN3 needed for stimulus response"},
+    
+    # ALM pathway - critical for preparation and response
+    ("VMprep", "ALMprep"): {"min_abs": 15, "reason": "VMprep->ALMprep drives preparation activity"},
+    ("ALMprep", "ALMinter"): {"min_abs": 10, "reason": "ALMprep->ALMinter enables response inhibition"},
+    ("THALgo", "ALMresp"): {"min_abs": 15, "reason": "THALgo->ALMresp drives response activity"},
+    ("ALMresp", "VMresp"): {"min_abs": 20, "reason": "ALMresp->VMresp completes response loop"},
+    
+    # SNR suppression pathways - essential for basal ganglia function
+    ("MSN1", "SNR1"): {"min_abs": 20, "reason": "MSN1->SNR1 inhibition for stimulus response"},
+    ("MSN2", "SNR2"): {"min_abs": 20, "reason": "MSN2->SNR2 inhibition for preparation"},
+    ("MSN3", "SNR3"): {"min_abs": 30, "reason": "MSN3->SNR3 inhibition critical for response period"},
+    
+    # SNR output pathways - needed for proper disinhibition
+    ("SNR1", "VMprep"): {"min_abs": 5, "reason": "SNR1->VMprep disinhibition"},
+    ("SNR1", "VMresp"): {"min_abs": 5, "reason": "SNR1->VMresp disinhibition"},
+    ("SNR2", "VMprep"): {"min_abs": 5, "reason": "SNR2->VMprep disinhibition"}, 
+    ("SNR2", "VMresp"): {"min_abs": 5, "reason": "SNR2->VMresp disinhibition"},
+    ("SNR3", "VMprep"): {"min_abs": 15, "reason": "SNR3->VMprep disinhibition for preparation"},
+    ("SNR3", "VMresp"): {"min_abs": 25, "reason": "SNR3->VMresp disinhibition for response"},
+    
+    # VM output pathways
+    ("VMresp", "ALMresp"): {"min_abs": 20, "reason": "VMresp->ALMresp drives response activity"},
+    
+    # PPN pathway - needed for movement initiation
+    ("PPN", "THALgo"): {"min_abs": 10, "reason": "PPN->THALgo drives movement initiation"},
+}
 
 CRITERIA = {
         # These are all intervals which should be ON for experimental condition; should be OFF otherwise 
@@ -170,7 +216,17 @@ CRITERIA = {
     }
 
 GA_CONFIG = { # I should store these configurations in the pkl file itself as a metadata field in the dictionary
-     "E":   {
+    "small": {
+        "NUM_GENERATIONS" : 10,
+        "POP_SIZE" : 50,
+        "MUT_RATE" : 0.3,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 25,
+        "ELITE_SIZE" : 1,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500]
+    },
+    "E":   {
         "NUM_GENERATIONS" : 300,
         "POP_SIZE" : 200,
         "MUT_RATE" : .5,
