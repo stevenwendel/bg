@@ -26,12 +26,12 @@ TONICALLY_ACTIVE_NEURONS = ["SNR1", "SNR2", "SNR3", "PPN", "THALgo"]
 INHIBITORY_NEURONS = ["SNR1","SNR2", "SNR3", "MSN1", "MSN2", "MSN3", "ALMinter"]
 ACTIVE_SYNAPSES = [
     # Connections from Somat to ALM (1x3)
-    ["Somat", "ALMprep"], ["Somat", "ALMinter"], ["Somat", "ALMresp"], 
+    ["Somat", "ALMprep"], #["Somat", "ALMinter"], ["Somat", "ALMresp"], 
 
-    # Connections from ALM to Somat (3x1)
-    ["ALMprep", "Somat"], 
-    ["ALMinter", "Somat"], 
-    ["ALMresp", "Somat"],  
+    # # Connections from ALM to Somat (3x1)
+    # ["ALMprep", "Somat"], 
+    # ["ALMinter", "Somat"], 
+    # ["ALMresp", "Somat"],  
 
     # Connections from Somat to MSN 
     ["Somat", "MSN1"], ["Somat", "MSN2"], ["Somat", "MSN3"], 

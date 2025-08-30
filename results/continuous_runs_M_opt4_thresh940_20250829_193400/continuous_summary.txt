@@ -1,0 +1,23 @@
+Continuous GA Run Summary
+=========================
+Configuration: M
+Optimization level: 4
+Min score threshold: 940
+Target successful runs: 10
+Total attempts: 40
+Successful: 3
+Discarded: 37
+Failed: 0
+Success rate: 7.5%
+Total time: 17815.4 seconds
+
+Successful Runs:
+  Run 1: Score=946.0 (Attempt 1)
+    DNA Score: 946 (Exp:446, Cont:500)
+    Non-zero weights: 55
+  Run 2: Score=943.0 (Attempt 3)
+    DNA Score: 943 (Exp:443, Cont:500)
+    Non-zero weights: 56
+  Run 3: Score=940.0 (Attempt 11)
+    DNA Score: 940 (Exp:440, Cont:500)
+    Non-zero weights: 57
