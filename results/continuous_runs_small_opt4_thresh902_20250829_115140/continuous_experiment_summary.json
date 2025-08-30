@@ -1,0 +1,306 @@
+{
+  "experiment_info": {
+    "mode": "continuous",
+    "config": "small",
+    "opt_level": 4,
+    "target_successful_runs": 10,
+    "min_score_threshold": 902,
+    "max_attempts": 20,
+    "total_attempts": 20,
+    "total_duration_seconds": 137.91573309898376,
+    "base_results_dir": "results/continuous_runs_small_opt4_thresh902_20250829_115140",
+    "timestamp": "20250829_115358"
+  },
+  "successful_runs": [],
+  "discarded_runs": [
+    {
+      "attempt_number": 1,
+      "config": "small",
+      "best_score": 886.0,
+      "threshold": 902,
+      "run_duration": 7.057021856307983,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "890.3",
+        "best_score": 886.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:51:47.990603"
+    },
+    {
+      "attempt_number": 2,
+      "config": "small",
+      "best_score": 887.0,
+      "threshold": 902,
+      "run_duration": 6.604808807373047,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "895.4",
+        "best_score": 887.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:51:54.735982"
+    },
+    {
+      "attempt_number": 3,
+      "config": "small",
+      "best_score": 898.0,
+      "threshold": 902,
+      "run_duration": 6.2852160930633545,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "952.5",
+        "best_score": 898.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:52:01.040406"
+    },
+    {
+      "attempt_number": 4,
+      "config": "small",
+      "best_score": 893.0,
+      "threshold": 902,
+      "run_duration": 6.458606243133545,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "929.2",
+        "best_score": 893.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:52:07.517476"
+    },
+    {
+      "attempt_number": 5,
+      "config": "small",
+      "best_score": 888.0,
+      "threshold": 902,
+      "run_duration": 6.507382869720459,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "919.1",
+        "best_score": 888.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:52:14.042251"
+    },
+    {
+      "attempt_number": 6,
+      "config": "small",
+      "best_score": 896.0,
+      "threshold": 902,
+      "run_duration": 6.81394624710083,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "875.3",
+        "best_score": 896.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:52:20.876960"
+    },
+    {
+      "attempt_number": 7,
+      "config": "small",
+      "best_score": 879.0,
+      "threshold": 902,
+      "run_duration": 6.59798789024353,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "905.4",
+        "best_score": 879.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:52:27.492398"
+    },
+    {
+      "attempt_number": 8,
+      "config": "small",
+      "best_score": 882.0,
+      "threshold": 902,
+      "run_duration": 7.127070903778076,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "842.6",
+        "best_score": 882.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:52:34.640301"
+    },
+    {
+      "attempt_number": 9,
+      "config": "small",
+      "best_score": 896.0,
+      "threshold": 902,
+      "run_duration": 6.717394828796387,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "885.2",
+        "best_score": 896.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:52:41.376722"
+    },
+    {
+      "attempt_number": 10,
+      "config": "small",
+      "best_score": 899.0,
+      "threshold": 902,
+      "run_duration": 6.6410980224609375,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "895.5",
+        "best_score": 899.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:52:48.037893"
+    },
+    {
+      "attempt_number": 11,
+      "config": "small",
+      "best_score": 882.0,
+      "threshold": 902,
+      "run_duration": 6.61788010597229,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "900.4",
+        "best_score": 882.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:52:54.675828"
+    },
+    {
+      "attempt_number": 12,
+      "config": "small",
+      "best_score": 898.0,
+      "threshold": 902,
+      "run_duration": 6.701434850692749,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "882.9",
+        "best_score": 898.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:53:01.396148"
+    },
+    {
+      "attempt_number": 13,
+      "config": "small",
+      "best_score": 883.0,
+      "threshold": 902,
+      "run_duration": 6.990520238876343,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "844.3",
+        "best_score": 883.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:53:08.407145"
+    },
+    {
+      "attempt_number": 14,
+      "config": "small",
+      "best_score": 889.0,
+      "threshold": 902,
+      "run_duration": 7.704904317855835,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "760.9",
+        "best_score": 889.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:53:16.131143"
+    },
+    {
+      "attempt_number": 15,
+      "config": "small",
+      "best_score": 888.0,
+      "threshold": 902,
+      "run_duration": 7.215137004852295,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "844.2",
+        "best_score": 888.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:53:23.364963"
+    },
+    {
+      "attempt_number": 16,
+      "config": "small",
+      "best_score": 879.0,
+      "threshold": 902,
+      "run_duration": 7.250893831253052,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "822.9",
+        "best_score": 879.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:53:30.638223"
+    },
+    {
+      "attempt_number": 17,
+      "config": "small",
+      "best_score": 897.0,
+      "threshold": 902,
+      "run_duration": 6.88991904258728,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "858.7",
+        "best_score": 897.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:53:37.547182"
+    },
+    {
+      "attempt_number": 18,
+      "config": "small",
+      "best_score": 885.0,
+      "threshold": 902,
+      "run_duration": 6.688695192337036,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "887.4",
+        "best_score": 885.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:53:44.254618"
+    },
+    {
+      "attempt_number": 19,
+      "config": "small",
+      "best_score": 888.0,
+      "threshold": 902,
+      "run_duration": 6.62297511100769,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "896.6",
+        "best_score": 888.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:53:50.897732"
+    },
+    {
+      "attempt_number": 20,
+      "config": "small",
+      "best_score": 889.0,
+      "threshold": 902,
+      "run_duration": 7.930188179016113,
+      "performance": {
+        "total_individuals": "5000",
+        "individuals_per_sec": "739.6",
+        "best_score": 889.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-29T11:53:58.848154"
+    }
+  ],
+  "failed_runs": [],
+  "summary_stats": {
+    "successful": 0,
+    "discarded": 20,
+    "failed": 0,
+    "total_attempts": 20,
+    "success_rate": 0.0,
+    "discard_rate": 100.0
+  }
+}

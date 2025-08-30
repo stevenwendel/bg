@@ -3,8 +3,32 @@
 Script to run adaptive_tmax_fully_optimized.py multiple times with configurable parameters.
 
 Usage:
+    # Normal mode - run exactly N times
     python run_multiple_ga.py --runs 5 --config medium --opt-level 3
-    python run_multiple_ga.py --runs 10 --config small --opt-level 2 --processes 4
+    python run_multiple_ga.py --runs 10 --config small --opt-level 2 --processes 4 --generations 50
+    python run_multiple_ga.py --runs 3 --config large --strategy exponential --results-dir custom_dir
+    
+    # Continuous mode - keep trying until N successful runs with score >= threshold
+    python run_multiple_ga.py --runs 5 --config medium --continuous --threshold 950
+    python run_multiple_ga.py --runs 3 --config small --continuous --threshold 360 --max-attempts 20
+    
+    # Memory management options
+    python run_multiple_ga.py --runs 5 --config medium --memory-limit 8000
+    python run_multiple_ga.py --runs 10 --config small --no-clear-memory
+
+Options:
+    --runs N              Number of GA runs (required)
+    --config CONFIG       GA configuration: small, medium, large, etc. (default: medium)
+    --opt-level LEVEL     Optimization level 1-4: 1=basic, 2=+early_term, 3=+reduced_prec, 4=all (default: 3)
+    --processes N         Number of parallel processes (default: CPU count)
+    --generations N       Generations per process (default: from config)
+    --strategy STRATEGY   TMAX adaptation: progressive, exponential, sigmoid (default: progressive)
+    --results-dir DIR     Base results directory (default: timestamped)
+    --continuous          Run until target successful runs achieved
+    --threshold SCORE     Min score for continuous mode (default: 900)
+    --max-attempts N      Max attempts in continuous mode (default: 50)
+    --no-clear-memory     Disable memory clearing between runs
+    --memory-limit MB     Force cleanup if memory exceeds limit
 """
 
 import argparse

@@ -148,7 +148,7 @@ def get_adaptive_tmax(generation: int, max_generations: int, strategy: str = "pr
     elif strategy == "sigmoid":
         if progress < 0.3:
             return 2000
-        elif progress < 0.7:
+        elif progress < 0.6:
             return 3000
         else:
             return 5000

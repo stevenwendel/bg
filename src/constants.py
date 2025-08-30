@@ -215,26 +215,157 @@ CRITERIA = {
         }
     }
 
-GA_CONFIG = { # I should store these configurations in the pkl file itself as a metadata field in the dictionary
+GA_CONFIG = { 
+    "single": {
+        "NUM_GENERATIONS" : 1,
+        "POP_SIZE" : 1,
+        "MUT_RATE" : 0.3,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 1,
+        "ELITE_SIZE" : 1,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,500]
+    },
     "small": {
         "NUM_GENERATIONS" : 10,
-        "POP_SIZE" : 50,
+        "POP_SIZE" : 100,
+        "MUT_RATE" : 0.3,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 50,
+        "ELITE_SIZE" : 5,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,500]
+    },
+    "medium": {
+        "NUM_GENERATIONS" : 20,
+        "POP_SIZE" : 100,
         "MUT_RATE" : 0.3,
         "MUT_SIGMA" : 0.5,
         "RANK_DEPTH" : 25,
-        "ELITE_SIZE" : 1,
-        "CROSSOVER_POINT" : None,
-        "DNA_BOUNDS" : [0,500]
+        "ELITE_SIZE" : 5,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,500],
+        "TIME_TAKEN": [3, 4, .3]
+    },
+    "large":   {
+        "NUM_GENERATIONS" : 100,
+        "POP_SIZE" : 500,
+        "MUT_RATE" : 0.4,
+        "MUT_SIGMA" : 0.5,
+        "RANK_DEPTH" : 250,
+        "ELITE_SIZE" : 3,
+        "CROSSOVER_POINT" : None, # Randomly selecting all genes
+        "DNA_BOUNDS" : [0,500],
+        "TIME_TAKEN" : [60, 73, 5]
     },
     "E":   {
         "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 200,
-        "MUT_RATE" : .5,
+        "POP_SIZE" : 300,
+        "MUT_RATE" : .45,
         "MUT_SIGMA" : .5,
-        "RANK_DEPTH" : None,
-        "ELITE_SIZE" : 5,
+        "RANK_DEPTH" : 150,
+        "ELITE_SIZE" : 8,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,500], 
-        "TIME_TAKEN" : None
+        "TIME_TAKEN" : [303, 200,]
+    },
+    "F":   {
+        "NUM_GENERATIONS" : 120,
+        "POP_SIZE" : 150,
+        "MUT_RATE" : 0.5,
+        "MUT_SIGMA" : .5,
+        "RANK_DEPTH" : 70,
+        "ELITE_SIZE" : 3,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500], 
+        "TIME_TAKEN" : 620# 10.5 hr
+    },
+    "G":   {
+        "NUM_GENERATIONS" : 250,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.4,
+        "MUT_SIGMA" : .5,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 3,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500], 
+        "TIME_TAKEN" : []
+    },
+    "H":   {
+        "NUM_GENERATIONS" : 300,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.25,
+        "MUT_SIGMA" : .30,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 3,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500], 
+        "TIME_TAKEN" : [.34, .66]
+    },
+    "J":   {
+        "NUM_GENERATIONS" : 400,
+        "POP_SIZE" : 4000,
+        "MUT_RATE" : 0.25,
+        "MUT_SIGMA" : .30,
+        "RANK_DEPTH" : 500,
+        "ELITE_SIZE" : 3,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500], 
+        "TIME_TAKEN" : 360
+    },
+    "K":   {
+        "NUM_GENERATIONS" : 300,
+        "POP_SIZE" : 10000,
+        "MUT_RATE" : 0.40,
+        "MUT_SIGMA" : .80,
+        "RANK_DEPTH" : 5000,
+        "ELITE_SIZE" : 10,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500], 
+        "TIME_TAKEN" : 360
+    },
+    "L":   {
+        "NUM_GENERATIONS" : 200,
+        "POP_SIZE" : 500,
+        "MUT_RATE" : 0.25,
+        "MUT_SIGMA" : .35,
+        "RANK_DEPTH" : 250,
+        "ELITE_SIZE" : 3,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500], 
+        "TIME_TAKEN" : []
+    },
+        "M":   {
+        "NUM_GENERATIONS" : 150,
+        "POP_SIZE" : 500,
+        "MUT_RATE" : 0.25,
+        "MUT_SIGMA" : .30,
+        "RANK_DEPTH" : 250,
+        "ELITE_SIZE" : 3,
+        "CROSSOVER_POINT" : None,
+        "DNA_BOUNDS" : [0,500], 
+        "TIME_TAKEN" : [.09,]
     },
 }
+
+
+new_jh_weights = [
+    ("Somat", "ALMprep", 40),
+    ("Somat", "MSN1", 220),
+    ("MSN1", "SNR1", -90),
+    ("SNR1", "VMprep", -10),
+    ("VMprep", "ALMprep", 70),
+    ("ALMprep", "VMprep", 80),
+    ("ALMprep", "MSN2", 320),
+    ("MSN2", "SNR2", -50),
+    ("SNR2", "VMresp", -100),
+    ("PPN", "THALgo", 60),
+    ("THALgo", "ALMinter", 55),
+    ("ALMinter", "ALMprep", -50),
+    ("THALgo", "ALMresp", 30),
+    ("ALMresp", "MSN3", 320),
+    ("MSN3", "SNR3", -90),
+    ("SNR3", "VMresp", -50),
+    ("VMresp", "ALMresp", 85),
+    ("ALMresp", "VMresp", 90)
+]
