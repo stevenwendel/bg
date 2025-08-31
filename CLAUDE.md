@@ -6,9 +6,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a computational neuroscience project implementing a basal ganglia (BG) network model with genetic algorithm optimization. The project simulates neural networks using Izhikevich neuron models and evolves connection weights through genetic algorithms to match specific behavioral criteria.
 
-## Core Architecture
+## Current Workflow
 
-The project is organized into several key components:
+The project has been streamlined to focus on two main workflows:
+
+### Primary Analysis Tool
+- **`analyze_multiple_ga_results.ipynb`** - Main analysis notebook with advanced visualization features:
+  - Interactive DNA browsing with voltage traces and network topology
+  - **Missed scoring visualization**: Orange highlights show exactly where points were lost
+  - Detailed annotations showing expected vs actual neuron behavior
+  - Weight pruning analysis and optimization
+  - Comparative analysis across multiple GA runs
+
+### Genetic Algorithm Runner  
+- **`run_multiple_ga.py`** - Parallel GA execution with multiprocessing optimization
+- **`adaptive_tmax_fully_optimized.py`** - Fully optimized GA implementation with memory management
+
+## Core Architecture
 
 ### `/src/` - Core Implementation
 - **`constants.py`** - Network configuration, neuron parameters, and connectivity definitions
@@ -17,8 +31,12 @@ The project is organized into several key components:
 - **`genetic_algorithm.py`** - GA operators (crossover, mutation, selection)
 - **`ga_optimization.py`** - High-level GA orchestration and population management
 - **`workbench.py`** - Simulation utilities and experiment setup
-- **`validation.py`** - Scoring functions that evaluate network behavior against criteria
+- **`validation.py`** - Scoring functions with diagnostic capabilities (`diagnose_conditions`)
 - **`analysis/`** - Analysis and visualization tools for results
+
+### Supporting Tools
+- **`weight_pruning.py`** - Network weight optimization and pruning algorithms
+- **`cleanup_unused_files.py`** - Project maintenance tool for removing outdated files
 
 ### Key Network Components
 - **14 neuron types**: Somatosensory, MSN (Medium Spiny Neurons), SNR (Substantia Nigra), ALM (Anterior Lateral Motor), VM (Ventromedial), PPN, THAL
@@ -58,29 +76,43 @@ flake8 .
 
 ### Running Simulations
 ```bash
-# Run main demo with random chromosome
-python main.py
+# Main GA runner - optimized parallel execution
+python run_multiple_ga.py
 
-# Run genetic algorithm optimization
-python ga_runner.py
+# Direct GA optimization with memory management
+python adaptive_tmax_fully_optimized.py
 
-# Run parallel genetic algorithm
-python parallel_ga.py
-
-# Performance testing
-python numba_performance_test.py
+# Clean up old files and environments
+python cleanup_unused_files.py
 ```
 
 ### Interactive Development
 ```bash
-# Start Jupyter Lab for notebooks
+# Start Jupyter Lab for analysis
 jupyter lab
 
-# Key notebooks for exploration:
-# - current_workbook.ipynb: Main analysis notebook
-# - test_network.ipynb: Network testing and debugging
-# - directed_graph.ipynb: Network topology visualization
+# Main analysis notebook (with missed scoring visualization)
+analyze_multiple_ga_results.ipynb
 ```
+
+## Missed Scoring Analysis Features
+
+The analysis notebook now provides detailed scoring diagnostics:
+
+### Visual Indicators
+- **Orange highlights**: Time periods where scoring criteria were missed
+- **Annotations**: Show expected vs actual behavior (e.g., "Miss: W1 G0")
+- **Total counts**: Missed points breakdown in plot titles
+- **Gold borders**: Highlight neurons used for fitness evaluation
+
+### Scoring Diagnostics
+- **Time-bin analysis**: 100ms bins evaluated against behavioral criteria
+- **Neuron-specific failures**: Identify which neurons are failing when
+- **Condition comparison**: Experimental vs control missed points
+- **Pattern identification**: Find systematic scoring failures
+
+### Usage
+The `diagnose_conditions()` function from `validation.py` identifies mismatches between expected and actual neuron behavior, providing detailed feedback for network optimization.
 
 ## Important Implementation Details
 
@@ -91,19 +123,15 @@ jupyter lab
 
 ### Data Storage
 - **Results**: Stored in timestamped directories under `/results/`
-- **High scores**: Best fitness values tracked in `high_score.json`
-- **Experiment data**: Pickled results in `/data/` directory with metadata
+- **Aggregated results**: Each run produces `aggregated_results.pkl` with all tested DNAs
+- **Historical data**: Long-term experiment data in `/data/` directory
+- **Cleanup archives**: Old files safely stored in `cleanup_YYYYMMDD_HHMMSS/` folders
 
-### Testing Strategy
-- **Unit tests**: Individual components tested in isolation
-- **Integration tests**: Full network simulation validation
-- **Performance tests**: Numba compilation and execution speed verification
-- **Data validation**: DNA encoding/decoding and matrix operations
-
-### Debugging Tools
-- **VS Code debugging**: Configured in `.vscode/launch.json`
-- **Line profiler**: Performance bottleneck identification
-- **IPython debugger**: Interactive debugging with `ipdb`
+### Project Management
+- **Environment**: Uses `myenv_3.12/` (Python 3.12) for all dependencies
+- **File cleanup**: Automated archiving of outdated experimental files
+- **Memory management**: Optimized for long-running GA experiments
+- **Multiprocessing**: Parallel GA execution across multiple cores
 
 ## Key Configuration Parameters
 
@@ -126,10 +154,21 @@ jupyter lab
 ## Validation Criteria
 
 The network is evaluated on specific behavioral requirements:
-- Somatosensory neurons activate only during stimulus period
-- ALM neurons show sustained activity during instruction/delay
-- SNR neurons provide appropriate inhibition patterns
-- VM neurons respond to behavioral cues
-- Subject chooses behavior corresponding to instruction cue
+- **Somatosensory neurons**: Activate only during stimulus period (1000-2000ms)
+- **ALM neurons**: Show sustained activity during instruction/delay periods
+- **SNR neurons**: Provide appropriate inhibition patterns (tonically active)
+- **VM neurons**: Respond to behavioral cues during preparation and response
+- **PPN neurons**: Drive movement initiation during response period
 
-These criteria are encoded in validation matrices that score experimental vs control conditions.
+### Scoring System
+- **100ms time bins**: Network activity evaluated in discrete time windows
+- **Experimental vs Control**: Different criteria for each condition
+- **Criteria neurons**: Only specific neurons (in `CRITERIA_NAMES`) contribute to fitness
+- **Binary scoring**: 1 point per bin where neuron meets expected on/off state
+- **Diagnostic feedback**: `diagnose_conditions()` identifies specific failures
+
+### Missed Scoring Analysis
+The analysis notebook now shows exactly where points are lost:
+- **Orange regions**: Time bins where criteria were not met
+- **Detailed annotations**: Expected vs actual spike counts
+- **Visual feedback**: Makes it easy to identify problematic time periods and neurons

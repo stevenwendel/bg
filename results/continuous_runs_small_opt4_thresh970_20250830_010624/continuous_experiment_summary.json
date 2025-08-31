@@ -1,0 +1,82 @@
+{
+  "experiment_info": {
+    "mode": "continuous",
+    "config": "small",
+    "opt_level": 4,
+    "target_successful_runs": 4,
+    "min_score_threshold": 970,
+    "max_attempts": 4,
+    "total_attempts": 4,
+    "total_duration_seconds": 35.147420167922974,
+    "base_results_dir": "results/continuous_runs_small_opt4_thresh970_20250830_010624",
+    "timestamp": "20250830_010659"
+  },
+  "successful_runs": [],
+  "discarded_runs": [
+    {
+      "attempt_number": 1,
+      "config": "small",
+      "best_score": 902.0,
+      "threshold": 970,
+      "run_duration": 8.833455085754395,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1305.3",
+        "best_score": 902.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T01:06:33.194740"
+    },
+    {
+      "attempt_number": 2,
+      "config": "small",
+      "best_score": 907.0,
+      "threshold": 970,
+      "run_duration": 8.880980014801025,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1272.8",
+        "best_score": 907.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T01:06:42.208625"
+    },
+    {
+      "attempt_number": 3,
+      "config": "small",
+      "best_score": 902.0,
+      "threshold": 970,
+      "run_duration": 8.685140132904053,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1307.8",
+        "best_score": 902.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T01:06:50.912836"
+    },
+    {
+      "attempt_number": 4,
+      "config": "small",
+      "best_score": 908.0,
+      "threshold": 970,
+      "run_duration": 8.57637906074524,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1327.3",
+        "best_score": 908.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T01:06:59.507670"
+    }
+  ],
+  "failed_runs": [],
+  "summary_stats": {
+    "successful": 0,
+    "discarded": 4,
+    "failed": 0,
+    "total_attempts": 4,
+    "success_rate": 0.0,
+    "discard_rate": 100.0
+  }
+}

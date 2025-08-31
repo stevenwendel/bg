@@ -56,12 +56,28 @@ def _bin_raster(ms_raster: np.ndarray) -> np.ndarray:
 
 def _score(binned: np.ndarray, mask: np.ndarray, halve: bool) -> int:
     match = (binned > 0) == mask
+    # Special late-time scoring: Always award points after 4000ms
+    p4000 = 4000 // BIN_SIZE
+    
     try:
         alm = CRITERIA_NAMES.index("ALMresp")
-        p4000 = 4000 // BIN_SIZE
         match[alm, p4000:] = True
     except ValueError:
         pass
+    
+    try:
+        snr3 = CRITERIA_NAMES.index("SNR3")
+        match[snr3, p4000:] = True
+    except ValueError:
+        pass
+    
+    try:
+        vmresp = CRITERIA_NAMES.index("VMresp")
+        match[vmresp, p4000:] = True
+    except ValueError:
+        pass
+    
+    
     val = int(match.sum())
     return val // 2 if halve else val
 
@@ -120,6 +136,20 @@ def diagnose_conditions(ms_raster: np.ndarray,
     try:
         alm = CRITERIA_NAMES.index("ALMresp")
         mask[alm, 4000 // BIN_SIZE :] = active[alm, 4000 // BIN_SIZE :]
+    except ValueError:
+        pass
+    
+    # SNR3 always OK after 4000 ms
+    try:
+        snr3 = CRITERIA_NAMES.index("SNR3")
+        mask[snr3, 4000 // BIN_SIZE :] = active[snr3, 4000 // BIN_SIZE :]
+    except ValueError:
+        pass
+    
+    # VMresp always OK after 4000 ms
+    try:
+        vmresp = CRITERIA_NAMES.index("VMresp")
+        mask[vmresp, 4000 // BIN_SIZE :] = active[vmresp, 4000 // BIN_SIZE :]
     except ValueError:
         pass
 

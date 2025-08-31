@@ -1,0 +1,20 @@
+Concurrent GA Run Summary
+=========================
+Configuration: medium
+Optimization level: 3
+Strategy: progressive
+Max concurrent: 2
+Total jobs: 8
+Successful: 8
+Failed: 0
+Total time: 95.4s
+
+Best scores:
+  Job 1: 915.0
+  Job 2: 909.0
+  Job 4: 911.0
+  Job 3: 912.0
+  Job 6: 910.0
+  Job 5: 910.0
+  Job 8: 909.0
+  Job 7: 912.0

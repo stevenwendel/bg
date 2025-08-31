@@ -1,0 +1,138 @@
+{
+  "experiment_info": {
+    "mode": "continuous",
+    "config": "small",
+    "opt_level": 4,
+    "target_successful_runs": 8,
+    "min_score_threshold": 970,
+    "max_attempts": 8,
+    "total_attempts": 8,
+    "total_duration_seconds": 71.36211085319519,
+    "base_results_dir": "results/continuous_runs_small_opt4_thresh970_20250830_005827",
+    "timestamp": "20250830_005939"
+  },
+  "successful_runs": [],
+  "discarded_runs": [
+    {
+      "attempt_number": 1,
+      "config": "small",
+      "best_score": 902.0,
+      "threshold": 970,
+      "run_duration": 9.203687191009521,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1246.9",
+        "best_score": 902.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T00:58:37.132190"
+    },
+    {
+      "attempt_number": 2,
+      "config": "small",
+      "best_score": 909.0,
+      "threshold": 970,
+      "run_duration": 8.660843849182129,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1321.3",
+        "best_score": 909.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T00:58:45.928933"
+    },
+    {
+      "attempt_number": 3,
+      "config": "small",
+      "best_score": 900.0,
+      "threshold": 970,
+      "run_duration": 9.05293893814087,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1249.8",
+        "best_score": 900.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T00:58:54.998483"
+    },
+    {
+      "attempt_number": 4,
+      "config": "small",
+      "best_score": 906.0,
+      "threshold": 970,
+      "run_duration": 8.663619041442871,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1312.6",
+        "best_score": 906.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T00:59:03.681259"
+    },
+    {
+      "attempt_number": 5,
+      "config": "small",
+      "best_score": 907.0,
+      "threshold": 970,
+      "run_duration": 8.890896081924438,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1273.4",
+        "best_score": 907.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T00:59:12.589362"
+    },
+    {
+      "attempt_number": 6,
+      "config": "small",
+      "best_score": 903.0,
+      "threshold": 970,
+      "run_duration": 8.79980206489563,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1289.7",
+        "best_score": 903.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T00:59:21.408426"
+    },
+    {
+      "attempt_number": 7,
+      "config": "small",
+      "best_score": 903.0,
+      "threshold": 970,
+      "run_duration": 8.78347396850586,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1290.5",
+        "best_score": 903.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T00:59:30.210682"
+    },
+    {
+      "attempt_number": 8,
+      "config": "small",
+      "best_score": 908.0,
+      "threshold": 970,
+      "run_duration": 9.058747053146362,
+      "performance": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "1246.9",
+        "best_score": 908.0,
+        "speedup": "1.67"
+      },
+      "timestamp": "2025-08-30T00:59:39.289589"
+    }
+  ],
+  "failed_runs": [],
+  "summary_stats": {
+    "successful": 0,
+    "discarded": 8,
+    "failed": 0,
+    "total_attempts": 8,
+    "success_rate": 0.0,
+    "discard_rate": 100.0
+  }
+}

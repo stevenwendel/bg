@@ -1,0 +1,12 @@
+Continuous GA Run Summary
+=========================
+Configuration: small
+Optimization level: 4
+Min score threshold: 970
+Target successful runs: 10
+Total attempts: 20
+Successful: 0
+Discarded: 20
+Failed: 0
+Success rate: 0.0%
+Total time: 191.1 seconds
