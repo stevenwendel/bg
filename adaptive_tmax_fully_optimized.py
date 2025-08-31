@@ -238,7 +238,7 @@ def score_bin_optimized(curr_bin_results, crit_matrix, crit_indices, bin_idx, pa
         idx = crit_indices[i]
         if curr_bin_results[idx] == crit_matrix[i, bin_idx]:
             score += 1
-        elif (bin_idx * BIN_SIZE > 4500) and (idx in pass_ids):
+        elif (bin_idx * BIN_SIZE > 4000) and (idx in pass_ids):
             score += 1
     
     return score
