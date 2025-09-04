@@ -599,5 +599,576 @@ def main():
         pruner.save_results(result, args.method, output_file)
 
 
+class GenerationBasedPruner:
+    """Generation-based pruning algorithm that systematically removes weights across generations."""
+    
+    def __init__(self, pruning_threshold: int = 940, max_generations: int = 40, 
+                 max_generation_size: int = 10000):
+        """
+        Initialize the generation-based pruner.
+        
+        Args:
+            pruning_threshold: Score threshold for successful pruning
+            max_generations: Maximum number of generations to explore
+            max_generation_size: Maximum vectors per generation to prevent explosion
+        """
+        self.pruning_threshold = pruning_threshold
+        self.max_generations = max_generations
+        self.max_generation_size = max_generation_size
+        
+    def _evaluate_candidates(self, candidates: List[np.ndarray]) -> List[Dict]:
+        """Evaluate a list of candidate DNA vectors."""
+        evaluated = []
+        for candidate in candidates:
+            exp_score, cont_score, total_score = evaluate_single_dna(candidate)
+            evaluated.append({
+                'dna': candidate,
+                'exp_score': exp_score,
+                'cont_score': cont_score,
+                'total_score': total_score
+            })
+        return evaluated
+        
+    def _generate_weight_removal_candidates(self, current_dna: np.ndarray) -> List[np.ndarray]:
+        """Generate all possible single-weight removal candidates from current DNA."""
+        candidates = []
+        nonzero_indices = np.where(current_dna != 0)[0]
+        
+        for weight_idx in nonzero_indices:
+            candidate = current_dna.copy()
+            candidate[weight_idx] = 0
+            candidates.append(candidate)
+            
+        return candidates
+    
+    def _filter_by_score_strategy(self, evaluated_candidates: List[Dict], 
+                                 parent_score: int, strategy: str) -> List[Dict]:
+        """Filter candidates based on scoring strategy."""
+        if strategy == "improvement_only":
+            return [c for c in evaluated_candidates if c['total_score'] > parent_score]
+        elif strategy == "equal_or_greater":
+            return [c for c in evaluated_candidates if c['total_score'] >= parent_score]
+        else:
+            raise ValueError(f"Unknown strategy: {strategy}")
+    
+    def _remove_duplicates(self, dna_vectors: List[np.ndarray]) -> List[np.ndarray]:
+        """Remove duplicate DNA vectors."""
+        unique_vectors = []
+        seen = set()
+        
+        for vec in dna_vectors:
+            vec_tuple = tuple(vec)
+            if vec_tuple not in seen:
+                seen.add(vec_tuple)
+                unique_vectors.append(vec)
+                
+        return unique_vectors
+    
+    def _limit_generation_size(self, evaluated_candidates: List[Dict]) -> List[Dict]:
+        """Limit generation size by keeping top scoring candidates."""
+        if len(evaluated_candidates) <= self.max_generation_size:
+            return evaluated_candidates
+            
+        # Sort by score descending and keep top candidates
+        sorted_candidates = sorted(evaluated_candidates, 
+                                 key=lambda x: x['total_score'], reverse=True)
+        return sorted_candidates[:self.max_generation_size]
+    
+    def _prune_single_dna(self, dna_info: Dict, dna_id: int) -> tuple[Dict, List[Dict]]:
+        """
+        Prune a single DNA vector using generation-based approach.
+        
+        Args:
+            dna_info: Dictionary with 'dna' and 'total_score' keys
+            dna_id: ID for tracking purposes
+            
+        Returns:
+            Tuple of (pruning_result, successful_vectors)
+        """
+        print(f"\n🧬 Pruning DNA {dna_id} (Score: {dna_info['total_score']})...")
+        
+        current_generation = [dna_info['dna'].copy()]
+        generation_num = 0
+        successful_vectors = []
+        best_vector = dna_info['dna'].copy()
+        best_score = dna_info['total_score']
+        
+        print(f"  🎯 Starting with {np.count_nonzero(dna_info['dna'])} weights, "
+              f"score: {dna_info['total_score']}")
+        
+        while current_generation and generation_num < self.max_generations:
+            generation_num += 1
+            next_generation = []
+            
+            print(f"  🌱 Generation {generation_num}: Processing {len(current_generation)} vectors...")
+            
+            for current_dna in current_generation:
+                current_score = evaluate_single_dna(current_dna)[2]  # Get total score
+                
+                # Generate candidates by removing each weight
+                candidates = self._generate_weight_removal_candidates(current_dna)
+                if not candidates:
+                    continue
+                
+                # Evaluate all candidates
+                evaluated_candidates = self._evaluate_candidates(candidates)
+                
+                # Phase 1: Try improvement-only strategy
+                improvement_candidates = self._filter_by_score_strategy(
+                    evaluated_candidates, current_score, "improvement_only"
+                )
+                
+                if improvement_candidates:
+                    next_generation.extend([c['dna'] for c in improvement_candidates])
+                    print(f"    📈 IMPROVEMENT-ONLY: Found {len(improvement_candidates)} improvements")
+                else:
+                    # Phase 2: Fall back to equal-or-greater strategy
+                    equal_candidates = self._filter_by_score_strategy(
+                        evaluated_candidates, current_score, "equal_or_greater"
+                    )
+                    if equal_candidates:
+                        next_generation.extend([c['dna'] for c in equal_candidates])
+                        print(f"    ⚖️  EQUAL-OR-GREATER: Found {len(equal_candidates)} candidates")
+                
+                # Check for successful vectors (exceeding threshold)
+                for candidate in evaluated_candidates:
+                    if candidate['total_score'] >= self.pruning_threshold:
+                        successful_vectors.append({
+                            'dna': candidate['dna'].copy(),
+                            'score': candidate['total_score'],
+                            'exp_score': candidate['exp_score'],
+                            'cont_score': candidate['cont_score'],
+                            'nonzero_weights': np.count_nonzero(candidate['dna']),
+                            'generation': generation_num,
+                            'original_dna_id': dna_id
+                        })
+                    
+                    # Track best vector overall
+                    if candidate['total_score'] > best_score:
+                        best_vector = candidate['dna'].copy()
+                        best_score = candidate['total_score']
+            
+            # Remove duplicates and limit generation size
+            if next_generation:
+                next_generation = self._remove_duplicates(next_generation)
+                
+                # If generation is too large, evaluate and keep best
+                if len(next_generation) > self.max_generation_size:
+                    evaluated_gen = self._evaluate_candidates(next_generation)
+                    limited_gen = self._limit_generation_size(evaluated_gen)
+                    next_generation = [c['dna'] for c in limited_gen]
+                    print(f"    🔍 Limited to {len(next_generation)} vectors")
+            
+            current_generation = next_generation
+        
+        # Select best result
+        if successful_vectors:
+            best_successful = max(successful_vectors, key=lambda x: x['score'])
+            final_vector = best_successful['dna']
+            final_score = best_successful['score']
+        else:
+            final_vector = best_vector
+            final_score = best_score
+        
+        # Final evaluation
+        final_exp, final_cont, final_total = evaluate_single_dna(final_vector)
+        
+        result = {
+            'original_dna': dna_info,
+            'pruned_dna': final_vector,
+            'original_score': dna_info['total_score'],
+            'pruned_score': final_total,
+            'original_nonzero': np.count_nonzero(dna_info['dna']),
+            'pruned_nonzero': np.count_nonzero(final_vector),
+            'weights_removed': np.count_nonzero(dna_info['dna']) - np.count_nonzero(final_vector),
+            'final_exp_score': final_exp,
+            'final_cont_score': final_cont,
+            'generations_explored': generation_num,
+            'successful_vectors_found': len(successful_vectors),
+            'id': dna_id
+        }
+        
+        reduction_pct = (result['weights_removed'] / result['original_nonzero']) * 100
+        score_change = final_total - dna_info['total_score']
+        
+        print(f"  ✅ Best result: {result['original_nonzero']} → {result['pruned_nonzero']} weights "
+              f"({reduction_pct:.1f}% reduction), Score: {result['original_score']} → "
+              f"{result['pruned_score']} (+{score_change})")
+        
+        return result, successful_vectors
+    
+    def prune_dna_vectors(self, high_scoring_dnas: List[Dict]) -> tuple[List[Dict], List[Dict]]:
+        """
+        Prune multiple DNA vectors using generation-based approach.
+        
+        Args:
+            high_scoring_dnas: List of dictionaries with 'dna' and 'total_score' keys
+            
+        Returns:
+            Tuple of (pruned_results, all_successful_vectors)
+        """
+        pruned_results = []
+        all_successful_vectors = []
+        
+        print(f"🔧 Starting generation-based pruning for {len(high_scoring_dnas)} DNA vectors...")
+        print(f"⚡ Strategy: IMPROVEMENT-ONLY first, fallback to EQUAL-OR-GREATER")
+        print(f"🎯 Success threshold: {self.pruning_threshold}")
+        
+        for i, dna_info in enumerate(high_scoring_dnas):
+            try:
+                result, successful_vectors = self._prune_single_dna(dna_info, i + 1)
+                pruned_results.append(result)
+                
+                # Track all successful vectors found during pruning
+                all_successful_vectors.extend(successful_vectors)
+                    
+            except Exception as e:
+                print(f"  ❌ Error pruning DNA {i+1}: {e}")
+                continue
+        
+        self._print_summary(pruned_results, all_successful_vectors)
+        return pruned_results, all_successful_vectors
+    
+    def _fast_greedy_prune_single_dna(self, dna_info: Dict, dna_id: int, score_tolerance: int = 1) -> tuple[Dict, List[Dict]]:
+        """
+        Fast greedy pruning: Remove smallest weights first, with score tolerance.
+        
+        Algorithm:
+        1. Phase 1: Remove weights maintaining equal-or-better score (multi-pass)
+        2. Phase 2: Remove weights allowing score decrease up to tolerance (multi-pass)
+        
+        Args:
+            dna_info: Dictionary with 'dna' and 'total_score' keys
+            dna_id: ID for tracking purposes
+            score_tolerance: Allow score to decrease by this much in phase 2 (default: 1)
+            
+        Returns:
+            Tuple of (pruning_result, successful_vectors)
+        """
+        print(f"\n⚡ Fast greedy pruning DNA {dna_id} (Score: {dna_info['total_score']}, "
+              f"Tolerance: -{score_tolerance})...")
+        
+        current_dna = dna_info['dna'].copy()
+        original_score = dna_info['total_score']
+        current_score = original_score
+        successful_vectors = []
+        total_removed = 0
+        
+        print(f"  🎯 Starting with {np.count_nonzero(current_dna)} weights, score: {current_score}")
+        
+        # PHASE 1: Equal-or-better score maintenance
+        print(f"\n  🔶 PHASE 1: Maintaining equal-or-better score...")
+        phase1_removed = 0
+        pass_number = 0
+        
+        while True:
+            pass_number += 1
+            removed_this_pass = 0
+            
+            # Get all non-zero weights sorted by absolute magnitude (smallest first)
+            nonzero_indices = np.where(current_dna != 0)[0]
+            if len(nonzero_indices) == 0:
+                break
+            
+            sorted_indices = sorted(nonzero_indices, key=lambda i: abs(current_dna[i]))
+            
+            print(f"    🔄 Phase 1 Pass {pass_number}: Testing {len(sorted_indices)} weights...")
+            
+            # Try removing each weight from smallest to largest
+            for weight_idx in sorted_indices:
+                original_value = current_dna[weight_idx]
+                
+                # Try removing this weight
+                test_dna = current_dna.copy()
+                test_dna[weight_idx] = 0
+                
+                exp_score, cont_score, total_score = evaluate_single_dna(test_dna)
+                
+                # Keep if score stays equal or improves
+                if total_score >= current_score:
+                    current_dna[weight_idx] = 0
+                    current_score = total_score
+                    removed_this_pass += 1
+                    total_removed += 1
+                    phase1_removed += 1
+                    
+                    print(f"      ✅ Removed weight {weight_idx} (value: {original_value:3d}) -> "
+                          f"Score: {total_score}, Non-zero: {np.count_nonzero(current_dna)}")
+                    
+                    # Track if exceeds pruning threshold
+                    if total_score >= self.pruning_threshold:
+                        successful_vectors.append({
+                            'dna': current_dna.copy(),
+                            'score': total_score,
+                            'exp_score': exp_score,
+                            'cont_score': cont_score,
+                            'nonzero_weights': np.count_nonzero(current_dna),
+                            'pass': pass_number,
+                            'phase': 1,
+                            'original_dna_id': dna_id
+                        })
+            
+            print(f"    📊 Phase 1 Pass {pass_number}: Removed {removed_this_pass} weights")
+            
+            # Stop if no weights were removed in this pass
+            if removed_this_pass == 0:
+                print(f"    🛑 Phase 1 complete: No more equal-or-better removals possible")
+                break
+                
+            # Safety limit
+            if pass_number > 20:
+                print(f"    ⚠️ Phase 1 stopping at pass {pass_number}")
+                break
+        
+        # PHASE 2: Tolerance-based pruning (if tolerance > 0)
+        phase2_removed = 0
+        if score_tolerance > 0:
+            print(f"\n  🔶 PHASE 2: Allowing score decrease up to {score_tolerance} points...")
+            min_acceptable_score = original_score - score_tolerance
+            phase2_pass_number = 0
+            
+            while True:
+                phase2_pass_number += 1
+                removed_this_pass = 0
+                
+                # Get all non-zero weights sorted by absolute magnitude (smallest first)
+                nonzero_indices = np.where(current_dna != 0)[0]
+                if len(nonzero_indices) == 0:
+                    break
+                
+                sorted_indices = sorted(nonzero_indices, key=lambda i: abs(current_dna[i]))
+                
+                print(f"    🔄 Phase 2 Pass {phase2_pass_number}: Testing {len(sorted_indices)} weights...")
+                
+                # Try removing each weight from smallest to largest
+                for weight_idx in sorted_indices:
+                    original_value = current_dna[weight_idx]
+                    
+                    # Try removing this weight
+                    test_dna = current_dna.copy()
+                    test_dna[weight_idx] = 0
+                    
+                    exp_score, cont_score, total_score = evaluate_single_dna(test_dna)
+                    
+                    # Keep if score stays within tolerance
+                    if total_score >= min_acceptable_score:
+                        current_dna[weight_idx] = 0
+                        current_score = total_score
+                        removed_this_pass += 1
+                        total_removed += 1
+                        phase2_removed += 1
+                        
+                        score_change = total_score - original_score
+                        print(f"      ✅ Removed weight {weight_idx} (value: {original_value:3d}) -> "
+                              f"Score: {total_score} ({score_change:+d}), Non-zero: {np.count_nonzero(current_dna)}")
+                        
+                        # Track if exceeds pruning threshold
+                        if total_score >= self.pruning_threshold:
+                            successful_vectors.append({
+                                'dna': current_dna.copy(),
+                                'score': total_score,
+                                'exp_score': exp_score,
+                                'cont_score': cont_score,
+                                'nonzero_weights': np.count_nonzero(current_dna),
+                                'pass': phase2_pass_number,
+                                'phase': 2,
+                                'original_dna_id': dna_id
+                            })
+                
+                print(f"    📊 Phase 2 Pass {phase2_pass_number}: Removed {removed_this_pass} weights")
+                
+                # Stop if no weights were removed in this pass
+                if removed_this_pass == 0:
+                    print(f"    🛑 Phase 2 complete: No more tolerance-based removals possible")
+                    break
+                    
+                # Safety limit
+                if phase2_pass_number > 20:
+                    print(f"    ⚠️ Phase 2 stopping at pass {phase2_pass_number}")
+                    break
+        
+        # Final evaluation
+        final_exp, final_cont, final_total = evaluate_single_dna(current_dna)
+        
+        result = {
+            'original_dna': dna_info,
+            'pruned_dna': current_dna,
+            'original_score': dna_info['total_score'],
+            'pruned_score': final_total,
+            'original_nonzero': np.count_nonzero(dna_info['dna']),
+            'pruned_nonzero': np.count_nonzero(current_dna),
+            'weights_removed': total_removed,
+            'phase1_removed': phase1_removed,
+            'phase2_removed': phase2_removed,
+            'final_exp_score': final_exp,
+            'final_cont_score': final_cont,
+            'phase1_passes': pass_number,
+            'phase2_passes': phase2_pass_number if score_tolerance > 0 else 0,
+            'successful_vectors_found': len(successful_vectors),
+            'score_tolerance_used': score_tolerance,
+            'id': dna_id
+        }
+        
+        reduction_pct = (result['weights_removed'] / result['original_nonzero']) * 100
+        score_change = final_total - dna_info['total_score']
+        
+        print(f"  ✅ Fast greedy result: {result['original_nonzero']} → {result['pruned_nonzero']} weights "
+              f"({reduction_pct:.1f}% reduction)")
+        print(f"    Score: {result['original_score']} → {result['pruned_score']} ({score_change:+d})")
+        print(f"    Phase 1: {phase1_removed} weights | Phase 2: {phase2_removed} weights")
+        
+        return result, successful_vectors
+    
+    def fast_greedy_prune_dna_vectors(self, high_scoring_dnas: List[Dict], score_tolerance: int = 1) -> tuple[List[Dict], List[Dict]]:
+        """
+        Fast greedy pruning for multiple DNA vectors with score tolerance.
+        
+        Args:
+            high_scoring_dnas: List of DNA info dictionaries
+            score_tolerance: Allow score to decrease by this much in phase 2 (default: 1)
+            
+        Returns:
+            Tuple of (pruned_results, all_successful_vectors)
+        """
+        pruned_results = []
+        all_successful_vectors = []
+        
+        print(f"⚡ Starting FAST GREEDY pruning for {len(high_scoring_dnas)} DNA vectors...")
+        print(f"🎯 Strategy: Phase 1 (equal-or-better) + Phase 2 (tolerance: -{score_tolerance})")
+        print(f"🎯 Success threshold: {self.pruning_threshold}")
+        
+        for i, dna_info in enumerate(high_scoring_dnas):
+            try:
+                result, successful_vectors = self._fast_greedy_prune_single_dna(dna_info, i + 1, score_tolerance)
+                pruned_results.append(result)
+                
+                # Track all successful vectors found during pruning
+                all_successful_vectors.extend(successful_vectors)
+                    
+            except Exception as e:
+                print(f"  ❌ Error pruning DNA {i+1}: {e}")
+                continue
+        
+        self._print_fast_summary(pruned_results, all_successful_vectors, score_tolerance)
+        return pruned_results, all_successful_vectors
+    
+    def _print_fast_summary(self, pruned_results: List[Dict], successful_vectors: List[Dict], score_tolerance: int = 1):
+        """Print summary specifically for fast greedy pruning."""
+        print(f"\n✅ Fast greedy pruning complete: {len(pruned_results)} DNA vectors processed")
+        print(f"🎯 SUCCESSFUL VECTORS: {len(successful_vectors)} exceeded threshold "
+              f"({self.pruning_threshold})")
+        
+        if not pruned_results:
+            return
+        
+        # Summary statistics
+        avg_reduction = np.mean([
+            r['weights_removed']/r['original_nonzero']*100 for r in pruned_results
+        ])
+        total_original = sum(r['original_nonzero'] for r in pruned_results)
+        total_pruned = sum(r['pruned_nonzero'] for r in pruned_results)
+        
+        # Phase statistics
+        avg_phase1 = np.mean([r.get('phase1_removed', 0) for r in pruned_results])
+        avg_phase2 = np.mean([r.get('phase2_removed', 0) for r in pruned_results])
+        avg_phase1_passes = np.mean([r.get('phase1_passes', 0) for r in pruned_results])
+        avg_phase2_passes = np.mean([r.get('phase2_passes', 0) for r in pruned_results])
+        
+        print(f"\n📊 Fast Greedy Pruning Summary:")
+        print(f"  Score tolerance used: -{score_tolerance}")
+        print(f"  Average weight reduction: {avg_reduction:.1f}%")
+        print(f"  Total weights: {total_original} → {total_pruned}")
+        print(f"  Best pruned score: {max(r['pruned_score'] for r in pruned_results)}")
+        print(f"  Most efficient (fewest weights): {min(r['pruned_nonzero'] for r in pruned_results)} weights")
+        print(f"  Phase 1 average: {avg_phase1:.1f} weights in {avg_phase1_passes:.1f} passes")
+        print(f"  Phase 2 average: {avg_phase2:.1f} weights in {avg_phase2_passes:.1f} passes")
+        
+        # Score improvement analysis
+        score_improvements = [r['pruned_score'] - r['original_score'] for r in pruned_results]
+        print(f"\n📈 Score changes:")
+        print(f"  Average change: {np.mean(score_improvements):+.1f}")
+        print(f"  Best change: {max(score_improvements):+d}")
+        print(f"  Worst change: {min(score_improvements):+d}")
+        
+        if successful_vectors:
+            print(f"\n🎯 Successful vectors (>= {self.pruning_threshold}):")
+            for sv in successful_vectors:
+                phase_text = f"Phase {sv['phase']}" if 'phase' in sv else f"Pass {sv.get('pass', '?')}"
+                print(f"  DNA {sv['original_dna_id']}: {sv['score']} points, "
+                      f"{sv['nonzero_weights']} weights, {phase_text}")
+
+    def _print_summary(self, pruned_results: List[Dict], successful_vectors: List[Dict]):
+        """Print comprehensive summary of pruning results."""
+        print(f"\n✅ Generation-based pruning complete: {len(pruned_results)} DNA vectors processed")
+        print(f"🎯 SUCCESSFUL VECTORS: {len(successful_vectors)} exceeded threshold "
+              f"({self.pruning_threshold})")
+        
+        if not pruned_results:
+            return
+        
+        # Summary statistics
+        avg_reduction = np.mean([
+            r['weights_removed']/r['original_nonzero']*100 for r in pruned_results
+        ])
+        total_original = sum(r['original_nonzero'] for r in pruned_results)
+        total_pruned = sum(r['pruned_nonzero'] for r in pruned_results)
+        
+        print(f"\n📊 Generation-Based Pruning Summary:")
+        print(f"  Average weight reduction: {avg_reduction:.1f}%")
+        print(f"  Total weights: {total_original} → {total_pruned}")
+        print(f"  Best pruned score: {max(r['pruned_score'] for r in pruned_results)}")
+        print(f"  Most efficient (fewest weights): {min(r['pruned_nonzero'] for r in pruned_results)} weights")
+        print(f"  Average generations explored: {np.mean([r['generations_explored'] for r in pruned_results]):.1f}")
+        
+        # Score improvement analysis
+        score_improvements = [r['pruned_score'] - r['original_score'] for r in pruned_results]
+        print(f"\n📈 Score improvements:")
+        print(f"  Average improvement: +{np.mean(score_improvements):.1f}")
+        print(f"  Best improvement: +{max(score_improvements)}")
+        print(f"  Worst change: +{min(score_improvements)}")
+        
+        if successful_vectors:
+            print(f"\n🎯 Successful vectors (>= {self.pruning_threshold}):")
+            for sv in successful_vectors:
+                print(f"  DNA {sv['original_dna_id']}: {sv['score']} points, "
+                      f"{sv['nonzero_weights']} weights, gen {sv['generation']}")
+
+
+def evaluate_single_dna_fast(dna_vector: np.ndarray) -> Tuple[int, int, int]:
+    """Fast evaluation using existing evaluate_single_dna function."""
+    return evaluate_single_dna(dna_vector, 5000)
+
+
+def prune_dna_vectors(high_scoring_dnas: List[Dict], pruning_threshold: int = 940, 
+                     max_generations: int = 40, max_generation_size: int = 10000,
+                     method: str = "generation_based", score_tolerance: int = 1) -> tuple[List[Dict], List[Dict]]:
+    """
+    Convenience function for DNA pruning with multiple algorithm options.
+    
+    Args:
+        high_scoring_dnas: List of DNA info dictionaries with 'dna' and 'total_score' keys
+        pruning_threshold: Score threshold for considering pruning successful
+        max_generations: Maximum generations to explore per DNA (generation_based only)
+        max_generation_size: Maximum vectors per generation (generation_based only)
+        method: Pruning method to use ("generation_based" or "fast_greedy")
+        score_tolerance: Allow score to decrease by this much (fast_greedy only, default: 1)
+        
+    Returns:
+        Tuple of (pruned_results, successful_vectors_during_pruning)
+    """
+    pruner = GenerationBasedPruner(
+        pruning_threshold=pruning_threshold,
+        max_generations=max_generations, 
+        max_generation_size=max_generation_size
+    )
+    
+    if method == "fast_greedy":
+        return pruner.fast_greedy_prune_dna_vectors(high_scoring_dnas, score_tolerance)
+    elif method == "generation_based":
+        return pruner.prune_dna_vectors(high_scoring_dnas)
+    else:
+        raise ValueError(f"Unknown pruning method: {method}. Use 'fast_greedy' or 'generation_based'")
+
+
 if __name__ == "__main__":
     main()

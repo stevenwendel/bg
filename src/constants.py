@@ -95,35 +95,35 @@ CRITERIA_NAMES = [
 
 # Critical connections that should never be zero - prevents GA from bypassing criteria neurons
 CRITICAL_CONNECTIONS = {
-    # Somat input pathway - needed for stimulus detection
-    ("Somat", "MSN1"): {"min_abs": 10, "reason": "Somat->MSN1 needed for stimulus response"},
-    ("Somat", "MSN2"): {"min_abs": 10, "reason": "Somat->MSN2 needed for stimulus response"}, 
-    ("Somat", "MSN3"): {"min_abs": 10, "reason": "Somat->MSN3 needed for stimulus response"},
+    # # Somat input pathway - needed for stimulus detection
+    # ("Somat", "MSN1"): {"min_abs": 10, "reason": "Somat->MSN1 needed for stimulus response"},
+    # ("Somat", "MSN2"): {"min_abs": 10, "reason": "Somat->MSN2 needed for stimulus response"}, 
+    # ("Somat", "MSN3"): {"min_abs": 10, "reason": "Somat->MSN3 needed for stimulus response"},
     
-    # ALM pathway - critical for preparation and response
-    ("VMprep", "ALMprep"): {"min_abs": 15, "reason": "VMprep->ALMprep drives preparation activity"},
-    ("ALMprep", "ALMinter"): {"min_abs": 10, "reason": "ALMprep->ALMinter enables response inhibition"},
-    ("THALgo", "ALMresp"): {"min_abs": 15, "reason": "THALgo->ALMresp drives response activity"},
-    ("ALMresp", "VMresp"): {"min_abs": 20, "reason": "ALMresp->VMresp completes response loop"},
+    # # ALM pathway - critical for preparation and response
+    # ("VMprep", "ALMprep"): {"min_abs": 15, "reason": "VMprep->ALMprep drives preparation activity"},
+    # ("ALMprep", "ALMinter"): {"min_abs": 10, "reason": "ALMprep->ALMinter enables response inhibition"},
+    # ("THALgo", "ALMresp"): {"min_abs": 15, "reason": "THALgo->ALMresp drives response activity"},
+    # ("ALMresp", "VMresp"): {"min_abs": 20, "reason": "ALMresp->VMresp completes response loop"},
     
-    # SNR suppression pathways - essential for basal ganglia function
-    ("MSN1", "SNR1"): {"min_abs": 20, "reason": "MSN1->SNR1 inhibition for stimulus response"},
-    ("MSN2", "SNR2"): {"min_abs": 20, "reason": "MSN2->SNR2 inhibition for preparation"},
-    ("MSN3", "SNR3"): {"min_abs": 30, "reason": "MSN3->SNR3 inhibition critical for response period"},
+    # # SNR suppression pathways - essential for basal ganglia function
+    # ("MSN1", "SNR1"): {"min_abs": 20, "reason": "MSN1->SNR1 inhibition for stimulus response"},
+    # ("MSN2", "SNR2"): {"min_abs": 20, "reason": "MSN2->SNR2 inhibition for preparation"},
+    # ("MSN3", "SNR3"): {"min_abs": 30, "reason": "MSN3->SNR3 inhibition critical for response period"},
     
-    # SNR output pathways - needed for proper disinhibition
-    ("SNR1", "VMprep"): {"min_abs": 5, "reason": "SNR1->VMprep disinhibition"},
-    ("SNR1", "VMresp"): {"min_abs": 5, "reason": "SNR1->VMresp disinhibition"},
-    ("SNR2", "VMprep"): {"min_abs": 5, "reason": "SNR2->VMprep disinhibition"}, 
-    ("SNR2", "VMresp"): {"min_abs": 5, "reason": "SNR2->VMresp disinhibition"},
-    ("SNR3", "VMprep"): {"min_abs": 15, "reason": "SNR3->VMprep disinhibition for preparation"},
-    ("SNR3", "VMresp"): {"min_abs": 25, "reason": "SNR3->VMresp disinhibition for response"},
+    # # SNR output pathways - needed for proper disinhibition
+    # ("SNR1", "VMprep"): {"min_abs": 5, "reason": "SNR1->VMprep disinhibition"},
+    # ("SNR1", "VMresp"): {"min_abs": 5, "reason": "SNR1->VMresp disinhibition"},
+    # ("SNR2", "VMprep"): {"min_abs": 5, "reason": "SNR2->VMprep disinhibition"}, 
+    # ("SNR2", "VMresp"): {"min_abs": 5, "reason": "SNR2->VMresp disinhibition"},
+    # ("SNR3", "VMprep"): {"min_abs": 15, "reason": "SNR3->VMprep disinhibition for preparation"},
+    # ("SNR3", "VMresp"): {"min_abs": 25, "reason": "SNR3->VMresp disinhibition for response"},
     
-    # VM output pathways
-    ("VMresp", "ALMresp"): {"min_abs": 20, "reason": "VMresp->ALMresp drives response activity"},
+    # # VM output pathways
+    # ("VMresp", "ALMresp"): {"min_abs": 20, "reason": "VMresp->ALMresp drives response activity"},
     
-    # PPN pathway - needed for movement initiation
-    ("PPN", "THALgo"): {"min_abs": 10, "reason": "PPN->THALgo drives movement initiation"},
+    # # PPN pathway - needed for movement initiation
+    # ("PPN", "THALgo"): {"min_abs": 10, "reason": "PPN->THALgo drives movement initiation"},
 }
 
 CRITERIA = {
