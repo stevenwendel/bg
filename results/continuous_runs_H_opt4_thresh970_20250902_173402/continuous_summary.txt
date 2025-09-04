@@ -1,0 +1,74 @@
+Continuous GA Run Summary
+=========================
+Configuration: H
+Optimization level: 4
+Min score threshold: 970
+Target successful runs: 20
+Total attempts: 57
+Successful: 20
+Discarded: 37
+Failed: 0
+Success rate: 35.1%
+Total time: 154443.4 seconds
+
+Successful Runs:
+  Run 1: Score=971.0 (Attempt 3)
+    DNA Score: 971 (Exp:472, Cont:499)
+    Non-zero weights: 49
+  Run 2: Score=970.0 (Attempt 8)
+    DNA Score: 970 (Exp:470, Cont:500)
+    Non-zero weights: 46
+  Run 3: Score=972.0 (Attempt 9)
+    DNA Score: 972 (Exp:472, Cont:500)
+    Non-zero weights: 45
+  Run 4: Score=972.0 (Attempt 15)
+    DNA Score: 972 (Exp:472, Cont:500)
+    Non-zero weights: 47
+  Run 5: Score=977.0 (Attempt 17)
+    DNA Score: 977 (Exp:479, Cont:498)
+    Non-zero weights: 46
+  Run 6: Score=977.0 (Attempt 20)
+    DNA Score: 977 (Exp:478, Cont:499)
+    Non-zero weights: 45
+  Run 7: Score=971.0 (Attempt 23)
+    DNA Score: 971 (Exp:471, Cont:500)
+    Non-zero weights: 45
+  Run 8: Score=972.0 (Attempt 28)
+    DNA Score: 972 (Exp:473, Cont:499)
+    Non-zero weights: 49
+  Run 9: Score=973.0 (Attempt 33)
+    DNA Score: 973 (Exp:474, Cont:499)
+    Non-zero weights: 51
+  Run 10: Score=971.0 (Attempt 35)
+    DNA Score: 971 (Exp:472, Cont:499)
+    Non-zero weights: 46
+  Run 11: Score=970.0 (Attempt 37)
+    DNA Score: 970 (Exp:470, Cont:500)
+    Non-zero weights: 43
+  Run 12: Score=972.0 (Attempt 39)
+    DNA Score: 972 (Exp:472, Cont:500)
+    Non-zero weights: 44
+  Run 13: Score=973.0 (Attempt 42)
+    DNA Score: 973 (Exp:474, Cont:499)
+    Non-zero weights: 50
+  Run 14: Score=978.0 (Attempt 46)
+    DNA Score: 978 (Exp:478, Cont:500)
+    Non-zero weights: 50
+  Run 15: Score=976.0 (Attempt 49)
+    DNA Score: 976 (Exp:477, Cont:499)
+    Non-zero weights: 47
+  Run 16: Score=974.0 (Attempt 50)
+    DNA Score: 974 (Exp:474, Cont:500)
+    Non-zero weights: 45
+  Run 17: Score=972.0 (Attempt 51)
+    DNA Score: 972 (Exp:472, Cont:500)
+    Non-zero weights: 45
+  Run 18: Score=978.0 (Attempt 55)
+    DNA Score: 978 (Exp:479, Cont:499)
+    Non-zero weights: 48
+  Run 19: Score=973.0 (Attempt 56)
+    DNA Score: 973 (Exp:473, Cont:500)
+    Non-zero weights: 50
+  Run 20: Score=970.0 (Attempt 57)
+    DNA Score: 970 (Exp:470, Cont:500)
+    Non-zero weights: 43
