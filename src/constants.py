@@ -303,10 +303,10 @@ GA_CONFIG = {
         "TIME_TAKEN" : [.34, .66]
     },
     "J":   {
-        "NUM_GENERATIONS" : 400,
-        "POP_SIZE" : 4000,
-        "MUT_RATE" : 0.25,
-        "MUT_SIGMA" : .30,
+        "NUM_GENERATIONS" : 300,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.35,
+        "MUT_SIGMA" : .8,
         "RANK_DEPTH" : 500,
         "ELITE_SIZE" : 3,
         "CROSSOVER_POINT" : None,

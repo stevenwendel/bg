@@ -16,153 +16,51 @@ from src.constants import (
 )
 
 def create_voltage_plot(results, dna_info):
-    """Create interactive voltage trace plot for a single DNA with missed scoring highlights."""
-    time_ms = np.arange(TMAX)
-    n_neurons = len(NEURON_NAMES)
+    """Create interactive voltage trace plot using the WORKING plot_neurons_interactive function."""
+    # Import the working plotting function
+    from src.viz import plot_neurons_interactive
+    from src.network import create_experiment
     
-    subplot_titles = []
+    # Get stimulus waves for plotting
+    splits, input_waves, alpha_array = create_experiment()
+    cue_wave, go_wave = input_waves
+    
+    # Prepare voltage data in the format expected by plot_neurons_interactive
+    # Extract experimental condition voltages in the correct array format
+    hist_Vs = []
+    hist_us = []  # We'll use dummy u values since we don't track them
+    
     for neuron_name in NEURON_NAMES:
-        criteria_marker = " *" if neuron_name in CRITERIA_NAMES else ""
-        subplot_titles.extend([f'{neuron_name}{criteria_marker} - Experimental', 
-                             f'{neuron_name}{criteria_marker} - Control'])
+        exp_voltage = results['experimental']['voltages'][neuron_name]
+        hist_Vs.append(exp_voltage)
+        # Create dummy u values (recovery variable) - just zeros
+        hist_us.append(np.zeros_like(exp_voltage))
     
-    fig = make_subplots(
-        rows=n_neurons, 
-        cols=2,
-        subplot_titles=subplot_titles,
-        vertical_spacing=0.02,
-        horizontal_spacing=0.08
-    )
+    # Convert to numpy arrays as expected by plot_neurons_interactive
+    hist_Vs = np.array(hist_Vs)
+    hist_us = np.array(hist_us)
     
-    # Add traces for each neuron
-    for i, neuron_name in enumerate(NEURON_NAMES):
-        row = i + 1
-        is_criteria_neuron = neuron_name in CRITERIA_NAMES
-        line_width = 2 if is_criteria_neuron else 1
-        
-        # Experimental condition
-        voltages_exp = results['experimental']['voltages'][neuron_name]
-        fig.add_trace(
-            go.Scatter(
-                x=time_ms,
-                y=voltages_exp,
-                mode='lines',
-                name=f'{neuron_name} Exp',
-                line=dict(color='blue', width=line_width),
-                hovertemplate='<b>%{fullData.name}</b><br>' +
-                             'Time: %{x} ms<br>' +
-                             'Voltage: %{y:.2f} mV<br>' +
-                             '<extra></extra>',
-                showlegend=False
-            ),
-            row=row, col=1
-        )
-        
-        # Control condition
-        voltages_ctrl = results['control']['voltages'][neuron_name]
-        fig.add_trace(
-            go.Scatter(
-                x=time_ms,
-                y=voltages_ctrl,
-                mode='lines',
-                name=f'{neuron_name} Ctrl',
-                line=dict(color='red', width=line_width),
-                hovertemplate='<b>%{fullData.name}</b><br>' +
-                             'Time: %{x} ms<br>' +
-                             'Voltage: %{y:.2f} mV<br>' +
-                             '<extra></extra>',
-                showlegend=False
-            ),
-            row=row, col=2
-        )
-        
-        # Add missed scoring highlights for criteria neurons only
-        if is_criteria_neuron:
-            # Experimental missed points
-            exp_missed = [mp for mp in results['experimental']['missed_points'] if mp['neuron'] == neuron_name]
-            for missed in exp_missed:
-                fig.add_vrect(
-                    x0=missed['t_start'], x1=missed['t_end'],
-                    fillcolor="orange", opacity=0.4,
-                    layer="below", line_width=0,
-                    row=row, col=1,
-                    annotation_text=f"Miss: W{missed['wanted']} G{missed['spikes']}",
-                    annotation_position="top left",
-                    annotation_font_size=8
-                )
-            
-            # Control missed points  
-            ctrl_missed = [mp for mp in results['control']['missed_points'] if mp['neuron'] == neuron_name]
-            for missed in ctrl_missed:
-                fig.add_vrect(
-                    x0=missed['t_start'], x1=missed['t_end'],
-                    fillcolor="orange", opacity=0.4,
-                    layer="below", line_width=0,
-                    row=row, col=2,
-                    annotation_text=f"Miss: W{missed['wanted']} G{missed['spikes']}",
-                    annotation_position="top left",
-                    annotation_font_size=8
-                )
-        
-        # Add stimulus markers
-        for col in [1, 2]:
-            fig.add_vrect(
-                x0=1000, x1=1200,
-                fillcolor="red", opacity=0.2,
-                layer="below", line_width=0,
-                row=row, col=col
-            )
-            fig.add_vrect(
-                x0=3000, x1=3100,
-                fillcolor="green", opacity=0.2,
-                layer="below", line_width=0,
-                row=row, col=col
-            )
-    
-    # Calculate total missed points for title
-    exp_missed_total = len(results['experimental']['missed_points'])
-    ctrl_missed_total = len(results['control']['missed_points'])
-    total_missed = exp_missed_total + ctrl_missed_total
-    
-    # Handle different original_dna formats for title
+    # Create title with DNA info
     orig_dna = dna_info['original_dna']
     if isinstance(orig_dna, dict) and 'run_folder' in orig_dna:
-        run_info = f'Run: {orig_dna["run_folder"]}'
+        run_info = f'{orig_dna["run_folder"]}'
     else:
-        run_info = 'Run: Successful Vector'
+        run_info = 'Successful Vector'
     
-    # Update layout
-    fig.update_layout(
-        title=f'DNA {dna_info["id"]} - Score: {dna_info["pruned_score"]} | ' + 
-              f'Weights: {dna_info["original_nonzero"]}→{dna_info["pruned_nonzero"]} | ' +
-              f'{run_info}' +
-              f'<br><sub>* = Criteria neurons | Red=Cue | Green=Go | Orange=Missed Points ({total_missed} total: {exp_missed_total} exp + {ctrl_missed_total} ctrl)</sub>',
-        height=300 * n_neurons,
-        width=1200,
-        showlegend=False,
-        hovermode='closest'
+    title = (f'DNA {dna_info["id"]} - Score: {dna_info["pruned_score"]} | '
+             f'Weights: {dna_info["original_nonzero"]}→{dna_info["pruned_nonzero"]} | '
+             f'Run: {run_info}')
+    
+    # Use the working plotting function
+    return plot_neurons_interactive(
+        hist_Vs=hist_Vs, 
+        hist_us=hist_us, 
+        neuron_names=NEURON_NAMES, 
+        sq_wave=cue_wave, 
+        go_wave=go_wave, 
+        show_u=False,
+        title=title
     )
-    
-    # Update y-axes with borders for criteria neurons
-    for i in range(1, n_neurons + 1):
-        neuron_name = NEURON_NAMES[i-1]
-        is_criteria_neuron = neuron_name in CRITERIA_NAMES
-        
-        if is_criteria_neuron:
-            border_style = dict(linewidth=3, linecolor='gold', mirror=True)
-        else:
-            border_style = dict(linewidth=1, linecolor='lightgray', mirror=True)
-        
-        fig.update_yaxes(range=[-100, 100], title_text="Voltage (mV)", row=i, col=1, **border_style)
-        fig.update_yaxes(range=[-100, 100], title_text="Voltage (mV)", row=i, col=2, **border_style)
-        fig.update_xaxes(row=i, col=1, **border_style)
-        fig.update_xaxes(row=i, col=2, **border_style)
-    
-    # Update x-axes
-    fig.update_xaxes(title_text="Time (ms)", row=n_neurons, col=1)
-    fig.update_xaxes(title_text="Time (ms)", row=n_neurons, col=2)
-    
-    return fig
 
 def create_directed_graph_from_dna(dna_vector, dna_info):
     """Create directed graph representation from DNA vector."""
