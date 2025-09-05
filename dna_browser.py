@@ -61,6 +61,18 @@ def create_dual_dna_browser(target_dnas, pruned_results, simulation_results,
         style={'description_width': 'initial'}
     )
     
+    # Condition selector for voltage plots
+    condition_dropdown = Dropdown(
+        options=[
+            ('Experimental', 'experimental'),
+            ('Control', 'control'),
+            ('Both Conditions', 'both_conditions')
+        ],
+        value='experimental',
+        description='Condition:',
+        style={'description_width': 'initial'}
+    )
+    
     output = Output()
     
     # Store sorted indices
@@ -93,7 +105,7 @@ def create_dual_dna_browser(target_dnas, pruned_results, simulation_results,
         # Reset slider
         dna_slider.value = 0
     
-    def update_plot(dna_index, sort_by, viz_type):
+    def update_plot(dna_index, sort_by, viz_type, condition='experimental'):
         with output:
             clear_output(wait=True)
             
@@ -157,9 +169,15 @@ def create_dual_dna_browser(target_dnas, pruned_results, simulation_results,
             
             # Create and display plots based on selection
             if viz_type in ['voltage', 'both']:
-                print("\\n📈 Voltage Traces:")
-                voltage_fig = create_voltage_plot(sim_result, dna_info)
-                voltage_fig.show()
+                if condition == 'both_conditions':
+                    print("\\n📈 Voltage Traces - Experimental Condition:")
+                    voltage_fig_exp = create_voltage_plot(sim_result, dna_info, condition="experimental", show_missed_scoring=True)
+                    
+                    print("\\n📈 Voltage Traces - Control Condition:")
+                    voltage_fig_cont = create_voltage_plot(sim_result, dna_info, condition="control", show_missed_scoring=True)
+                else:
+                    print(f"\\n📈 Voltage Traces - {condition.title()} Condition:")
+                    voltage_fig = create_voltage_plot(sim_result, dna_info, condition=condition, show_missed_scoring=True)
             
             if viz_type in ['network', 'both']:
                 print("\\n🌐 Network Topology:")
@@ -172,25 +190,29 @@ def create_dual_dna_browser(target_dnas, pruned_results, simulation_results,
     # Set up interactions
     def on_sort_change(change):
         sort_data(change['new'])
-        update_plot(dna_slider.value, change['new'], viz_dropdown.value)
+        update_plot(dna_slider.value, change['new'], viz_dropdown.value, condition_dropdown.value)
     
     def on_slider_change(change):
-        update_plot(change['new'], sort_dropdown.value, viz_dropdown.value)
+        update_plot(change['new'], sort_dropdown.value, viz_dropdown.value, condition_dropdown.value)
     
     def on_viz_change(change):
-        update_plot(dna_slider.value, sort_dropdown.value, change['new'])
+        update_plot(dna_slider.value, sort_dropdown.value, change['new'], condition_dropdown.value)
+    
+    def on_condition_change(change):
+        update_plot(dna_slider.value, sort_dropdown.value, viz_dropdown.value, change['new'])
     
     sort_dropdown.observe(on_sort_change, names='value')
     dna_slider.observe(on_slider_change, names='value')
     viz_dropdown.observe(on_viz_change, names='value')
+    condition_dropdown.observe(on_condition_change, names='value')
     
     # Initial sort
     sort_data(sort_dropdown.value)
     
     # Create layout
-    controls = HBox([sort_dropdown, viz_dropdown, dna_slider])
+    controls = HBox([sort_dropdown, viz_dropdown, condition_dropdown, dna_slider])
     
     # Display initial plot
-    update_plot(0, sort_dropdown.value, viz_dropdown.value)
+    update_plot(0, sort_dropdown.value, viz_dropdown.value, condition_dropdown.value)
     
     return VBox([controls, output])

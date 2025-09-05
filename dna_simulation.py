@@ -131,6 +131,7 @@ def run_dna_with_voltage_tracking(dna_vector):
             results[condition] = {
                 'voltages': voltages,
                 'missed_points': missed_points,
+                'spike_raster': spike_raster,  # Add spike raster for missed scoring visualization
                 'score': score
             }
             

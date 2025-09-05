@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from src.constants import *
 from src.neuron import *
 from src.network import *
-from src.validation import *
+from src.validation import diagnose_conditions
 from src.genetic_algorithm import *
 from src.utils import *
 from src.genetic_algorithm import *
@@ -34,7 +34,8 @@ def display_matrix(matrix, nodes):
     df = pd.DataFrame(matrix, columns=nodes, index=nodes)
     display(df) 
     
-def plot_neurons_interactive(hist_Vs, hist_us, neuron_names, sq_wave, go_wave, show_u=False, title=None):
+def plot_neurons_interactive(hist_Vs, hist_us, neuron_names, sq_wave, go_wave, show_u=False, title=None, 
+                           spike_raster=None, condition="experimental", show_missed_scoring=False):
     # print(f'{hist_Vs=}')
     # print(f'{neuron_names=}')
     assert len(hist_Vs) == len(neuron_names), "Must have the same number of neurons as the number of hist_Vs"
@@ -47,10 +48,37 @@ def plot_neurons_interactive(hist_Vs, hist_us, neuron_names, sq_wave, go_wave, s
     hover_template = 'Time: %{x} ms<br>Value: %{y} mV'
     v_color = 'blue'  # Define a consistent color for hist_V
     u_color = 'orange'
+    
+    # Get missed scoring information if spike_raster is provided
+    missed_periods = {}
+    total_missed = 0
+    if show_missed_scoring and spike_raster is not None:
+        try:
+            missed_diagnoses = diagnose_conditions(spike_raster, condition, return_list=True)
+            # Group by neuron for easier lookup
+            for diag in missed_diagnoses:
+                neuron = diag['neuron']
+                if neuron not in missed_periods:
+                    missed_periods[neuron] = []
+                missed_periods[neuron].append(diag)
+            total_missed = len(missed_diagnoses)
+        except Exception as e:
+            print(f"Warning: Could not generate missed scoring diagnostics: {e}")
+            missed_periods = {}
 
     for i in range(len(hist_Vs)):
         row = i + 1  # Adjust row index for single column
         col = 1
+        neuron_name = neuron_names[i]
+        
+        # Check if this neuron is in CRITERIA_NAMES to determine if we should highlight it
+        is_criteria_neuron = neuron_name in CRITERIA_NAMES
+        
+        # Add gold border for criteria neurons
+        subplot_title = neuron_names[i]
+        if is_criteria_neuron:
+            subplot_title = f"🎯 {neuron_names[i]}"
+        
         fig.add_trace(go.Scatter(x=list(range(TMAX)), y=hist_Vs[i], mode='lines', name='V',
                                  line=dict(color=v_color),  # Use the consistent color
                                  hovertemplate=hover_template), row=row, col=col)
@@ -65,9 +93,64 @@ def plot_neurons_interactive(hist_Vs, hist_us, neuron_names, sq_wave, go_wave, s
                                  line=dict(dash='dot', color='red'), hovertemplate=hover_template), row=row, col=col)
         fig.add_trace(go.Scatter(x=list(range(TMAX)), y=go_wave / 5, mode='lines', name='GoWave',
                                  line=dict(dash='dot', color='red'), hovertemplate=hover_template), row=row, col=col)
+        
+        # Add missed scoring highlighting for criteria neurons
+        if show_missed_scoring and neuron_name in missed_periods:
+            # Get voltage range for this neuron to properly position the highlighting
+            v_min, v_max = min(hist_Vs[i]), max(hist_Vs[i])
+            v_range = v_max - v_min
+            highlight_bottom = v_min - v_range * 0.1
+            highlight_top = v_max + v_range * 0.1
+            
+            for diag in missed_periods[neuron_name]:
+                # Add orange highlighting for missed periods
+                fig.add_shape(
+                    type="rect",
+                    x0=diag['t_start'], x1=diag['t_end'],
+                    y0=highlight_bottom, y1=highlight_top,
+                    fillcolor="orange", opacity=0.3,
+                    line=dict(width=0),
+                    row=row, col=col
+                )
+                
+                # Add annotation showing expected vs actual
+                annotation_text = f"Miss: W{diag['wanted']} G{diag['spikes']}"
+                fig.add_annotation(
+                    x=(diag['t_start'] + diag['t_end']) / 2,
+                    y=highlight_top - v_range * 0.05,
+                    text=annotation_text,
+                    showarrow=False,
+                    font=dict(size=8, color="darkorange"),
+                    bgcolor="rgba(255,255,255,0.8)",
+                    bordercolor="orange",
+                    borderwidth=1,
+                    row=row, col=col
+                )
+
+    # Update subplot titles to include missed scoring info and criteria neuron marking
+    updated_titles = []
+    for i, neuron_name in enumerate(neuron_names):
+        is_criteria = neuron_name in CRITERIA_NAMES
+        missed_count = len(missed_periods.get(neuron_name, []))
+        
+        if is_criteria and show_missed_scoring:
+            title = f"🎯 {neuron_name} (Missed: {missed_count})"
+        elif is_criteria:
+            title = f"🎯 {neuron_name}"
+        else:
+            title = neuron_name
+            
+        updated_titles.append(title)
+    
+    # Update subplot titles
+    for i, title in enumerate(updated_titles):
+        fig.layout.annotations[i].text = title
 
     # Use the provided title if one is given, otherwise use the default
     title_text = title if title is not None else "Neuron Dynamics"
+    if show_missed_scoring and total_missed > 0:
+        title_text += f" (Total Missed: {total_missed} points)"
+    
     fig.update_layout(height=300 * n_rows, width=900, title_text=title_text, showlegend=False)
     fig.show()
 

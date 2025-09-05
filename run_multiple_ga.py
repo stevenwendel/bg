@@ -673,7 +673,7 @@ def run_continuous_ga(config: str, opt_level: int, num_successful_runs: int = 5,
             
             best_score = performance_info.get('best_score', 0)
             
-            print(f"   📊 Completed in {run_duration:.1f}s | Best score: {best_score}")
+            print(f"   📊 Completed in {(run_duration//60):.1f}min | Best score: {best_score}")
             
             if best_score >= min_score_threshold:
                 # Successful run - keep it
