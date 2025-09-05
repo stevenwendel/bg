@@ -59,8 +59,13 @@ def simulate_with_voltage_tracking(W, cue_wave, go_wave, alpha, tmax, control=Fa
             # Run step kernel (same as adaptive_tmax)
             spk, t_ptr = step_kernel_optimized(V, U, Ibuf, t_ptr, a, b, vreset, d, k, vr, vt, vpeak, C, E, W, alpha)
             
-            # Store voltage history AFTER step (so we capture the proper spike resets)
-            V_history[:, t] = V
+            # Store voltage history with proper spike visualization
+            V_history[:, t] = V.copy()
+            
+            # For visualization: show spike peak instead of reset voltage for spiking neurons
+            for i in range(N):
+                if spk[i] == 1:
+                    V_history[i, t] = vpeak[i]  # Show the spike peak for visualization
             
             # Store spike raster
             spike_raster[:, t] = spk
