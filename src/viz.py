@@ -3,6 +3,7 @@ from plotly.subplots import make_subplots
 from IPython.display import display
 import matplotlib.pyplot as plt
 from src.constants import *
+from src.constants import CRITERIA  # Explicit import for criteria highlighting
 from src.neuron import *
 from src.network import *
 from src.validation import diagnose_conditions
@@ -108,7 +109,7 @@ def plot_neurons_interactive(hist_Vs, hist_us, neuron_names, sq_wave, go_wave, s
                     type="rect",
                     x0=diag['t_start'], x1=diag['t_end'],
                     y0=highlight_bottom, y1=highlight_top,
-                    fillcolor="orange", opacity=0.3,
+                    fillcolor="orange", opacity=0.5,
                     line=dict(width=0),
                     row=row, col=col
                 )
@@ -126,6 +127,52 @@ def plot_neurons_interactive(hist_Vs, hist_us, neuron_names, sq_wave, go_wave, s
                     borderwidth=1,
                     row=row, col=col
                 )
+        
+        # Add criteria interval highlighting for criteria neurons
+        if neuron_name in CRITERIA_NAMES:
+            try:
+                criteria_info = CRITERIA.get(condition, {}).get(neuron_name, {})
+                
+                if criteria_info and 'interval' in criteria_info:
+                    interval = criteria_info['interval']
+                    io_state = criteria_info.get('io', 'on')
+                    
+                    # Get voltage range for this neuron to properly position the highlighting
+                    v_min, v_max = min(hist_Vs[i]), max(hist_Vs[i])
+                    v_range = v_max - v_min
+                    background_bottom = v_min - v_range * 0.05
+                    background_top = v_max + v_range * 0.05
+                    
+                    # Add subtle orange background for criteria interval
+                    fig.add_shape(
+                        type="rect",
+                        x0=interval[0], x1=interval[1],
+                        y0=background_bottom, y1=background_top,
+                        fillcolor="green", opacity=0.3,  # Light orange background
+                        line=dict(width=0),
+                        layer="below",  # Put behind other elements
+                        row=row, col=col
+                    )
+                    
+                    # Add a small annotation to indicate the criteria state
+                    annotation_y = background_top - v_range * 0.02
+                    state_text = f"Criteria: {io_state.upper()}"
+                    
+                    fig.add_annotation(
+                        x=(interval[0] + interval[1]) / 2,
+                        y=annotation_y,
+                        text=state_text,
+                        showarrow=False,
+                        font=dict(size=8, color="darkorange"),
+                        bgcolor="rgba(255,255,255,0.7)",
+                        bordercolor="orange",
+                        borderwidth=1,
+                        row=row, col=col
+                    )
+                    
+            except Exception as e:
+                # Silently skip if CRITERIA import fails
+                pass
 
     # Update subplot titles to include missed scoring info and criteria neuron marking
     updated_titles = []
