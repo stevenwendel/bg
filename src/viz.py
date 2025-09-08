@@ -200,6 +200,7 @@ def plot_neurons_interactive(hist_Vs, hist_us, neuron_names, sq_wave, go_wave, s
     
     fig.update_layout(height=300 * n_rows, width=900, title_text=title_text, showlegend=False)
     fig.show()
+    return fig
 
 
 # def plot_binned_differences(binned_differences):
