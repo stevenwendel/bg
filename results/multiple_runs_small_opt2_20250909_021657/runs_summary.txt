@@ -1,0 +1,26 @@
+Multiple GA Runs Summary
+========================
+Configuration: small
+Optimization level: 2
+Strategy: progressive
+Processes: default
+Generations: default
+Total runs: 1
+Successful: 1
+Failed: 0
+Total time: 16.75 seconds
+Average time per run: 16.75 seconds
+
+Best DNA from Each Run:
+=======================
+Run 1: Score=918 (Exp:419, Cont:499) Gen:8, Non-zero:52
+  DNA: [205, 177, 245, 32, -340, -17, -66, -338, -346, -12, -173, -500, -67, -172, -447, -326, -90, -1, -205, 306, 154, 36, 219, 4, 444, 168, 500, 269, -24, -138, -500, 332, 37, 500, 41, 0, 421, 421, -167, -58, -199, -73, -21, -22, 83, 40, -318, -160, 289, 16, 15, 500, 150]
+
+Overall Best DNA (Run 1):
+Score: 918 (Exp:419, Cont:499)
+Generation: 8, Non-zero weights: 52
+DNA Vector: [205, 177, 245, 32, -340, -17, -66, -338, -346, -12, -173, -500, -67, -172, -447, -326, -90, -1, -205, 306, 154, 36, 219, 4, 444, 168, 500, 269, -24, -138, -500, 332, 37, 500, 41, 0, 421, 421, -167, -58, -199, -73, -21, -22, 83, 40, -318, -160, 289, 16, 15, 500, 150]
+
+
+Detailed Results:
+  Run 1: success (16.70s) - results/multiple_runs_small_opt2_20250909_021657/run_001

@@ -14,17 +14,31 @@ from concurrent.futures import ThreadPoolExecutor
 import gc
 
 def find_all_aggregated_results(results_folder):
-    """Find all aggregated_results.pkl files in the results folder and subfolders."""
+    """Find all aggregated_results.pkl files in the results folder and subfolders, plus cleaned_results."""
     results_path = Path(results_folder)
     
     if not results_path.exists():
         print(f"❌ Results folder does not exist: {results_folder}")
         return []
     
+    # Find aggregated_results.pkl files in the main results folder
     aggregated_files = list(results_path.rglob("aggregated_results.pkl"))
     
-    print(f"📁 Found {len(aggregated_files)} aggregated_results.pkl files")
-    for f in aggregated_files:
+    # Also search for .pkl files in cleaned_results folder
+    cleaned_results_path = Path("cleaned_results")
+    if cleaned_results_path.exists():
+        cleaned_pkl_files = list(cleaned_results_path.rglob("*.pkl"))
+        print(f"📁 Found {len(cleaned_pkl_files)} .pkl files in cleaned_results folder:")
+        for f in cleaned_pkl_files:
+            print(f"  {f}")
+        aggregated_files.extend(cleaned_pkl_files)
+    else:
+        print("📁 No cleaned_results folder found")
+    
+    print(f"📁 Found {len(aggregated_files)} total .pkl files")
+    print("📁 Main results files:")
+    main_files = [f for f in aggregated_files if not str(f).startswith("cleaned_results")]
+    for f in main_files:
         print(f"  {f}")
     
     return aggregated_files
@@ -40,20 +54,79 @@ def load_single_file(file_path_info):
         run_folder = file_path.parent.name
         high_scoring_dnas = []
         
-        for dna_record in data.get('all_dna_tested', []):
-            total_score = dna_record.get('total_score', 0)
+        # Handle different file formats
+        if isinstance(data, dict):
+            # Standard aggregated_results.pkl format
+            if 'all_dna_tested' in data:
+                dna_records = data['all_dna_tested']
+            # Alternative formats from cleaned_results
+            elif 'best_dnas' in data:
+                dna_records = data['best_dnas']
+            elif 'target_dnas' in data:
+                dna_records = data['target_dnas']
+            # Single DNA record
+            elif 'dna' in data and 'total_score' in data:
+                dna_records = [data]
+            else:
+                # Try to find any list-like data that might contain DNAs
+                dna_records = []
+                for key, value in data.items():
+                    if isinstance(value, list) and value and isinstance(value[0], dict):
+                        if 'dna' in value[0] and ('total_score' in value[0] or 'score' in value[0]):
+                            dna_records = value
+                            break
+        elif isinstance(data, list):
+            # Direct list of DNA records
+            dna_records = data
+        else:
+            print(f"⚠️  Unknown data format in {file_path}")
+            return []
+        
+        # Extract high-scoring DNAs
+        for dna_record in dna_records:
+            if not isinstance(dna_record, dict):
+                continue
+                
+            # Handle different score field names
+            total_score = dna_record.get('total_score')
+            if total_score is None:
+                total_score = dna_record.get('score')
+            if total_score is None:
+                total_score = dna_record.get('pruned_score')
+            if total_score is None:
+                total_score = 0
             
             if total_score >= score_threshold:
-                dna_array = dna_record['dna']
+                # Handle different DNA field names
+                dna_array = dna_record.get('dna')
+                if dna_array is None:
+                    dna_array = dna_record.get('dna_vector')
+                if dna_array is None:
+                    dna_array = dna_record.get('pruned_dna')
+                
+                if dna_array is None:
+                    continue
+                
+                # Convert to numpy array if needed
+                if not isinstance(dna_array, np.ndarray):
+                    dna_array = np.array(dna_array)
+                
+                # Extract scores with fallbacks
+                exp_score = dna_record.get('exp_score', 0)
+                if exp_score == 0:
+                    exp_score = dna_record.get('final_exp_score', 0)
+                cont_score = dna_record.get('cont_score', 0)
+                if cont_score == 0:
+                    cont_score = dna_record.get('final_cont_score', 0)
                 
                 high_scoring_dnas.append({
                     'dna': dna_array,
                     'total_score': total_score,
-                    'exp_score': dna_record['exp_score'],
-                    'cont_score': dna_record['cont_score'],
-                    'generation': dna_record['generation'],
-                    'process_id': dna_record['process_id'],
-                    'individual_id': dna_record['individual_id'],
+                    'exp_score': exp_score,
+                    'cont_score': cont_score,
+                    'generation': dna_record.get('generation', 0),
+                    'process_id': dna_record.get('process_id', 0),
+                    'individual_id': dna_record.get('individual_id', 0),
                     'run_folder': run_folder,
                     'source_file': str(file_path),
                     'non_zero_weights': int(np.count_nonzero(dna_array)),

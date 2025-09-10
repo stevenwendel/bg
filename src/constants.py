@@ -302,7 +302,26 @@ GA_CONFIG = {
         "DNA_BOUNDS" : [0,500], 
         "TIME_TAKEN" : [.34, .66]
     },
-    "J":   {
+    "J":   { 
+        # 14/100 runs with score 975+; 30 min average run
+        # ============================================================
+        # 🏁 CONTINUOUS RUN COMPLETE
+        # ============================================================
+        # Total time: 244040.4 seconds (67.8 hours)
+        # Successful runs: 14/20
+        # Total attempts: 100
+        # Success rate: 14.0%
+        # Discarded runs: 86 (86.0%)
+        # Failed runs: 0 (0.0%)
+        #
+        # Successful run statistics:
+        # Best score: 990.0
+        # Average score: 981.4
+        # Score range: 975.0 - 990.0
+        #
+        # Discarded run statistics:
+        # Best discarded: 974.0
+        # Average discarded: 968.5
         "NUM_GENERATIONS" : 300,
         "POP_SIZE" : 1000,
         "MUT_RATE" : 0.35,
@@ -315,10 +334,10 @@ GA_CONFIG = {
     },
     "K":   {
         "NUM_GENERATIONS" : 300,
-        "POP_SIZE" : 10000,
-        "MUT_RATE" : 0.40,
-        "MUT_SIGMA" : .80,
-        "RANK_DEPTH" : 5000,
+        "POP_SIZE" : 1000,
+        "MUT_RATE" : 0.50,
+        "MUT_SIGMA" : 1.0,
+        "RANK_DEPTH" : 500,
         "ELITE_SIZE" : 10,
         "CROSSOVER_POINT" : None,
         "DNA_BOUNDS" : [0,500], 
