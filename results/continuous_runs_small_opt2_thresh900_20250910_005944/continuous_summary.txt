@@ -1,0 +1,20 @@
+Continuous GA Run Summary
+=========================
+Configuration: small
+Optimization level: 2
+Min score threshold: 900
+Target successful runs: 2
+Total attempts: 2
+Successful: 2
+Discarded: 0
+Failed: 0
+Success rate: 100.0%
+Total time: 19.7 seconds
+
+Successful Runs:
+  Run 1: Score=914.0 (Attempt 1)
+    DNA Score: 914 (Exp:415, Cont:499)
+    Non-zero weights: 51
+  Run 2: Score=917.0 (Attempt 2)
+    DNA Score: 917 (Exp:420, Cont:497)
+    Non-zero weights: 53

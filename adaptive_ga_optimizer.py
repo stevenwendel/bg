@@ -129,14 +129,17 @@ class AdaptiveGAOptimizer:
         self.budget_max = int(self.total_simulation_budget * (1 + budget_tolerance))
         
         # Define parameter bounds (will be normalized to [0,1])
+        # NUM_GENERATIONS is derived from POP_SIZE and budget, so not directly optimized
         self.param_bounds = {
             'MUT_RATE': (0.1, 0.9),         # Mutation rate
             'MUT_SIGMA': (0.1, 3.0),        # Mutation sigma
             'ELITE_SIZE': (5, 50),          # Elite size
             'RANK_DEPTH': (50, 1000),       # Rank depth
-            'NUM_GENERATIONS': (50, 1000),   # Generations
-            'POP_SIZE': (100, 2000)         # Population size
+            'POP_SIZE': (100, 2000)         # Population size (NUM_GENERATIONS = budget // POP_SIZE)
         }
+        
+        # Additional constraints for derived parameter
+        self.generation_bounds = (1, 1000)  # Allowable range for calculated NUM_GENERATIONS
         
         # Initialize GP model
         if SKLEARN_AVAILABLE:
@@ -164,7 +167,8 @@ class AdaptiveGAOptimizer:
     def normalize_params(self, params: Dict) -> np.ndarray:
         """Normalize parameters to [0,1] range for GP."""
         normalized = []
-        param_names = ['MUT_RATE', 'MUT_SIGMA', 'ELITE_SIZE', 'RANK_DEPTH', 'NUM_GENERATIONS', 'POP_SIZE']
+        # Only optimize these 5 parameters (NUM_GENERATIONS is derived from POP_SIZE and budget)
+        param_names = ['MUT_RATE', 'MUT_SIGMA', 'ELITE_SIZE', 'RANK_DEPTH', 'POP_SIZE']
         
         for name in param_names:
             value = params[name]
@@ -176,7 +180,8 @@ class AdaptiveGAOptimizer:
     
     def denormalize_params(self, normalized_params: np.ndarray) -> Dict:
         """Convert normalized parameters back to original scale."""
-        param_names = ['MUT_RATE', 'MUT_SIGMA', 'ELITE_SIZE', 'RANK_DEPTH', 'NUM_GENERATIONS', 'POP_SIZE']
+        # Only denormalize the 5 optimized parameters
+        param_names = ['MUT_RATE', 'MUT_SIGMA', 'ELITE_SIZE', 'RANK_DEPTH', 'POP_SIZE']
         params = {}
         
         for i, name in enumerate(param_names):
@@ -195,26 +200,61 @@ class AdaptiveGAOptimizer:
         """Apply constraints to parameters (budget, validity checks)."""
         params = deepcopy(params)
         
-        # Ensure budget constraint
-        current_budget = params['NUM_GENERATIONS'] * params['POP_SIZE']
+        # Apply the strict budget constraint: NUM_GENERATIONS * POP_SIZE = SIM_BUDGET
+        # Find the POP_SIZE that gives a budget within tolerance when using NUM_GENERATIONS = SIM_BUDGET // POP_SIZE
+        target_budget = self.total_simulation_budget
         
-        if current_budget < self.budget_min or current_budget > self.budget_max:
-            # Adjust to maintain budget while preferring the parameter that's more important
-            target_budget = self.total_simulation_budget
+        # Ensure POP_SIZE is within bounds first
+        pop_min, pop_max = self.param_bounds['POP_SIZE']
+        requested_pop_size = int(np.clip(params['POP_SIZE'], pop_min, pop_max))
+        
+        # Find the best POP_SIZE that keeps budget within tolerance
+        best_pop_size = requested_pop_size
+        best_budget_diff = float('inf')
+        
+        # Search around the requested POP_SIZE for the best budget match
+        search_range = max(100, abs(requested_pop_size - pop_min) // 10)  # Search more broadly
+        
+        for test_pop_size in range(max(pop_min, requested_pop_size - search_range), 
+                                 min(pop_max, requested_pop_size + search_range) + 1):
+            test_generations = max(1, target_budget // test_pop_size)
+            test_budget = test_generations * test_pop_size
+            test_diff = abs(test_budget - target_budget)
             
-            # If generations is too high/low, adjust population first
-            if current_budget > self.budget_max:
-                # Reduce population to fit budget
-                params['POP_SIZE'] = max(self.param_bounds['POP_SIZE'][0], 
-                                       int(target_budget / params['NUM_GENERATIONS']))
-            elif current_budget < self.budget_min:
-                # Increase population to fit budget  
-                params['POP_SIZE'] = min(self.param_bounds['POP_SIZE'][1],
-                                       int(target_budget / params['NUM_GENERATIONS']))
+            # Prioritize staying within budget tolerance
+            if self.budget_min <= test_budget <= self.budget_max:
+                if test_diff < best_budget_diff:
+                    best_pop_size = test_pop_size
+                    best_budget_diff = test_diff
         
-        # Apply parameter bounds
+        # If no POP_SIZE gives acceptable budget, find the closest one to target
+        if best_budget_diff == float('inf'):
+            for test_pop_size in range(pop_min, pop_max + 1):
+                test_generations = max(1, target_budget // test_pop_size)
+                test_budget = test_generations * test_pop_size
+                test_diff = abs(test_budget - target_budget)
+                
+                if test_diff < best_budget_diff:
+                    best_pop_size = test_pop_size
+                    best_budget_diff = test_diff
+        
+        params['POP_SIZE'] = best_pop_size
+        params['NUM_GENERATIONS'] = max(1, target_budget // params['POP_SIZE'])
+        
+        # Ensure NUM_GENERATIONS doesn't exceed its bounds
+        gen_min, gen_max = self.generation_bounds
+        if params['NUM_GENERATIONS'] > gen_max:
+            # If calculated generations exceed max, increase POP_SIZE to bring it down
+            params['POP_SIZE'] = max(pop_min, target_budget // gen_max)
+            params['NUM_GENERATIONS'] = target_budget // params['POP_SIZE']
+        elif params['NUM_GENERATIONS'] < gen_min:
+            # If calculated generations below min, decrease POP_SIZE to bring it up
+            params['POP_SIZE'] = min(pop_max, target_budget // gen_min)
+            params['NUM_GENERATIONS'] = target_budget // params['POP_SIZE']
+        
+        # Apply parameter bounds (skip NUM_GENERATIONS since it's calculated from budget)
         for name, (min_val, max_val) in self.param_bounds.items():
-            if name in ['ELITE_SIZE', 'RANK_DEPTH', 'NUM_GENERATIONS', 'POP_SIZE']:
+            if name in ['ELITE_SIZE', 'RANK_DEPTH', 'POP_SIZE']:
                 params[name] = int(np.clip(params[name], min_val, max_val))
             else:
                 params[name] = np.clip(params[name], min_val, max_val)
@@ -274,8 +314,8 @@ class AdaptiveGAOptimizer:
             n_candidates = 100
             exploitation_weight = run_number / total_runs  # Increase exploitation over time
             
-            # Random candidates
-            candidates = np.random.rand(n_candidates, 6)
+            # Random candidates (5 parameters: MUT_RATE, MUT_SIGMA, ELITE_SIZE, RANK_DEPTH, POP_SIZE)
+            candidates = np.random.rand(n_candidates, 5)
             
             # Add some systematic exploration around best known configuration
             if self.best_config is not None:
@@ -285,7 +325,7 @@ class AdaptiveGAOptimizer:
                 local_candidates = np.random.normal(
                     best_normalized, 
                     scale=0.1, 
-                    size=(n_local, 6)
+                    size=(n_local, 5)
                 )
                 local_candidates = np.clip(local_candidates, 0, 1)
                 candidates = np.vstack([candidates, local_candidates])
@@ -314,7 +354,7 @@ class AdaptiveGAOptimizer:
         print(f"   Budget: {current_budget:,} simulations ({budget_deviation:+.1f}% from baseline)")
         
         # Display configuration changes
-        for param_name in ['MUT_RATE', 'MUT_SIGMA', 'ELITE_SIZE', 'RANK_DEPTH', 'NUM_GENERATIONS', 'POP_SIZE']:
+        for param_name in ['MUT_RATE', 'MUT_SIGMA', 'ELITE_SIZE', 'RANK_DEPTH', 'POP_SIZE', 'NUM_GENERATIONS']:
             old_val = self.base_config[param_name]
             new_val = config[param_name]
             
@@ -325,7 +365,11 @@ class AdaptiveGAOptimizer:
             
             if new_val != old_val:
                 change_pct = (new_val - old_val) / old_val * 100
-                print(f"   {param_name:15s}: {change_str} ({change_pct:+.1f}%)")
+                if param_name == 'NUM_GENERATIONS':
+                    # Mark as derived parameter
+                    print(f"   {param_name:15s}: {change_str} ({change_pct:+.1f}%) [derived from budget/POP_SIZE]")
+                else:
+                    print(f"   {param_name:15s}: {change_str} ({change_pct:+.1f}%)")
             else:
                 print(f"   {param_name:15s}: {change_str}")
         

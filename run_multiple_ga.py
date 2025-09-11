@@ -405,10 +405,13 @@ def run_ga_multiple_times(num_runs: int, config: str, opt_level: int,
             clear_memory_cache(verbose=True)
             memory_before_run = get_memory_usage()
         
+        # Get run start time for logging
+        run_start_timestamp = datetime.now().strftime("%H:%M:%S")
+        
         if memory_before_run is not None:
-            print(f"\n🏃‍♂️ Starting RUN {run_idx}/{num_runs} (Memory: {memory_before_run:.1f}MB)")
+            print(f"\n🏃‍♂️ Starting RUN {run_idx}/{num_runs} at {run_start_timestamp} (Memory: {memory_before_run:.1f}MB)")
         else:
-            print(f"\n🏃‍♂️ Starting RUN {run_idx}/{num_runs}")
+            print(f"\n🏃‍♂️ Starting RUN {run_idx}/{num_runs} at {run_start_timestamp}")
         print("-" * 40)
         
         # Get adaptive parameters if optimizer is enabled

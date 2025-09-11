@@ -343,6 +343,17 @@ GA_CONFIG = {
         "DNA_BOUNDS" : [0,500], 
         "TIME_TAKEN" : 360
     },
+    "K-bayesian":   {
+    "NUM_GENERATIONS" : 100,
+    "POP_SIZE" : 500,
+    "MUT_RATE" : 0.40,
+    "MUT_SIGMA" : 0.70,
+    "RANK_DEPTH" : 250,
+    "ELITE_SIZE" : 10,
+    "CROSSOVER_POINT" : None,
+    "DNA_BOUNDS" : [0,500], 
+    "TIME_TAKEN" : 360
+    },
     "L":   {
         "NUM_GENERATIONS" : 200,
         "POP_SIZE" : 500,

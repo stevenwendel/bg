@@ -1,0 +1,147 @@
+{
+  "base_config": {
+    "NUM_GENERATIONS": 10,
+    "POP_SIZE": 100,
+    "MUT_RATE": 0.3,
+    "MUT_SIGMA": 0.5,
+    "RANK_DEPTH": 50,
+    "ELITE_SIZE": 5,
+    "CROSSOVER_POINT": null,
+    "DNA_BOUNDS": [
+      0,
+      500
+    ]
+  },
+  "total_simulation_budget": 1000,
+  "budget_tolerance": 0.05,
+  "param_bounds": {
+    "MUT_RATE": [
+      0.1,
+      0.9
+    ],
+    "MUT_SIGMA": [
+      0.1,
+      3.0
+    ],
+    "ELITE_SIZE": [
+      5,
+      50
+    ],
+    "RANK_DEPTH": [
+      50,
+      1000
+    ],
+    "POP_SIZE": [
+      100,
+      2000
+    ]
+  },
+  "optimization_history": [
+    {
+      "run_number": 1,
+      "timestamp": "2025-09-10T00:36:01.439763",
+      "config": {
+        "NUM_GENERATIONS": 10,
+        "POP_SIZE": 100,
+        "MUT_RATE": 0.3,
+        "MUT_SIGMA": 0.5,
+        "RANK_DEPTH": 50,
+        "ELITE_SIZE": 5,
+        "CROSSOVER_POINT": null,
+        "DNA_BOUNDS": [
+          0,
+          500
+        ]
+      },
+      "best_score": 923.0,
+      "run_duration": 9.293145656585693,
+      "normalized_params": [
+        0.24999999999999997,
+        0.13793103448275862,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "is_best_so_far": true,
+      "improvement_over_baseline": 0.0,
+      "metrics": {
+        "total_individuals": "10000",
+        "individuals_per_sec": "0.0",
+        "speedup": "1.0"
+      }
+    },
+    {
+      "run_number": 2,
+      "timestamp": "2025-09-10T00:36:06.186418",
+      "config": {
+        "NUM_GENERATIONS": 1,
+        "POP_SIZE": 1846,
+        "MUT_RATE": 0.6304772219502517,
+        "MUT_SIGMA": 1.671873949806425,
+        "RANK_DEPTH": 264,
+        "ELITE_SIZE": 39,
+        "CROSSOVER_POINT": null,
+        "DNA_BOUNDS": [
+          0,
+          500
+        ]
+      },
+      "best_score": 377.0,
+      "run_duration": 4.592801809310913,
+      "normalized_params": [
+        0.6630965274378146,
+        0.54202549993325,
+        0.7555555555555555,
+        0.22526315789473683,
+        0.9189473684210526
+      ],
+      "is_best_so_far": false,
+      "improvement_over_baseline": -546.0,
+      "metrics": {
+        "total_individuals": "1000",
+        "individuals_per_sec": "0.0",
+        "speedup": "1.0"
+      }
+    }
+  ],
+  "best_config": {
+    "NUM_GENERATIONS": 10,
+    "POP_SIZE": 100,
+    "MUT_RATE": 0.3,
+    "MUT_SIGMA": 0.5,
+    "RANK_DEPTH": 50,
+    "ELITE_SIZE": 5,
+    "CROSSOVER_POINT": null,
+    "DNA_BOUNDS": [
+      0,
+      500
+    ]
+  },
+  "best_score": 923.0,
+  "summary": {
+    "total_runs": 2,
+    "baseline_score": 923.0,
+    "best_score_achieved": 923.0,
+    "final_score": 377.0,
+    "total_improvement": 0.0,
+    "average_score": 650.0,
+    "score_std": 273.0,
+    "best_config": {
+      "NUM_GENERATIONS": 10,
+      "POP_SIZE": 100,
+      "MUT_RATE": 0.3,
+      "MUT_SIGMA": 0.5,
+      "RANK_DEPTH": 50,
+      "ELITE_SIZE": 5,
+      "CROSSOVER_POINT": null,
+      "DNA_BOUNDS": [
+        0,
+        500
+      ]
+    },
+    "optimization_efficiency": 0.0,
+    "total_duration": 13.885947465896606,
+    "average_duration": 6.942973732948303
+  },
+  "timestamp": "2025-09-10T00:36:06.186996"
+}

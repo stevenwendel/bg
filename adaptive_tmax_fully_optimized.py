@@ -470,7 +470,7 @@ def worker_process_fully_optimized(process_id: int, config_name: str, num_genera
     np.random.seed(int(time.time() * 1000) % (2**32) + seed_offset + process_id)
     random.seed(np.random.randint(0, 2**32))
     
-    print(f"Process {process_id}: Starting FULLY OPTIMIZED GA (level {optimization_level}) with config '{config_name}', strategy '{tmax_strategy}'")
+    # print(f"Process {process_id}: Starting FULLY OPTIMIZED GA (level {optimization_level}) with config '{config_name}', strategy '{tmax_strategy}'")
     
     try:
         cfg = GA_CONFIG[config_name]
@@ -569,11 +569,11 @@ def worker_process_fully_optimized(process_id: int, config_name: str, num_genera
             if use_reduced_precision:
                 opt_info += "+reduced_prec"
                 
-            print(f"Process {process_id}: Gen {gen+1}/{num_generations} completed. "
-                  f"TMAX={tmax}ms ({speedup:.1f}x), {opt_info}, "
-                  f"Best: {max(gen_scores)}, Mean: {np.mean(gen_scores):.1f}, "
-                  f"Time: {gen_end - gen_start:.2f}s "
-                  f"(Total progress: {total_progress} generations)")
+            # Only print every 10th generation or final generation to reduce verbosity
+            # if (gen + 1) % 10 == 0 or gen == num_generations - 1:
+            #     print(f"Process {process_id}: Gen {gen+1}/{num_generations} completed. "
+            #           f"Best: {max(gen_scores)}, Mean: {np.mean(gen_scores):.1f}, "
+            #           f"Time: {gen_end - gen_start:.2f}s")
         
         # Final results
         process_results = {
@@ -688,7 +688,7 @@ def run_fully_optimized_ga(config_name: str = "medium", num_processes: Optional[
     ]
     
     # Start multiprocessing
-    print(f"\n🚀 Starting {num_processes} fully optimized processes...")
+    # print(f"\n🚀 Starting {num_processes} fully optimized processes...")
     with mp.Pool(processes=num_processes) as pool:
         results = pool.starmap(worker_process_fully_optimized, worker_args)
     
